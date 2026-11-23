@@ -175,6 +175,7 @@ tr.click{cursor:pointer} tr.click:hover td{background:#FFFBF2}
 .banner .big{font-size:22px}
 .banner .bic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--custard-soft);color:var(--brand);flex:none}
 .banner .bic svg{width:22px;height:22px}
+.c-fotos{background:#DBEAFE!important;color:#2563EB!important}.c-tarefas{background:#DCFCE7!important;color:#16A34A!important}.c-inventarios{background:#FEF3C7!important;color:#D97706!important}.c-caixa{background:#CCFBF1!important;color:#0D9488!important}.c-avarias{background:#FEE2E2!important;color:#DC2626!important}.c-encomendas{background:#EDE9FE!important;color:#7C3AED!important}.c-lojas{background:#E2E8F0!important;color:#475569!important}
 .gtab td,.gtab th{font-size:12.5px;padding:8px 6px}
 .gtab tr.selrow td{background:#FFF3DA}
 .cxloja{margin-bottom:12px;padding:10px}
@@ -586,20 +587,20 @@ function vInicio() {
     caixa: S.caixaDias.filter(d => ids.has(d.lojaId) && cxAlerta(d) && !cxResolvido(d)).length,
     avarias: S.avarias.filter(a => ids.has(a.lojaId) && a.estado !== 'resolvida').length,
     encomendas: S.encomendas.filter(e => ids.has(e.lojaId) && e.estado === 'pendente').length };
-  const grelha = `<div class="apgrid">${navTabs().filter(([k]) => k !== 'inicio').map(([k, l]) => `<button class="ap" data-a="ir" data-v="${k}"><span class="ic">${icone(k)}</span>${l}${nBadge[k] ? `<span class="bd">${nBadge[k]}</span>` : ''}</button>`).join('')}</div>`;
+  const grelha = `<div class="apgrid">${navTabs().filter(([k]) => k !== 'inicio').map(([k, l]) => `<button class="ap" data-a="ir" data-v="${k}"><span class="ic c-${k}">${icone(k)}</span>${l}${nBadge[k] ? `<span class="bd">${nBadge[k]}</span>` : ''}</button>`).join('')}</div>`;
   return `
   ${grelha}
   <div class="row"><h2 class="sp">Resumo das lojas</h2>
     ${podeEscrever() ? `<button class="btn pri" data-a="novaTarefa">+ Tarefa</button>` : ''}</div>
   ${(() => { const h = hoje(); let f = 0, p = 0; lojasBase.forEach(l => S.periodos.forEach(pp => { const st = estadoFoto(l.id, h, pp).st; if (st === 'falta') f++; else if (st === 'pend') p++; }));
-    return `<div class="card banner" data-a="ir" data-v="fotos"><span class="big bic">${icone('fotos')}</span><div class="sp"><b>Fotos de hoje</b><div class="meta">${f ? `<span class="pill bad">${f} em falta</span>` : '<span class="pill ok">Nenhuma em falta</span>'}${S.isAdmin && p ? `<span class="pill warn">${p} por verificar</span>` : ''}</div></div><span class="muted">›</span></div>`; })()}
+    return `<div class="card banner" data-a="ir" data-v="fotos"><span class="big bic c-fotos">${icone('fotos')}</span><div class="sp"><b>Fotos de hoje</b><div class="meta">${f ? `<span class="pill bad">${f} em falta</span>` : '<span class="pill ok">Nenhuma em falta</span>'}${S.isAdmin && p ? `<span class="pill warn">${p} por verificar</span>` : ''}</div></div><span class="muted">›</span></div>`; })()}
   ${(() => { const av = S.avarias.filter(a => ids.has(a.lojaId) && a.estado !== 'resolvida'); if (!av.length) return ''; const p = av.filter(a => a.parado).length;
-    return `<div class="card banner" data-a="ir" data-v="avarias"><span class="big bic">${icone('avarias')}</span><div class="sp"><b>Equipamentos avariados</b><div class="meta"><span class="pill warn">${av.length} por resolver</span>${p ? `<span class="pill bad">${p} equipamento${p > 1 ? 's' : ''} parado${p > 1 ? 's' : ''}</span>` : ''}</div></div><span class="muted">›</span></div>`; })()}
+    return `<div class="card banner" data-a="ir" data-v="avarias"><span class="big bic c-avarias">${icone('avarias')}</span><div class="sp"><b>Equipamentos avariados</b><div class="meta"><span class="pill warn">${av.length} por resolver</span>${p ? `<span class="pill bad">${p} equipamento${p > 1 ? 's' : ''} parado${p > 1 ? 's' : ''}</span>` : ''}</div></div><span class="muted">›</span></div>`; })()}
   ${(() => { const qs = S.quebras.filter(q => ids.has(q.lojaId)); const cxP = S.caixaDias.filter(d => ids.has(d.lojaId) && cxAlerta(d) && !cxResolvido(d)).length; const n = (S.isAdmin ? qs.filter(q => q.estado === 'justificada').length : qs.filter(q => q.estado === 'aguarda').length);
-    return n || cxP ? `<div class="card banner" data-a="ir" data-v="caixa"><span class="big bic">${icone('caixa')}</span><div class="sp"><b>Quebras de caixa</b><div class="meta">${cxP ? `<span class="pill bad">${cxP} quebra${cxP > 1 ? 's' : ''} ≤ -20 € por justificar · ${esc(mesTxt(S.fq.mes || S.cxUltimoMes || hoje().slice(0, 7)))}</span>` : ''}${n ? `<span class="pill ${S.isAdmin ? 'br' : 'bad'}">${n} ${S.isAdmin ? 'justificaç' + (n > 1 ? 'ões' : 'ão') + ' por validar' : 'por justificar'}</span>` : ''}</div></div><span class="muted">›</span></div>` : ''; })()}
+    return n || cxP ? `<div class="card banner" data-a="ir" data-v="caixa"><span class="big bic c-caixa">${icone('caixa')}</span><div class="sp"><b>Quebras de caixa</b><div class="meta">${cxP ? `<span class="pill bad">${cxP} quebra${cxP > 1 ? 's' : ''} ≤ -20 € por justificar · ${esc(mesTxt(S.fq.mes || S.cxUltimoMes || hoje().slice(0, 7)))}</span>` : ''}${n ? `<span class="pill ${S.isAdmin ? 'br' : 'bad'}">${n} ${S.isAdmin ? 'justificaç' + (n > 1 ? 'ões' : 'ão') + ' por validar' : 'por justificar'}</span>` : ''}</div></div><span class="muted">›</span></div>` : ''; })()}
   ${(() => { const h = hoje(); const iv = S.inventarios.filter(i => ids.has(i.lojaId) && i.estado !== 'feito'); const at = iv.filter(i => invFim(i) < h).length, hj = iv.filter(i => i.data <= h && h <= invFim(i)).length, sem = iv.filter(i => i.data > h && i.data <= addDias(7)).length;
     if (!at && !hj && !sem) return '';
-    return `<div class="card banner" data-a="ir" data-v="inventarios"><span class="big bic">${icone('inventarios')}</span><div class="sp"><b>Inventários</b><div class="meta">${at ? `<span class="pill bad">${at} sem resultado</span>` : ''}${hj ? `<span class="pill warn">${hj} a fazer hoje</span>` : ''}${sem ? `<span class="pill">${sem} nos próximos 7 dias</span>` : ''}</div></div><span class="muted">›</span></div>`; })()}
+    return `<div class="card banner" data-a="ir" data-v="inventarios"><span class="big bic c-inventarios">${icone('inventarios')}</span><div class="sp"><b>Inventários</b><div class="meta">${at ? `<span class="pill bad">${at} sem resultado</span>` : ''}${hj ? `<span class="pill warn">${hj} a fazer hoje</span>` : ''}${sem ? `<span class="pill">${sem} nos próximos 7 dias</span>` : ''}</div></div><span class="muted">›</span></div>`; })()}
   <div class="kpis">
     <div class="card kpi"><b>${abertas.length}</b><span>Tarefas por fazer</span></div>
     <div class="card kpi ${atras.length ? 'bad' : ''}"><b>${atras.length}</b><span>Atrasadas</span></div>
