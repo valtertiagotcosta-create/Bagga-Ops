@@ -1006,6 +1006,7 @@ function vEncTotal(es) {
   ${nomes.length ? `<div class="row mt"><span class="muted sp" style="font-size:13px">${sel.length} pedido${sel.length !== 1 ? 's' : ''} de ${new Set(sel.map(e => e.lojaId)).size} loja(s)</span>
     <button class="btn" data-a="encCopiar">Copiar lista</button>${podeEscrever() ? `<button class="btn pri" data-a="encMarcarTodas">Marcar como encomendados</button>` : ''}</div>` : ''}`;
 }
+const encExtraRow = () => `<div class="enx" style="display:flex;gap:6px;align-items:center;margin-bottom:6px"><input type="text" class="enx-n" placeholder="Nome do artigo" style="flex:1;min-width:0"><input type="text" inputmode="numeric" class="enx-q" placeholder="Qtd." style="width:64px;text-align:center;font-weight:700"><button type="button" class="btn sm ghost danger" data-a="encExtraRm" aria-label="Remover">✕</button></div>`;
 function abrirEnc(id) {
   const ex = id ? S.encomendas.find(e => e.id === id) : null;
   const ml = S.isAdmin ? S.lojas : minhasLojas();
@@ -1035,6 +1036,9 @@ function abrirEnc(id) {
       <button type="button" class="stp" data-d="-1" aria-label="Menos">−</button>
       <input type="text" inputmode="numeric" class="enq" data-nome="${esc(n)}" value="${qtds[n] || ''}" placeholder="0">
       <button type="button" class="stp" data-d="1" aria-label="Mais">+</button></div>`).join('')}</div>`).join('')}</div>
+    <h3 style="margin:14px 0 6px">Artigo que não está na lista</h3>
+    <div id="en-extra">${encExtraRow()}</div>
+    <button type="button" class="btn sm" data-a="encExtraAdd">+ Adicionar outro artigo</button>
     <label class="f">Observações</label><textarea id="en-o" placeholder="Ex.: urgente, partiram-se 6 chávenas no fim de semana">${esc(ex ? ex.obs || '' : '')}</textarea>
     ${S.isAdmin && ex ? `<label class="f">Estado</label><select id="en-e">${Object.entries(ENC_ESTADOS).map(([k, [n]]) => `<option value="${k}" ${ex.estado === k ? 'selected' : ''}>${n}</option>`).join('')}</select>
       <label class="f">Resposta para a loja (opcional)</label><textarea id="en-r" placeholder="Ex.: aprovado com quantidades ajustadas">${esc(ex.resposta || '')}</textarea>` : ''}
@@ -1048,7 +1052,7 @@ function abrirEnc(id) {
   const totUp = () => { let n = 0, q = 0; document.querySelectorAll('.enq').forEach(i => { const v = parseInt(i.value, 10); if (v > 0) { n++; q += v; } i.closest('.enrow').classList.toggle('on', v > 0); }); $('#en-tot').textContent = n ? `${n} artigo${n > 1 ? 's' : ''} · ${q} un.` : ''; };
   $('#en-itens').addEventListener('click', ev => { const b = ev.target.closest('.stp'); if (!b) return; const i = b.parentElement.querySelector('.enq'); i.value = Math.max(0, (parseInt(i.value, 10) || 0) + +b.dataset.d) || ''; totUp(); });
   $('#en-itens').addEventListener('input', totUp);
-  $('#en-q').addEventListener('input', ev => { const q = ev.target.value.trim().toLowerCase(); document.querySelectorAll('.enrow').forEach(r => r.hidden = q && !r.dataset.n.includes(q)); document.querySelectorAll('.engrp').forEach(g => g.hidden = ![...g.querySelectorAll('.enrow')].some(r => !r.hidden)); });
+  $('#en-q').addEventListener('input', ev => { const q = ev.target.value.trim().toLowerCase(); document.querySelectorAll('#en-itens .enrow').forEach(r => r.hidden = q && !r.dataset.n.includes(q)); document.querySelectorAll('.engrp').forEach(g => g.hidden = ![...g.querySelectorAll('.enrow')].some(r => !r.hidden)); });
   totUp();
 }
 
@@ -1800,6 +1804,8 @@ const A = {
   },
   qcApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar esta quebra de caixa?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('quebrasCaixa/' + id).delete(), 'Apagada'); } },
   abrirEnc: el => abrirEnc(el.dataset.id),
+  encExtraAdd: () => { $('#en-extra').insertAdjacentHTML('beforeend', encExtraRow()); const ns = document.querySelectorAll('.enx-n'); ns[ns.length - 1].focus(); },
+  encExtraRm: el => { const r = el.closest('.enx'); if (document.querySelectorAll('.enx').length > 1) r.remove(); else { r.querySelector('.enx-n').value = ''; r.querySelector('.enx-q').value = ''; } },
   feModo: el => { S.fe.modo = el.dataset.v; render(); },
   feEstado: el => { S.fe.estado = el.dataset.v; render(); },
   encGuardar: async el => {
@@ -1807,6 +1813,7 @@ const A = {
     const lojaId = ex ? ex.lojaId : $('#en-l').value;
     if (!lojaId) { toast('Escolhe a loja.'); return; }
     const itens = [...document.querySelectorAll('.enq')].map(i => ({ nome: i.dataset.nome, qtd: parseInt(i.value, 10) || 0 })).filter(x => x.qtd > 0);
+    for (const r of document.querySelectorAll('.enx')) { const n = r.querySelector('.enx-n').value.trim(); const q = parseInt(r.querySelector('.enx-q').value, 10) || 0; if (!n && !q) continue; if (!n) { toast('Escreve o nome do artigo que não está na lista.'); return; } if (q <= 0) { toast('Indica a quantidade de "' + n + '".'); return; } const j = itens.find(x => x.nome.toLowerCase() === n.toLowerCase()); if (j) j.qtd += q; else itens.push({ nome: n, qtd: q }); }
     if (!itens.length) { toast('Indica a quantidade de pelo menos um artigo.'); return; }
     const obs = $('#en-o').value.trim(); const agora = new Date().toISOString();
     if (ex) {
