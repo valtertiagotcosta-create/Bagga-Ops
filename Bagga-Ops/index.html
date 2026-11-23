@@ -2127,7 +2127,12 @@ async function init() {
   setInterval(() => { if (S.view === 'fotos' || S.view === 'inicio') { if ($('#modal').hidden) renderDados(); } }, 60000);
 
   let confirmados = 0;
-  const timer = setTimeout(() => aviso('Não está a ser possível ligar aos dados. O que vês pode estar desatualizado.'), 10000);
+  const SEM_NET = 'Sem ligação à internet. O que vês pode estar desatualizado — o que registares é enviado assim que a ligação voltar.';
+  const verificar = () => db.doc('config/fotos').get({ source: 'server' }).then(() => aviso('')).catch(() => aviso(SEM_NET));
+  const timer = setTimeout(verificar, 10000);
+  setInterval(() => { if (!$('#aviso').hidden) verificar(); }, 20000);
+  window.addEventListener('online', verificar);
+  window.addEventListener('offline', () => aviso(SEM_NET));
   const confirma = snap => { if (!snap.metadata.fromCache) { confirmados++; if (confirmados >= 8) { clearTimeout(timer); aviso(''); } } };
   const erro = e => { clearTimeout(timer); if (e && e.code !== 'revoked') aviso('Houve um problema a ler os dados. Volta a abrir a app mais tarde.'); };
   const docs = snap => snap.docs.map(d => ({ id: d.id, ...d.data() }));
