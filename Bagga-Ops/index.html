@@ -32,7 +32,15 @@ button{cursor:pointer}
 .brand h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.01em}
 .brand small{opacity:.8;font-size:12.5px}
 nav{display:flex;gap:2px;overflow-x:auto}
-nav button{background:none;border:0;color:#fff;opacity:.75;padding:10px 14px;border-bottom:3px solid transparent;font-weight:600;white-space:nowrap}
+nav button{background:none;border:0;color:#fff;opacity:.75;padding:6px 10px 6px;border-bottom:3px solid transparent;font-weight:600;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;min-width:64px}
+nav button svg{width:22px;height:22px}
+.apgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:4px 0 18px}
+.ap{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 4px 11px;box-shadow:var(--shadow);font-weight:600;font-size:12.5px;color:var(--ink);text-align:center}
+.ap:active{transform:scale(.97)}
+.ap .ic{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:var(--brand);color:var(--custard)}
+.ap .ic svg{width:28px;height:28px}
+.ap .bd{position:absolute;top:6px;right:7px;min-width:20px;background:var(--bad);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:2px 6px}
+@media(max-width:360px){.apgrid{gap:7px}.ap{font-size:11.5px}.ap .ic{width:44px;height:44px}}
 nav button.on{opacity:1;border-bottom-color:var(--custard)}
 main{max-width:980px;margin:0 auto;padding:16px 14px 90px}
 .aviso{max-width:980px;margin:10px auto 0;padding:10px 14px;border-radius:10px;background:var(--warn-soft);color:#6b4500;font-size:14px}
@@ -518,11 +526,22 @@ function tarefaHTML(t, mostrarLoja = true) {
 }
 
 /* ---------- vistas ---------- */
+const ICON_P = {
+  inicio: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/>',
+  fotos: '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+  tarefas: '<rect x="4" y="3.5" width="16" height="18" rx="2"/><path d="m8 9 1.5 1.5L12 8"/><path d="M14 9.5h3"/><path d="m8 15 1.5 1.5L12 14"/><path d="M14 15.5h3"/>',
+  inventarios: '<path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/>',
+  caixa: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/>',
+  avarias: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.1L3.6 17.1a1.9 1.9 0 0 0 2.7 2.7l5.7-5.7a4 4 0 0 0 5.1-5.4l-2.6 2.6-2.4-.4-.4-2.4 2.6-2.6z"/>',
+  encomendas: '<path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c-.6 1 .6 1.8 0 3M12 3.5c-.6 1 .6 1.8 0 3"/>',
+  lojas: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'
+};
+const icone = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_P[k] || ''}</svg>`;
+const navTabs = () => { const t = [['inicio','Início'],['fotos','Fotos'],['tarefas','Tarefas'],['inventarios','Inventários'],['caixa','Caixa'],['avarias','Equipamentos'],['encomendas','Palamenta']]; if (S.isAdmin) t.push(['lojas','Configurar']); return t; };
 function renderNav() {
-  const tabs = [['inicio','Início'],['fotos','Fotos'],['tarefas','Tarefas'],['inventarios','Inventários'],['caixa','Caixa'],['avarias','Equipamentos'],['encomendas','Palamenta']];
-  if (S.isAdmin) tabs.push(['lojas','Configurar']);
+  const tabs = navTabs();
   const cur = S.view.startsWith('visita') ? 'visitas' : S.view;
-  $('#nav').innerHTML = tabs.map(([k, l]) => `<button class="${cur === k ? 'on' : ''}" data-a="ir" data-v="${k}">${l}</button>`).join('');
+  $('#nav').innerHTML = tabs.map(([k, l]) => `<button class="${cur === k ? 'on' : ''}" data-a="ir" data-v="${k}" title="${l}">${icone(k)}<span>${l}</span></button>`).join('');
 }
 
 function vInicio() {
@@ -558,7 +577,15 @@ function vInicio() {
       <td>${cxL ? `<span class="pill bad">${cxL}</span>` : '0'}</td></tr>`;
   }).join('');
 
+  const nBadge = { fotos: (() => { const h = hoje(); let f = 0; lojasBase.forEach(l => S.periodos.forEach(pp => { if (estadoFoto(l.id, h, pp).st === 'falta') f++; })); return f; })(),
+    tarefas: abertas.length,
+    inventarios: S.inventarios.filter(i => ids.has(i.lojaId) && invAtraso(i)).length,
+    caixa: S.caixaDias.filter(d => ids.has(d.lojaId) && cxAlerta(d) && !cxResolvido(d)).length,
+    avarias: S.avarias.filter(a => ids.has(a.lojaId) && a.estado !== 'resolvida').length,
+    encomendas: S.encomendas.filter(e => ids.has(e.lojaId) && e.estado === 'pendente').length };
+  const grelha = `<div class="apgrid">${navTabs().filter(([k]) => k !== 'inicio').map(([k, l]) => `<button class="ap" data-a="ir" data-v="${k}"><span class="ic">${icone(k)}</span>${l}${nBadge[k] ? `<span class="bd">${nBadge[k]}</span>` : ''}</button>`).join('')}</div>`;
   return `
+  ${grelha}
   <div class="row"><h2 class="sp">Resumo das lojas</h2>
     ${podeEscrever() ? `<button class="btn pri" data-a="novaTarefa">+ Tarefa</button>` : ''}</div>
   ${(() => { const h = hoje(); let f = 0, p = 0; lojasBase.forEach(l => S.periodos.forEach(pp => { const st = estadoFoto(l.id, h, pp).st; if (st === 'falta') f++; else if (st === 'pend') p++; }));
