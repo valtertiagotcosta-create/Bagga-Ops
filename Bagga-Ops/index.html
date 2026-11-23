@@ -715,6 +715,7 @@ function abrirFotos(lojaId, d, pid) {
 }
 
 /* ---------- inventários ---------- */
+const fimSemana = () => { const d = new Date(); d.setDate(d.getDate() + ((7 - d.getDay()) % 7)); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const invFim = i => i.dataFim || i.data;
 const invAtraso = i => i.estado !== 'feito' && invFim(i) < hoje();
 const invDatas = i => i.dataFim && i.dataFim !== i.data ? `${fmtData(i.data).slice(0, 5)} a ${fmtData(i.dataFim)}` : fmtData(i.data);
@@ -730,7 +731,7 @@ function invHTML(i, mostrarLoja = true) {
   const tot = invTotal(i);
   const st = feito ? (i.resultado ? `<span class="pill ${tot < 0 ? 'bad' : 'ok'}">Resultado ${eur(tot)}</span>` : `<span class="pill ok">✓ Feito</span>`)
     : invFim(i) < h ? '<span class="pill bad">Sem resultado</span>' : (i.data <= h && h <= invFim(i)) ? `<span class="pill warn">${i.dataFim ? 'Esta semana · ' + invDatas(i) : 'Hoje'}</span>` : `<span class="pill">${invDatas(i)}</span>`;
-  const podeReg = !feito && podeEscrever() && i.data <= h;
+  const podeReg = !feito && podeEscrever() && i.data <= fimSemana();
   return `<div class="card task ${i.tipo === 'global' ? 'pri-alta' : 'pri-media'}" data-a="abrirInv" data-id="${esc(i.id)}">
     <div style="flex:1;min-width:0">
       <div class="tt">${i.tipo === 'global' ? '📦 Inventário global' : '🧾 ' + esc(invTipoTxt(i))}</div>
