@@ -1,0 +1,17 @@
+{
+  "name": "Bagga Ops",
+  "short_name": "Bagga Ops",
+  "description": "Apoio às lojas Bagga: fotos, inventários, caixa, equipamentos e palamenta",
+  "lang": "pt-PT",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF6EC",
+  "theme_color": "#8A4B1F",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

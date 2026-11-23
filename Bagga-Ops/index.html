@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8A4B1F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bagga Ops">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Bagga Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF6EC; --card:#FFFFFF; --ink:#2B1D12; --muted:#7A6A5A; --line:#EADFCB;
+  --brand:#8A4B1F; --brand-2:#B5652A; --custard:#F2B544; --custard-soft:#FCEBC4;
+  --ok:#2F8F5B; --ok-soft:#DDF1E5; --bad:#C8442F; --bad-soft:#F9DED8; --warn:#C27C00; --warn-soft:#FBEBC8;
+  --na:#9A8F84; --radius:14px; --shadow:0 1px 2px rgba(60,35,10,.06),0 4px 14px rgba(60,35,10,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"DM Sans",system-ui,sans-serif;font-size:15px;line-height:1.4}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.top{position:sticky;top:0;z-index:10;background:var(--brand);color:#fff;padding:calc(10px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 0 calc(16px + env(safe-area-inset-left))}
+#sair{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);margin-left:auto}
+.top-in{max-width:980px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;padding-bottom:8px}
+.logo{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#5a2a0c 0 18%,var(--custard) 22% 62%,#f7d98a 66% 100%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25);flex:none}
+.brand h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.01em}
+.brand small{opacity:.8;font-size:12.5px}
+nav{display:flex;gap:2px;overflow-x:auto}
+nav button{background:none;border:0;color:#fff;opacity:.75;padding:10px 14px;border-bottom:3px solid transparent;font-weight:600;white-space:nowrap}
+nav button.on{opacity:1;border-bottom-color:var(--custard)}
+main{max-width:980px;margin:0 auto;padding:16px 14px 90px}
+.aviso{max-width:980px;margin:10px auto 0;padding:10px 14px;border-radius:10px;background:var(--warn-soft);color:#6b4500;font-size:14px}
+h2{font-size:20px;margin:6px 0 12px;letter-spacing:-.01em}
+h3{font-size:15px;margin:18px 0 8px;color:var(--brand);text-transform:uppercase;letter-spacing:.04em}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{padding:12px 14px}
+.kpi b{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em}
+.kpi span{color:var(--muted);font-size:13px}
+.kpi.bad b{color:var(--bad)} .kpi.ok b{color:var(--ok)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;font-weight:600}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.pri:hover{background:var(--brand-2)}
+.btn.ghost{background:none;border-color:transparent;color:var(--brand)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:13.5px}
+.btn:disabled{opacity:.5;cursor:default}
+select,input[type=text],input[type=date],input[type=search],textarea{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 11px;width:100%}
+textarea{resize:vertical;min-height:70px}
+label.f{display:block;font-size:13px;color:var(--muted);font-weight:600;margin:10px 0 4px}
+.filters{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:12px}
+@media(max-width:640px){.filters{grid-template-columns:1fr auto}.filters .seg{grid-column:1/-1;display:flex}.filters .seg button{flex:1;padding:6px 4px}}
+.filters .cbx{white-space:nowrap}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:6px 11px;border-radius:7px;font-weight:600;color:var(--muted);font-size:13.5px}
+.seg button.on{background:var(--custard-soft);color:var(--brand)}
+.list{display:flex;flex-direction:column;gap:8px}
+.task{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;cursor:pointer}
+.task.done{opacity:.6}
+.task.done .tt{text-decoration:line-through}
+.chk{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);background:#fff;flex:none;display:grid;place-items:center;margin-top:1px;color:#fff;font-size:14px}
+.chk.on{background:var(--ok);border-color:var(--ok)}
+.tt{font-weight:600}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;font-size:12.5px;color:var(--muted);align-items:center}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#F3ECE0;color:var(--ink);font-size:12px;font-weight:600}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.br{background:var(--custard-soft);color:var(--brand)}
+.pri-alta{border-left:4px solid var(--bad)} .pri-media{border-left:4px solid var(--custard)} .pri-baixa{border-left:4px solid var(--line)}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:14px}
+th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+tr.click{cursor:pointer} tr.click:hover td{background:#FFFBF2}
+.score{display:inline-grid;place-items:center;min-width:46px;padding:3px 8px;border-radius:8px;font-weight:700;font-size:13.5px}
+.s-ok{background:var(--ok-soft);color:var(--ok)} .s-warn{background:var(--warn-soft);color:var(--warn)} .s-bad{background:var(--bad-soft);color:var(--bad)} .s-none{background:#F3ECE0;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:28px 10px}
+.vsec{margin-bottom:14px;padding:0;overflow:hidden}
+.vsec h4{margin:0;padding:12px 14px;background:#FFF8EA;border-bottom:1px solid var(--line);font-size:14.5px;color:var(--brand);display:flex;justify-content:space-between}
+.item{padding:12px 14px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item-top{display:flex;gap:10px;align-items:center}
+.item-top .txt{flex:1}
+.ans{display:flex;gap:6px;flex:none}
+.ans button{width:44px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:15px;color:var(--muted)}
+.ans button.ok.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.ans button.nok.on{background:var(--bad);border-color:var(--bad);color:#fff}
+.ans button.na.on{background:var(--na);border-color:var(--na);color:#fff}
+.ans button.na{font-size:12px}
+.item-extra{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.item-extra textarea{min-height:52px}
+.cbx{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink);font-weight:600}
+.cbx input{width:18px;height:18px;accent-color:var(--brand)}
+.progress{height:8px;background:#EFE4D2;border-radius:99px;overflow:hidden;margin:8px 0 14px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--custard),var(--brand-2));width:0;transition:width .2s}
+.stickybar{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(251,246,236,0),var(--bg) 30%);padding:18px 0 10px;display:flex;gap:8px;justify-content:flex-end}
+.res{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px}
+.res:last-child{border-bottom:0}
+.res .ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:12px;flex:none;color:#fff}
+.ic.ok{background:var(--ok)} .ic.nok{background:var(--bad)} .ic.na{background:var(--na)} .ic.no{background:#D9CDBB}
+.res small{display:block;color:var(--muted);margin-top:2px}
+.modal{position:fixed;inset:0;background:rgba(43,29,18,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.modal[hidden]{display:none}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 18px 22px}
+@media(min-width:700px){.modal{align-items:center}.sheet{border-radius:18px}}
+.sheet h2{margin-top:0}
+.notes{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.note{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13.5px}
+.note small{color:var(--muted);display:block;margin-bottom:2px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;z-index:60;font-size:14px;max-width:90vw}
+.chip{display:inline-flex;gap:6px;align-items:center;background:var(--custard-soft);color:var(--brand);border-radius:999px;padding:3px 6px 3px 10px;font-size:13px;font-weight:600}
+.chip button{border:0;background:rgba(138,75,31,.12);color:var(--brand);width:20px;height:20px;border-radius:50%;font-size:12px;line-height:1}
+.loja{padding:12px 14px}
+.hits{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.hits button{text-align:left;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 10px}
+.ck-item{display:flex;gap:6px;margin:6px 0}
+.ck-item input{flex:1}
+.muted{color:var(--muted)}
+.mt{margin-top:12px}
+.loading{color:var(--muted);text-align:center;padding:40px 0}
+/* fotos */
+.datenav{display:flex;align-items:center;gap:6px}
+.datenav input{width:auto}
+.mx{width:100%;border-collapse:separate;border-spacing:4px}
+.mx th{text-align:center;padding:4px 2px;font-size:11px;border:0}
+.mx th:first-child{text-align:left}
+.mx td{padding:0;border:0;text-align:center}
+.mx td.ln{text-align:left;font-weight:600;font-size:13.5px;padding-right:6px;white-space:nowrap}
+.cell{width:100%;min-width:46px;height:52px;border-radius:10px;border:2px solid var(--line);background:#fff;padding:0;overflow:hidden;position:relative;display:grid;place-items:center;font-size:16px;font-weight:700}
+.cell img{width:100%;height:100%;object-fit:cover;display:block}
+.cell .bdg{position:absolute;right:2px;bottom:2px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;color:#fff;font-weight:700}
+.cell .n{position:absolute;left:3px;top:2px;font-size:10px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:0 4px}
+.c-ok{border-color:var(--ok)} .c-ok .bdg{background:var(--ok)}
+.c-nok{border-color:var(--bad)} .c-nok .bdg{background:var(--bad)}
+.c-pend{border-color:var(--custard)} .c-pend .bdg{background:var(--warn)}
+.c-falta{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.c-prazo{border-style:dashed;color:#c9bba6}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:8px 2px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:4px;vertical-align:-1px;border:2px solid}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.tile{padding:12px}
+.tile-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.tile-h b{flex:1;font-size:15.5px}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.thumbs button{width:72px;height:72px;border-radius:10px;overflow:hidden;border:1px solid var(--line);padding:0;background:#F3ECE0}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.upbtn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--brand-2);color:var(--brand);background:#FFF8EA;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;text-align:center}
+.upbtn input{display:none}
+.upbtn.busy{opacity:.6;pointer-events:none}
+.bigph{display:flex;flex-direction:column;gap:10px}
+.bigph figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.bigph img{width:100%;display:block;max-height:60vh;object-fit:contain;background:#1d140c}
+.bigph figcaption{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:13px;color:var(--muted)}
+.falta-l{display:flex;flex-direction:column;gap:6px}
+.falta-l .card{padding:10px 12px;font-size:14px}
+.banner{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:14px;cursor:pointer}
+.banner .big{font-size:22px}
+.gtab td,.gtab th{font-size:12.5px;padding:8px 6px}
+.gtab tr.selrow td{background:#FFF3DA}
+.cxloja{margin-bottom:12px;padding:10px}
+.cxhead,.cxrow{display:grid;grid-template-columns:70px 90px 130px 120px 1fr;gap:6px;align-items:center}
+.cxhead{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:700;padding:0 6px 4px;border-bottom:1px solid var(--line)}
+.cxrow{padding:5px 6px;border-bottom:1px solid var(--line);font-size:13.5px}
+.cxrow:last-child{border-bottom:0}
+.cxrow select,.cxrow input{padding:6px 8px;font-size:13px}
+.cxrow input:disabled,.cxrow select:disabled{background:#F7F1E6;color:#a99}
+.cx-v{font-weight:700;text-align:right;white-space:nowrap}
+.cxrow.alerta{background:var(--bad-soft);border-radius:8px;border-bottom-color:transparent;margin:2px 0}
+.cxrow.alerta.feito{background:#FBEFE6}
+@media(max-width:700px){.cxhead{display:none}.cxrow{grid-template-columns:1fr 1fr;grid-template-areas:"d v" "r n" "j j"}.cx-d{grid-area:d}.cx-v{grid-area:v}.cx-r{grid-area:r}.cx-n{grid-area:n}.cx-j{grid-area:j}}
+.engrp h3{margin:14px 0 4px}
+.enrow{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:10px;background:#fff;border:1px solid var(--line);margin-bottom:4px;font-size:14px}
+.enrow.on{border-color:var(--brand-2);background:#FFF8EA;font-weight:600}
+.enrow .stp{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:18px;font-weight:700;color:var(--brand);flex:none}
+.enrow .enq{width:52px;text-align:center;padding:6px;flex:none;font-weight:700}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cwd{text-align:center;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;padding:2px 0}
+.cday{background:#fff;border:1px solid var(--line);border-radius:8px;min-height:64px;padding:3px;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.cday.out{background:none;border:0}
+.cday.has{cursor:pointer}
+.cday.today{border:2px solid var(--custard)}
+.cday.sel{outline:2px solid var(--brand);outline-offset:-1px}
+.cday .dn{font-size:11.5px;font-weight:700;color:var(--muted)}
+.cchip{display:block;font-size:10px;line-height:1.25;font-weight:700;color:#fff;background:var(--c);border-radius:4px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cchip.ok{opacity:.55}
+.cchip.bad{box-shadow:inset 0 0 0 2px var(--bad);background:var(--bad-soft);color:var(--bad)}
+@media(min-width:700px){.cday{min-height:84px}.cchip{font-size:11.5px;padding:2px 5px}}
+.restab td,.restab th{text-align:right;white-space:nowrap}
+.restab td:first-child,.restab th:first-child{text-align:left}
+.restab td.rc{cursor:pointer}
+.restab td.rc:hover{background:#FFFBF2}
+.restab tr.tot td{border-top:2px solid var(--line);background:#FFF8EA}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand" style="width:100%"><span class="logo" aria-hidden="true"></span><div><h1>Bagga Ops</h1><small id="quem">A carregar…</small></div><button id="sair" class="btn sm" hidden onclick="confirmar('Sair desta conta neste telemóvel?', 'Sair').then(ok => ok && window.SAIR && window.SAIR())">Sair</button></div>
+  <nav id="nav"></nav>
+</div></header>
+<div id="aviso" class="aviso" hidden></div>
+<main id="app"><div class="loading">A carregar…</div></main>
+<div id="modal" class="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script src="pwa.js"></script>
+<script>
+/* ---------- Modelo base da checklist (usado enquanto não houver um modelo guardado) ---------- */
+const CHECKLIST_BASE = { seccoes: [
+  { titulo: 'Imagem e limpeza', itens: [
+    ['img1','Fachada, montra e reclamos limpos e acesos'],
+    ['img2','Sala, mesas e cadeiras limpas e arrumadas'],
+    ['img3','WC limpo e abastecido'],
+    ['img4','Equipa fardada e com boa apresentação'] ] },
+  { titulo: 'Produto e balcão', itens: [
+    ['pr1','Pastéis de nata frescos, com boa cozedura e temperatura'],
+    ['pr2','Balcão de exposição completo e apelativo'],
+    ['pr3','Validades e etiquetas de preço corretas'],
+    ['pr4','Artigos com maior margem >65% em destaque'] ] },
+  { titulo: 'Equipa e serviço', itens: [
+    ['eq1','Escala de horários face aos picos de consumo'],
+    ['eq2','Tempo de espera no atendimento adequado'],
+    ['eq3','Sugestão de venda adicional ao cliente'],
+    ['eq4','Simpatia e acolhimento'] ] },
+  { titulo: 'Operação', itens: [
+    ['op1','Caixa/POS sem diferenças e fundo de caixa correto'],
+    ['op2','Quebras registadas (alimentar, tabaco, Jogos Santa Casa)'],
+    ['op3','Stock e encomendas ajustados às vendas'],
+    ['op4','Registos HACCP e temperaturas em dia'] ] }
+].map(s => ({ titulo: s.titulo, itens: s.itens.map(([id, texto]) => ({ id, texto })) })) };
+
+/* Períodos de fotos (usados enquanto não houver configuração guardada). "ate" = hora limite de envio. */
+const PERIODOS_BASE = [
+  { id: 'abertura', nome: 'Abertura', curto: 'Abert.', ate: '09:30' },
+  { id: 'montras',  nome: 'Montras',  curto: 'Montra', ate: '10:30' },
+  { id: 'almoco',   nome: 'Almoço',   curto: 'Almoço', ate: '14:30' },
+  { id: 'lanche',   nome: 'Lanche',   curto: 'Lanche', ate: '17:30' },
+  { id: 'fecho',    nome: 'Final do dia', curto: 'Fecho', ate: '21:30' },
+];
+const JANELA_DIAS = 14;
+const INV_CATS = [['tabaco','Tabaco'],['jsc','Jogos Santa Casa'],['laranjas','Laranjas'],['cafe','Café']];
+const INV_CAT_NOME = Object.fromEntries(INV_CATS);
+const PALAMENTA_BASE = `# Copos e chávenas
+Copo galão 22cl
+Copo Granity (sumo)
+Chávenas café
+Chávenas 1/2 leite
+Caneca chá
+# Talheres
+Colher galão
+Colher café
+Colher chá
+Colher sopa
+Colher sobremesa
+Garfo sobremesa
+Faca sobremesa
+Garfo refeição
+Faca refeição
+# Louça
+Saladeira 20cm branco
+Saladeira 20cm cinza
+Taça sopa 17cm cinza
+Taça sopa 17cm branco
+Prato refeição 24cm cinza
+Prato refeição 24cm branco
+Prato bolos 19,5cm cinza
+Prato bolos 19,5cm branco
+# Utensílios
+Faca serrilha 30cm
+Espátula
+Tabuleiros pretos
+Leiteira
+Tenaz bolo
+Salazar
+Concha
+Balança
+Colher medidora
+Tesoura`;
+const ESTADOS = { aberta: 'Por fazer', curso: 'Em curso', feita: 'Concluída' };
+const PRIORIDADES = { alta: 'Alta', media: 'Média', baixa: 'Baixa' };
+const DRAFT_KEY = 'bagga-apoio-visita-rascunho';
+
+const S = {
+  db: null, user: null, me: null, isAdmin: false, canWrite: true, readOnly: false,
+  lojas: [], tarefas: [], visitas: [], checklist: CHECKLIST_BASE,
+  loaded: { lojas: false, tarefas: false, visitas: false, inventarios: false },
+  avarias: [], fa: { loja: '', estado: 'abertas', modo: 'avarias' },
+  membros: [],
+  gastos: [], fg: { ano: new Date().getFullYear(), loja: '' }, isOwner: false,
+  quebras: [], caixaDias: [], fq: { modo: 'mapa', loja: '', mes: null, so20: false },
+  encomendas: [], palamenta: null, fe: { modo: 'pedidos', estado: 'abertos', loja: '', totEst: ['pendente', 'aprovada'] },
+  inventarios: [], fi: { estado: 'proximos', loja: '', tipo: '', modo: 'cal', mes: null, dia: null },
+  profiles: {}, pending: new Set(),
+  view: 'inicio',
+  f: { loja: '', estado: 'abertas', minhas: false },
+  fv: { loja: '' },
+  v: null, verVisita: null,
+  ckEdit: null,
+  assets: null, fotos: {}, periodos: PERIODOS_BASE, perEdit: null,
+  ff: { data: null, dias: 7, loja: '' }, uploading: new Set(),
+};
+
+/* ---------- utilitários ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const hoje = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const addDias = n => { const d = new Date(); d.setDate(d.getDate()+n); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const fmtData = iso => { if (!iso) return ''; const [y,m,d] = iso.slice(0,10).split('-'); return `${d}/${m}/${y.slice(2)}`; };
+const fmtDataHora = iso => { if (!iso) return ''; const d = new Date(iso); return `${pad(d.getDate())}/${pad(d.getMonth()+1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const rid = () => Math.random().toString(36).slice(2, 9);
+const lojaById = id => S.lojas.find(l => l.id === id);
+const nomeLoja = id => lojaById(id)?.nome || 'Loja removida';
+function nome(id) {
+  if (!id) return '';
+  if (id === S.me) return 'Eu';
+  const p = S.profiles[id];
+  if (!p && !S.pending.has(id)) carregarPerfis([id]);
+  return (p && p.name) || 'Alguém';
+}
+function nomeM(id) { const n = nome(id); if (n && n !== 'Alguém') return n; const m = S.membros.find(x => x.id === id); return (m && m.nomeIndicado) || n; }
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => t.hidden = true, 3200); }
+function aviso(msg) { const a = $('#aviso'); if (msg) { a.textContent = msg; a.hidden = false; } else a.hidden = true; }
+function scoreCls(p) { if (p == null) return 's-none'; return p >= 85 ? 's-ok' : p >= 70 ? 's-warn' : 's-bad'; }
+function scoreHTML(p) { return `<span class="score ${scoreCls(p)}">${p == null ? '—' : p + '%'}</span>`; }
+
+let perfisTimer = null;
+function carregarPerfis(ids) {
+  if (!S.user) return;
+  ids.filter(Boolean).forEach(i => { if (!S.profiles[i] && i !== S.me) S.pending.add(i); });
+  clearTimeout(perfisTimer);
+  perfisTimer = setTimeout(async () => {
+    const lista = [...S.pending]; if (!lista.length) return;
+    try {
+      const ps = await S.user.profiles(lista);
+      lista.forEach(i => { S.profiles[i] = (ps && ps[i]) || { name: '' }; });
+      render();
+    } catch (e) { lista.forEach(i => S.profiles[i] = { name: '' }); }
+  }, 60);
+}
+
+async function escrever(fn, okMsg) {
+  if (!S.db || S.readOnly) { toast('Sem permissão para guardar.'); return false; }
+  try { await fn(); if (okMsg) toast(okMsg); return true; }
+  catch (e) {
+    if (e && (e.code === 'invalid_argument' || e.code === 'permission-denied')) { S.readOnly = true; render(); toast('Não tens permissão para alterar estes dados.'); }
+    else if (e && (e.code === 'quota_exceeded' || e.code === 'resource-exhausted')) toast('A base de dados está cheia. Apaga registos antigos.');
+    else if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 600 + Math.random()*600)); try { await fn(); if (okMsg) toast(okMsg); return true; } catch (e2) { toast('Não foi possível guardar. Tenta de novo.'); } }
+    else toast('Não foi possível guardar. Tenta de novo.');
+    return false;
+  }
+}
+const podeEscrever = () => !!S.db && S.canWrite && !S.readOnly;
+
+/* ---------- fotos: lógica ---------- */
+const fotoId = (data, lojaId, pid) => `${data}_${lojaId}_${pid}`;
+const agoraHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const lojasDoMembro = uid => { const m = S.membros.find(x => x.id === uid); return m ? (m.lojas || []) : []; };
+const gerentesDe = l => [...new Set([...(l.gerentes || []), ...S.membros.filter(m => (m.lojas || []).includes(l.id)).map(m => m.id)])];
+const minhasLojas = () => S.lojas; // todos acedem a todas as lojas
+function lojasFotos() { return S.isAdmin ? S.lojas : minhasLojas(); }
+function estadoFoto(lojaId, data, p) {
+  const doc = S.fotos[fotoId(data, lojaId, p.id)];
+  const tem = doc && (doc.itens || []).length;
+  if (tem) return { doc, st: doc.estado === 'ok' ? 'ok' : doc.estado === 'nok' ? 'nok' : 'pend' };
+  const h = hoje();
+  const passou = data < h || (data === h && agoraHM() >= p.ate);
+  return { doc: null, st: passou ? 'falta' : 'prazo' };
+}
+function diasJanela(n) { const out = []; for (let i = 0; i < n; i++) out.push(addDias(-i)); return out; }
+function emFalta(dias, lojas) {
+  const out = [];
+  diasJanela(dias).forEach(d => lojas.forEach(l => S.periodos.forEach(p => {
+    if (l.criadoEm && d < l.criadoEm.slice(0, 10)) return;
+    if (estadoFoto(l.id, d, p).st === 'falta') out.push({ data: d, loja: l, p });
+  })));
+  return out;
+}
+const imgCache = {};
+function srcFoto(it) {
+  if (it.asset) return '/_blob/' + it.asset;
+  if (it.img) {
+    if (imgCache[it.img]) return imgCache[it.img];
+    if (!(it.img in imgCache) && S.db) {
+      imgCache[it.img] = '';
+      S.db.doc('fotosImg/' + it.img).get().then(s => {
+        const u = s.exists ? (s.data().data || '') : '';
+        if (!/^data:image\/(jpeg|png|webp);base64,/.test(u)) return;
+        imgCache[it.img] = u;
+        document.querySelectorAll(`img[data-img="${it.img}"]`).forEach(e => e.src = u);
+      }).catch(() => {});
+    }
+    return '';
+  }
+  return '';
+}
+function imgTag(it) { const s = srcFoto(it); return `<img alt="" loading="lazy" ${it.img ? `data-img="${esc(it.img)}"` : ''} ${s ? `src="${esc(s)}"` : ''} onerror="this.style.opacity=.2">`; }
+
+async function comprimir(file, max, q) {
+  let src, w, h;
+  try { src = await createImageBitmap(file); w = src.width; h = src.height; }
+  catch (e) {
+    src = new Image(); const u = URL.createObjectURL(file); src.src = u;
+    await src.decode(); w = src.naturalWidth; h = src.naturalHeight;
+  }
+  const s = Math.min(1, max / Math.max(w, h));
+  const c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+  c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+  return new Promise(r => c.toBlob(r, 'image/jpeg', q));
+}
+const blobToDataURL = b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); });
+
+async function guardarImagem(f, meta) {
+  if (S.assets) {
+    try {
+      const b = await comprimir(f, 1600, 0.82);
+      const r = await S.assets.upload(b, { type: 'image/jpeg' });
+      return { asset: r.id };
+    } catch (e) { if (e && e.code === 'quota_or_state') { toast('O espaço para fotos está cheio.'); return null; } }
+  }
+  let b = await comprimir(f, 1000, 0.7); let u = await blobToDataURL(b);
+  if (u.length > 230000) { b = await comprimir(f, 760, 0.6); u = await blobToDataURL(b); }
+  if (u.length > 250000) { toast('Foto demasiado grande.'); return null; }
+  const ref = S.db.collection('fotosImg').doc();
+  const ok = await escrever(() => ref.set({ data: u, ...meta }));
+  return ok ? { img: ref.id } : null;
+}
+async function enviarFotos(files, lojaId, data, pid) {
+  if (!podeEscrever()) { toast('Sem permissão para enviar fotos.'); return; }
+  const key = fotoId(data, lojaId, pid);
+  S.uploading.add(key); renderDados();
+  const novos = [];
+  try {
+    for (const f of files) {
+      if (!f.type.startsWith('image/')) continue;
+      const item = await guardarImagem(f, { lojaId, dia: data, periodo: pid });
+      if (!item) break;
+      novos.push({ ...item, autorId: S.me || null, em: new Date().toISOString() });
+    }
+    if (novos.length) {
+      const atual = S.fotos[key];
+      const ref = S.db.doc('fotos/' + key);
+      const ok = atual
+        ? await escrever(() => ref.update({ itens: [...(atual.itens || []), ...novos], estado: null, verificadoPor: null, verificadoEm: null }))
+        : await escrever(() => ref.set({ lojaId, data, periodo: pid, itens: novos, estado: null, criadoEm: new Date().toISOString() }));
+      if (ok) toast(novos.length > 1 ? `${novos.length} fotos enviadas ✓` : 'Foto enviada ✓');
+    }
+  } catch (e) { toast('Não foi possível enviar a foto.'); }
+  S.uploading.delete(key); renderDados();
+  if (!$('#modal').hidden && $('#sheet').dataset.foto === key) abrirFotos(lojaId, data, pid);
+}
+
+/* ---------- modal / confirmação ---------- */
+function abrirModal(html) { $('#sheet').innerHTML = html; $('#modal').hidden = false; }
+function fecharModal() { $('#modal').hidden = true; $('#sheet').innerHTML = ''; delete $('#sheet').dataset.foto; }
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') fecharModal(); });
+function confirmar(msg, sim = 'Confirmar') {
+  return new Promise(res => {
+    abrirModal(`<h2>${esc(msg)}</h2><div class="row mt"><span class="sp"></span><button class="btn" id="cf-n">Cancelar</button><button class="btn pri" id="cf-s">${esc(sim)}</button></div>`);
+    $('#cf-n').onclick = () => { fecharModal(); res(false); };
+    $('#cf-s').onclick = () => { fecharModal(); res(true); };
+  });
+}
+
+/* ---------- tarefas: lógica ---------- */
+function eMinha(t) {
+  if (t.responsavelId) return t.responsavelId === S.me;
+  const l = lojaById(t.lojaId); return !!(l && gerentesDe(l).includes(S.me));
+}
+function atrasada(t) { return t.estado !== 'feita' && t.prazo && t.prazo < hoje(); }
+function ordenarTarefas(a, b) {
+  const da = a.estado === 'feita', dbb = b.estado === 'feita';
+  if (da !== dbb) return da ? 1 : -1;
+  if (da) return (b.concluidaEm || '').localeCompare(a.concluidaEm || '');
+  const pa = a.prazo || '9999', pb = b.prazo || '9999';
+  if (pa !== pb) return pa.localeCompare(pb);
+  const ord = { alta: 0, media: 1, baixa: 2 };
+  return (ord[a.prioridade] ?? 1) - (ord[b.prioridade] ?? 1);
+}
+function prazoPill(t) {
+  if (!t.prazo || t.estado === 'feita') return t.prazo ? `<span>Prazo ${fmtData(t.prazo)}</span>` : '';
+  const h = hoje();
+  if (t.prazo < h) return `<span class="pill bad">Atrasada · ${fmtData(t.prazo)}</span>`;
+  if (t.prazo === h) return `<span class="pill warn">Hoje</span>`;
+  if (t.prazo <= addDias(3)) return `<span class="pill warn">${fmtData(t.prazo)}</span>`;
+  return `<span>Prazo ${fmtData(t.prazo)}</span>`;
+}
+function tarefaHTML(t, mostrarLoja = true) {
+  const feita = t.estado === 'feita';
+  const resp = t.responsavelId ? nomeM(t.responsavelId) : 'Gerente da loja';
+  return `<div class="card task pri-${esc(t.prioridade || 'media')} ${feita ? 'done' : ''}" data-a="abrirTarefa" data-id="${esc(t.id)}">
+    <button class="chk ${feita ? 'on' : ''}" data-a="toggleTarefa" data-id="${esc(t.id)}" aria-label="${feita ? 'Reabrir' : 'Marcar como concluída'}" ${podeEscrever() ? '' : 'disabled'}>${feita ? '✓' : ''}</button>
+    <div style="flex:1;min-width:0">
+      <div class="tt">${esc(t.titulo)}</div>
+      <div class="meta">
+        ${mostrarLoja ? `<span class="pill br">${esc(nomeLoja(t.lojaId))}</span>` : ''}
+        ${t.estado === 'curso' ? '<span class="pill">Em curso</span>' : ''}
+        ${prazoPill(t)}
+        <span>· ${esc(resp)}</span>
+        
+        ${(t.notas || []).length ? `<span>· 💬 ${(t.notas || []).length}</span>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- vistas ---------- */
+function renderNav() {
+  const tabs = [['inicio','Início'],['fotos','Fotos'],['tarefas','Tarefas'],['inventarios','Inventários'],['caixa','Caixa'],['avarias','Equipamentos'],['encomendas','Palamenta']];
+  if (S.isAdmin) tabs.push(['lojas','Configurar']);
+  const cur = S.view.startsWith('visita') ? 'visitas' : S.view;
+  $('#nav').innerHTML = tabs.map(([k, l]) => `<button class="${cur === k ? 'on' : ''}" data-a="ir" data-v="${k}">${l}</button>`).join('');
+}
+
+function vInicio() {
+  const lojasVis = S.isAdmin ? S.lojas : minhasLojas();
+  const lojasBase = lojasVis.length ? lojasVis : S.lojas;
+  const ids = new Set(lojasBase.map(l => l.id));
+  const ts = S.tarefas.filter(t => ids.has(t.lojaId));
+  const abertas = ts.filter(t => t.estado !== 'feita');
+  const atras = abertas.filter(atrasada);
+  const semana = addDias(-7);
+  const feitas7 = ts.filter(t => t.estado === 'feita' && (t.concluidaEm || '') >= semana);
+  const mes = hoje().slice(0, 7);
+  const visMes = S.visitas.filter(v => ids.has(v.lojaId) && (v.data || '').startsWith(mes));
+  const minhas = abertas.filter(eMinha).sort(ordenarTarefas);
+  const urgentes = (S.isAdmin ? abertas : minhas).filter(t => atrasada(t) || (t.prazo && t.prazo <= addDias(3))).sort(ordenarTarefas).slice(0, 8);
+
+  if (!S.lojas.length) {
+    return `<h2>Bem-vindo</h2><div class="card empty">${S.isAdmin
+      ? 'Ainda não há lojas. Começa por adicionar as tuas lojas e os respetivos gerentes.<div class="mt"><button class="btn pri" data-a="ir" data-v="lojas">Adicionar lojas</button></div>'
+      : 'Ainda não há lojas configuradas. Pede ao teu responsável para te associar à tua loja.'}</div>`;
+  }
+
+  const linhas = lojasBase.map(l => {
+    const tl = S.tarefas.filter(t => t.lojaId === l.id && t.estado !== 'feita');
+    const at = tl.filter(atrasada).length;
+    const avL = S.avarias.filter(a => a.lojaId === l.id && a.estado !== 'resolvida').length;
+    const cxL = S.caixaDias.filter(d => d.lojaId === l.id && cxAlerta(d) && !cxResolvido(d)).length;
+    return `<tr class="click" data-a="verLoja" data-id="${esc(l.id)}">
+      <td><b>${esc(l.nome)}</b><div class="muted" style="font-size:12.5px">${gerentesDe(l).map(g => esc(nomeM(g))).join(', ') || '—'}</div></td>
+      <td>${tl.length}</td>
+      <td>${at ? `<span class="pill bad">${at}</span>` : '0'}</td>
+      <td>${avL ? `<span class="pill warn">${avL}</span>` : '0'}</td>
+      <td>${cxL ? `<span class="pill bad">${cxL}</span>` : '0'}</td></tr>`;
+  }).join('');
+
+  return `
+  <div class="row"><h2 class="sp">Resumo das lojas</h2>
+    ${podeEscrever() ? `<button class="btn pri" data-a="novaTarefa">+ Tarefa</button>` : ''}</div>
+  ${(() => { const h = hoje(); let f = 0, p = 0; lojasBase.forEach(l => S.periodos.forEach(pp => { const st = estadoFoto(l.id, h, pp).st; if (st === 'falta') f++; else if (st === 'pend') p++; }));
+    return `<div class="card banner" data-a="ir" data-v="fotos"><span class="big">📷</span><div class="sp"><b>Fotos de hoje</b><div class="meta">${f ? `<span class="pill bad">${f} em falta</span>` : '<span class="pill ok">Nenhuma em falta</span>'}${S.isAdmin && p ? `<span class="pill warn">${p} por verificar</span>` : ''}</div></div><span class="muted">›</span></div>`; })()}
+  ${(() => { const av = S.avarias.filter(a => ids.has(a.lojaId) && a.estado !== 'resolvida'); if (!av.length) return ''; const p = av.filter(a => a.parado).length;
+    return `<div class="card banner" data-a="ir" data-v="avarias"><span class="big">🔧</span><div class="sp"><b>Equipamentos avariados</b><div class="meta"><span class="pill warn">${av.length} por resolver</span>${p ? `<span class="pill bad">${p} equipamento${p > 1 ? 's' : ''} parado${p > 1 ? 's' : ''}</span>` : ''}</div></div><span class="muted">›</span></div>`; })()}
+  ${(() => { const qs = S.quebras.filter(q => ids.has(q.lojaId)); const cxP = S.caixaDias.filter(d => ids.has(d.lojaId) && cxAlerta(d) && !cxResolvido(d)).length; const n = (S.isAdmin ? qs.filter(q => q.estado === 'justificada').length : qs.filter(q => q.estado === 'aguarda').length);
+    return n || cxP ? `<div class="card banner" data-a="ir" data-v="caixa"><span class="big">💶</span><div class="sp"><b>Quebras de caixa</b><div class="meta">${cxP ? `<span class="pill bad">${cxP} quebra${cxP > 1 ? 's' : ''} ≤ -20 € por justificar · ${esc(mesTxt(S.fq.mes || S.cxUltimoMes || hoje().slice(0, 7)))}</span>` : ''}${n ? `<span class="pill ${S.isAdmin ? 'br' : 'bad'}">${n} ${S.isAdmin ? 'justificaç' + (n > 1 ? 'ões' : 'ão') + ' por validar' : 'por justificar'}</span>` : ''}</div></div><span class="muted">›</span></div>` : ''; })()}
+  ${(() => { const h = hoje(); const iv = S.inventarios.filter(i => ids.has(i.lojaId) && i.estado !== 'feito'); const at = iv.filter(i => invFim(i) < h).length, hj = iv.filter(i => i.data <= h && h <= invFim(i)).length, sem = iv.filter(i => i.data > h && i.data <= addDias(7)).length;
+    if (!at && !hj && !sem) return '';
+    return `<div class="card banner" data-a="ir" data-v="inventarios"><span class="big">📦</span><div class="sp"><b>Inventários</b><div class="meta">${at ? `<span class="pill bad">${at} sem resultado</span>` : ''}${hj ? `<span class="pill warn">${hj} a fazer hoje</span>` : ''}${sem ? `<span class="pill">${sem} nos próximos 7 dias</span>` : ''}</div></div><span class="muted">›</span></div>`; })()}
+  <div class="kpis">
+    <div class="card kpi"><b>${abertas.length}</b><span>Tarefas por fazer</span></div>
+    <div class="card kpi ${atras.length ? 'bad' : ''}"><b>${atras.length}</b><span>Atrasadas</span></div>
+    <div class="card kpi ok"><b>${feitas7.length}</b><span>Concluídas (7 dias)</span></div>
+    <div class="card kpi ${S.avarias.some(a => ids.has(a.lojaId) && a.estado !== 'resolvida' && a.parado) ? 'bad' : ''}"><b>${S.avarias.filter(a => ids.has(a.lojaId) && a.estado !== 'resolvida').length}</b><span>Equipamentos avariados</span></div>
+  </div>
+  <h3>${S.isAdmin ? 'Atrasadas e a vencer (3 dias)' : 'As minhas tarefas urgentes'}</h3>
+  <div class="list">${urgentes.length ? urgentes.map(t => tarefaHTML(t)).join('') : '<div class="card empty">Nada urgente. 👌</div>'}</div>
+  <h3>Lojas</h3>
+  <div class="card" style="padding:4px 6px;overflow-x:auto"><table>
+    <thead><tr><th>Loja</th><th>Tarefas</th><th>Atrasadas</th><th>Equip. avariados</th><th>Caixa por justificar</th></tr></thead>
+    <tbody>${linhas}</tbody></table></div>`;
+}
+
+function vTarefas() {
+  let ts = S.tarefas.slice();
+  if (S.f.loja) ts = ts.filter(t => t.lojaId === S.f.loja);
+  if (S.f.minhas) ts = ts.filter(eMinha);
+  if (S.f.estado === 'abertas') ts = ts.filter(t => t.estado !== 'feita');
+  else if (S.f.estado === 'atrasadas') ts = ts.filter(atrasada);
+  else if (S.f.estado === 'feitas') ts = ts.filter(t => t.estado === 'feita');
+  ts.sort(ordenarTarefas);
+  const seg = [['abertas','Por fazer'],['atrasadas','Atrasadas'],['feitas','Concluídas'],['todas','Todas']];
+  return `
+  <div class="row"><h2 class="sp">Tarefas e pendentes</h2>${podeEscrever() ? '<button class="btn pri" data-a="novaTarefa">+ Nova tarefa</button>' : ''}</div>
+  <div class="filters">
+    <select data-c="fLoja"><option value="">Todas as lojas</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${S.f.loja === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
+    <label class="cbx card" style="padding:8px 12px;box-shadow:none"><input type="checkbox" data-c="fMinhas" ${S.f.minhas ? 'checked' : ''}> Só as minhas</label>
+    <div class="seg">${seg.map(([k, l]) => `<button class="${S.f.estado === k ? 'on' : ''}" data-a="fEstado" data-v="${k}">${l}</button>`).join('')}</div>
+  </div>
+  <div class="list">${ts.length ? ts.map(t => tarefaHTML(t, !S.f.loja)).join('') : `<div class="card empty">${S.loaded.tarefas ? 'Sem tarefas com estes filtros.' : 'A carregar…'}</div>`}</div>`;
+}
+
+function vVisitas() {
+  let vs = S.visitas.slice();
+  if (S.fv.loja) vs = vs.filter(v => v.lojaId === S.fv.loja);
+  const temRascunho = !!lerRascunho();
+  return `
+  <div class="row"><h2 class="sp">Visitas às lojas</h2>${podeEscrever() ? `<button class="btn pri" data-a="novaVisita">${temRascunho ? 'Continuar visita' : '+ Nova visita'}</button>` : ''}</div>
+  <div class="filters" style="grid-template-columns:1fr">
+    <select data-c="fvLoja"><option value="">Todas as lojas</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${S.fv.loja === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
+  </div>
+  <div class="card" style="padding:4px 6px;overflow-x:auto">
+  ${vs.length ? `<table><thead><tr><th>Data</th><th>Loja</th><th>Por</th><th>Pontos a corrigir</th><th>Nota</th></tr></thead><tbody>
+    ${vs.map(v => `<tr class="click" data-a="verVisita" data-id="${esc(v.id)}"><td>${fmtData(v.data)}</td><td><b>${esc(nomeLoja(v.lojaId))}</b></td><td>${esc(nome(v.autorId))}</td><td>${v.nok ? `<span class="pill bad">${v.nok}</span>` : '0'}</td><td>${scoreHTML(v.pontuacao)}</td></tr>`).join('')}
+  </tbody></table>` : `<div class="empty">${S.loaded.visitas ? 'Ainda não há visitas registadas.' : 'A carregar…'}</div>`}
+  </div>`;
+}
+
+/* ---------- fotos: vistas ---------- */
+const ICON = { ok: '✓', nok: '✗', pend: '•' };
+function navData() {
+  const d = S.ff.data || hoje();
+  return `<div class="datenav">
+    <button class="btn sm" data-a="ffDia" data-v="-1" ${d <= addDias(-(JANELA_DIAS - 1)) ? 'disabled' : ''} aria-label="Dia anterior">‹</button>
+    <input type="date" data-c="ffData" value="${d}" min="${addDias(-(JANELA_DIAS - 1))}" max="${hoje()}">
+    <button class="btn sm" data-a="ffDia" data-v="1" ${d >= hoje() ? 'disabled' : ''} aria-label="Dia seguinte">›</button>
+    ${d !== hoje() ? '<button class="btn sm ghost" data-a="ffHoje">Hoje</button>' : ''}
+  </div>`;
+}
+function listaFalta(lojas) {
+  const fl = emFalta(S.ff.dias, lojas);
+  const porLoja = {};
+  fl.forEach(x => { (porLoja[x.loja.id] = porLoja[x.loja.id] || { loja: x.loja, itens: [] }).itens.push(x); });
+  const grupos = Object.values(porLoja).sort((a, b) => b.itens.length - a.itens.length);
+  return `<div class="row" style="margin-top:22px"><h3 class="sp" style="margin:0">Fotos em falta</h3>
+    <div class="seg">${[1, 7, 14].map(n => `<button class="${S.ff.dias === n ? 'on' : ''}" data-a="ffDias" data-v="${n}">${n === 1 ? 'Hoje' : n + ' dias'}</button>`).join('')}</div></div>
+  <div class="falta-l mt">${grupos.length ? grupos.map(g => `<div class="card">
+      <div class="row"><b class="sp">${esc(g.loja.nome)}</b><span class="pill bad">${g.itens.length} em falta</span></div>
+      <div class="meta" style="margin-top:6px">${g.itens.map(x => `<span class="pill" style="cursor:pointer" data-a="ffIr" data-d="${x.data}">${fmtData(x.data).slice(0, 5)} · ${esc(x.p.nome)}</span>`).join('')}</div>
+    </div>`).join('') : `<div class="card empty">${S.loaded.fotos ? 'Nenhuma foto em falta neste período. 👏' : 'A carregar…'}</div>`}</div>`;
+}
+function vFotos() {
+  const d = S.ff.data || hoje();
+  const lojas = lojasFotos();
+  if (!lojas.length) return `<h2>Fotos das lojas</h2><div class="card empty">${S.isAdmin ? 'Ainda não há lojas.' : 'Ainda não estás associado a nenhuma loja. Pede ao teu responsável para te associar.'}</div>`;
+  if (S.isAdmin) {
+    let pend = 0, falta = 0, ok = 0;
+    S.lojas.forEach(l => S.periodos.forEach(p => { const st = estadoFoto(l.id, d, p).st; if (st === 'pend') pend++; else if (st === 'falta') falta++; else if (st === 'ok') ok++; }));
+    return `
+    <div class="row"><h2 class="sp">Controlo de fotos</h2>${navData()}</div>
+    <div class="row" style="margin-bottom:8px">
+      <span class="pill bad">${falta} em falta</span><span class="pill warn">${pend} por verificar</span><span class="pill ok">${ok} verificadas</span>
+      <span class="sp"></span>${pend && podeEscrever() ? `<button class="btn sm pri" data-a="verificarTodas">✓ Verificar ${pend === 1 ? 'a pendente' : `as ${pend} pendentes`}</button>` : ''}
+    </div>
+    <div class="card" style="padding:6px;overflow-x:auto">
+      <table class="mx"><thead><tr><th>Loja</th>${S.periodos.map(p => `<th>${esc(p.curto || p.nome)}<br><span style="font-weight:400">${esc(p.ate)}</span></th>`).join('')}</tr></thead>
+      <tbody>${S.lojas.map(l => `<tr><td class="ln">${esc(l.nome)}</td>${S.periodos.map(p => {
+        const e = estadoFoto(l.id, d, p); const n = e.doc ? (e.doc.itens || []).length : 0;
+        const first = n ? e.doc.itens[0] : null;
+        return `<td><button class="cell c-${e.st}" data-a="abrirFotos" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}" title="${esc(l.nome + ' · ' + p.nome)}">
+          ${first ? imgTag(first) + (n > 1 ? `<span class="n">${n}</span>` : '') + `<span class="bdg">${ICON[e.st]}</span>` : e.st === 'falta' ? '!' : ''}</button></td>`;
+      }).join('')}</tr>`).join('')}</tbody></table>
+    </div>
+    <div class="legend"><span><i style="border-color:var(--ok)"></i>Verificada</span><span><i style="border-color:var(--custard)"></i>Por verificar</span><span><i style="border-color:var(--bad);background:var(--bad-soft)"></i>Em falta</span><span><i style="border-color:#c9bba6;border-style:dashed"></i>Ainda dentro do prazo</span><span><i style="border-color:var(--bad)"></i>Não conforme</span></div>
+    ${listaFalta(S.lojas)}`;
+  }
+  // gerente
+  const ml = minhasLojas();
+  if (!S.ff.loja || !ml.find(l => l.id === S.ff.loja)) S.ff.loja = ml[0].id;
+  const l = lojaById(S.ff.loja);
+  return `
+  <div class="row"><h2 class="sp">Fotos da loja</h2>${navData()}</div>
+  ${ml.length > 1 ? `<select data-c="ffLoja" style="margin-bottom:12px">${ml.map(x => `<option value="${esc(x.id)}" ${x.id === l.id ? 'selected' : ''}>${esc(x.nome)}</option>`).join('')}</select>` : `<div class="muted" style="margin:-6px 0 12px">${esc(l.nome)}</div>`}
+  <div class="tiles">${S.periodos.map(p => tileFoto(l, d, p)).join('')}</div>
+  ${listaFalta(ml)}`;
+}
+function stPill(e, p) {
+  return { ok: '<span class="pill ok">✓ Verificada</span>', nok: '<span class="pill bad">✗ Não conforme</span>', pend: '<span class="pill warn">Enviada</span>',
+    falta: '<span class="pill bad">Em falta</span>', prazo: `<span class="pill">até ${esc(p.ate)}</span>` }[e.st];
+}
+function tileFoto(l, d, p) {
+  const e = estadoFoto(l.id, d, p); const key = fotoId(d, l.id, p.id); const its = e.doc ? (e.doc.itens || []) : [];
+  const busy = S.uploading.has(key);
+  return `<div class="card tile"><div class="tile-h"><b>${esc(p.nome)}</b>${stPill(e, p)}</div>
+    ${its.length ? `<div class="thumbs">${its.map(it => `<button data-a="abrirFotos" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}">${imgTag(it)}</button>`).join('')}</div>` : ''}
+    ${e.doc && e.doc.estado === 'nok' && e.doc.obs ? `<div class="note" style="margin-bottom:8px"><small>Comentário do responsável</small>${esc(e.doc.obs)}</div>` : ''}
+    ${podeEscrever() ? `<label class="upbtn ${busy ? 'busy' : ''}">${busy ? 'A enviar…' : (its.length ? '📷 Juntar outra foto' : '📷 Tirar / enviar foto')}
+      <input type="file" accept="image/*" multiple data-c="foto" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}"></label>` : ''}
+  </div>`;
+}
+function abrirFotos(lojaId, d, pid) {
+  const p = S.periodos.find(x => x.id === pid) || { id: pid, nome: pid, ate: '' };
+  const l = lojaById(lojaId); const e = estadoFoto(lojaId, d, p); const its = e.doc ? (e.doc.itens || []) : [];
+  const key = fotoId(d, lojaId, pid);
+  const atraso = it => it.em && (it.em.slice(0, 10) > d || (new Date(it.em).toTimeString().slice(0, 5) > p.ate && it.em.slice(0, 10) === d));
+  abrirModal(`
+    <div class="row"><h2 class="sp" style="margin:0">${esc(l ? l.nome : '')} · ${esc(p.nome)}</h2>${stPill(e, p)}</div>
+    <div class="muted" style="margin:4px 0 12px">${fmtData(d)} · prazo ${esc(p.ate)}${e.doc && e.doc.verificadoEm ? ` · verificada por ${esc(nome(e.doc.verificadoPor))} às ${fmtDataHora(e.doc.verificadoEm)}` : ''}</div>
+    ${its.length ? `<div class="bigph">${its.map((it, i) => `<figure>${imgTag(it)}<figcaption>
+        <span class="sp">${esc(nome(it.autorId))} · ${fmtDataHora(it.em)} ${atraso(it) ? '<span class="pill warn">fora de horas</span>' : ''}</span>
+        ${podeEscrever() && (S.isAdmin || it.autorId === S.me) ? `<button class="btn sm ghost danger" data-a="rmFoto" data-k="${esc(key)}" data-i="${i}">Remover</button>` : ''}
+      </figcaption></figure>`).join('')}</div>` : `<div class="card empty">${e.st === 'falta' ? 'A loja não enviou foto neste período.' : 'Ainda sem fotos.'}</div>`}
+    ${e.doc && e.doc.obs ? `<div class="note mt"><small>Comentário</small>${esc(e.doc.obs)}</div>` : ''}
+    ${S.isAdmin && its.length && podeEscrever() ? `
+      <label class="f">Comentário (opcional)</label><textarea id="fo-obs" placeholder="Ex.: montra incompleta, falta destacar artigos com maior margem >65%">${esc(e.doc.obs || '')}</textarea>
+      <label class="cbx mt"><input type="checkbox" id="fo-t"> Criar tarefa para o gerente se não estiver conforme</label>
+      <div class="row mt"><span class="sp"></span>
+        <button class="btn danger" data-a="marcarFoto" data-k="${esc(key)}" data-v="nok">✗ Não conforme</button>
+        <button class="btn pri" data-a="marcarFoto" data-k="${esc(key)}" data-v="ok">✓ Verificar</button></div>` : ''}
+    ${podeEscrever() && (!S.isAdmin || its.length === 0) ? `<label class="upbtn mt">📷 ${its.length ? 'Juntar outra foto' : 'Enviar foto'}<input type="file" accept="image/*" multiple data-c="foto" data-l="${esc(lojaId)}" data-d="${d}" data-p="${esc(pid)}"></label>` : ''}
+    <div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button></div>`);
+  $('#sheet').dataset.foto = key;
+}
+
+/* ---------- inventários ---------- */
+const invFim = i => i.dataFim || i.data;
+const invAtraso = i => i.estado !== 'feito' && invFim(i) < hoje();
+const invDatas = i => i.dataFim && i.dataFim !== i.data ? `${fmtData(i.data).slice(0, 5)} a ${fmtData(i.dataFim)}` : fmtData(i.data);
+function invTipoTxt(i) { return i.tipo === 'global' ? 'Global' : 'Parcial · ' + (i.categorias || []).map(c => INV_CAT_NOME[c] || c).join(', '); }
+const eur = v => (v == null || isNaN(v)) ? '—' : new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v);
+const invCats = i => i.tipo === 'global' ? ['global'] : (i.categorias || []);
+const catNome = c => c === 'global' ? 'Global' : (INV_CAT_NOME[c] || c);
+const catCurto = c => c === 'jsc' ? 'JSC' : catNome(c);
+const invTotal = i => i.resultado ? (i.resultado.linhas || []).reduce((s, l) => s + (+l.valor || 0), 0) : null;
+function invHTML(i, mostrarLoja = true) {
+  const feito = i.estado === 'feito';
+  const h = hoje();
+  const tot = invTotal(i);
+  const st = feito ? (i.resultado ? `<span class="pill ${tot < 0 ? 'bad' : 'ok'}">Resultado ${eur(tot)}</span>` : `<span class="pill ok">✓ Feito</span>`)
+    : invFim(i) < h ? '<span class="pill bad">Sem resultado</span>' : (i.data <= h && h <= invFim(i)) ? `<span class="pill warn">${i.dataFim ? 'Esta semana · ' + invDatas(i) : 'Hoje'}</span>` : `<span class="pill">${invDatas(i)}</span>`;
+  const podeReg = !feito && podeEscrever() && i.data <= h;
+  return `<div class="card task ${i.tipo === 'global' ? 'pri-alta' : 'pri-media'}" data-a="abrirInv" data-id="${esc(i.id)}">
+    <div style="flex:1;min-width:0">
+      <div class="tt">${i.tipo === 'global' ? '📦 Inventário global' : '🧾 ' + esc(invTipoTxt(i))}</div>
+      <div class="meta">${mostrarLoja ? `<span class="pill br">${esc(nomeLoja(i.lojaId))}</span>` : ''}${st}
+        ${i.hora ? `<span>às ${esc(i.hora)}</span>` : ''}${i.notas ? '<span>· 📝</span>' : ''}${i.resultado && (i.resultado.fotos || []).length ? '<span>· 📷</span>' : ''}</div>
+    </div>
+    ${podeReg ? `<button class="btn sm pri" data-a="abrirInv" data-id="${esc(i.id)}">Registar resultado</button>` : ''}
+  </div>`;
+}
+function invBase() {
+  const minhas = new Set(minhasLojas().map(l => l.id));
+  let is = S.inventarios.filter(i => S.isAdmin || minhas.has(i.lojaId));
+  if (S.fi.loja) is = is.filter(i => i.lojaId === S.fi.loja);
+  if (S.fi.tipo === 'global') is = is.filter(i => i.tipo === 'global');
+  else if (S.fi.tipo) is = is.filter(i => i.tipo === 'parcial' && (i.categorias || []).includes(S.fi.tipo));
+  return is;
+}
+const mesTxt = m => { const s = new Date(m + '-15T12:00').toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }); return s.charAt(0).toUpperCase() + s.slice(1); };
+function navMes() {
+  return `<div class="datenav"><button class="btn sm" data-a="fiMes" data-v="-1" aria-label="Mês anterior">‹</button><b style="min-width:140px;text-align:center">${esc(mesTxt(S.fi.mes))}</b><button class="btn sm" data-a="fiMes" data-v="1" aria-label="Mês seguinte">›</button></div>`;
+}
+function vInventarios() {
+  if (!S.fi.mes) S.fi.mes = hoje().slice(0, 7);
+  const lojasSel = S.isAdmin ? S.lojas : minhasLojas();
+  const modos = [['cal', 'Calendário'], ['lista', 'Lista'], ['res', 'Resultados']];
+  const base = invBase();
+  const nAtraso = base.filter(invAtraso).length;
+  let corpo = '';
+  if (S.fi.modo === 'lista') corpo = vInvLista(base, nAtraso);
+  else if (S.fi.modo === 'res') corpo = vInvRes(base, lojasSel);
+  else corpo = vInvCal(base);
+  return `
+  <div class="row"><h2 class="sp">Inventários</h2>${S.isAdmin && podeEscrever() ? '<button class="btn pri" data-a="novoInv">+ Agendar</button>' : ''}</div>
+  ${nAtraso ? `<div class="card banner" data-a="fiAtraso" style="border-color:var(--bad)"><span class="big">⚠️</span><div class="sp"><b>${nAtraso} inventário${nAtraso > 1 ? 's' : ''} sem resultado</b><div class="meta">Já passou a data e ainda não foi registado o resultado.</div></div><span class="muted">›</span></div>` : ''}
+  <div class="seg" style="display:flex;margin-bottom:10px">${modos.map(([k, l]) => `<button style="flex:1" class="${S.fi.modo === k ? 'on' : ''}" data-a="fiModo" data-v="${k}">${l}</button>`).join('')}</div>
+  <div class="filters" style="grid-template-columns:1fr 1fr">
+    ${lojasSel.length > 1 ? `<select data-c="fiLoja"><option value="">Todas as lojas</option>${lojasSel.map(l => `<option value="${esc(l.id)}" ${S.fi.loja === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>` : `<div class="muted" style="align-self:center">${esc(lojasSel[0] ? lojasSel[0].nome : '')}</div>`}
+    <select data-c="fiTipo"><option value="">Todos os tipos</option><option value="global" ${S.fi.tipo === 'global' ? 'selected' : ''}>Global</option>${INV_CATS.map(([k, n]) => `<option value="${k}" ${S.fi.tipo === k ? 'selected' : ''}>${n}</option>`).join('')}</select>
+  </div>
+  ${S.loaded.inventarios ? corpo : '<div class="card empty">A carregar…</div>'}`;
+}
+function vInvLista(base, nAtraso) {
+  const h = hoje(); let is = base;
+  if (S.fi.estado === 'proximos') is = is.filter(i => i.estado !== 'feito' && invFim(i) >= h);
+  else if (S.fi.estado === 'atraso') is = is.filter(invAtraso);
+  else if (S.fi.estado === 'feitos') is = is.filter(i => i.estado === 'feito');
+  is = is.slice().sort((a, b) => S.fi.estado === 'feitos' ? (b.data || '').localeCompare(a.data || '') : (a.data || '').localeCompare(b.data || ''));
+  const grupos = []; is.forEach(i => { const g = grupos[grupos.length - 1]; if (g && g.d === i.data) g.its.push(i); else grupos.push({ d: i.data, its: [i] }); });
+  const diaTxt = d => { const dt = new Date(d + 'T12:00'); const ds = dt.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' }); return (d === h ? 'Hoje · ' : '') + ds.charAt(0).toUpperCase() + ds.slice(1); };
+  const seg = [['proximos', 'Próximos'], ['atraso', `Sem resultado${nAtraso ? ' (' + nAtraso + ')' : ''}`], ['feitos', 'Com resultado'], ['todos', 'Todos']];
+  return `<div class="seg" style="display:flex;margin-bottom:6px">${seg.map(([k, l]) => `<button style="flex:1" class="${S.fi.estado === k ? 'on' : ''}" data-a="fiEstado" data-v="${k}">${l}</button>`).join('')}</div>
+  ${grupos.length ? grupos.map(g => `<h3>${esc(diaTxt(g.d))}</h3><div class="list">${g.its.map(i => invHTML(i, !S.fi.loja)).join('')}</div>`).join('')
+    : `<div class="card empty">${S.fi.estado === 'atraso' ? 'Nenhum inventário sem resultado. 👏' : 'Sem inventários com estes filtros.'}</div>`}`;
+}
+const CAT_COR = { global: '#8A4B1F', tabaco: '#5B6B7A', jsc: '#2F7A8F', laranjas: '#D9822B', cafe: '#6B4226' };
+function vInvCal(base) {
+  const [y, m] = S.fi.mes.split('-').map(Number);
+  const first = new Date(y, m - 1, 1), dias = new Date(y, m, 0).getDate();
+  const offset = (first.getDay() + 6) % 7; const h = hoje();
+  const ini = `${S.fi.mes}-01`, fim = `${S.fi.mes}-${pad(dias)}`;
+  const doMes = base.filter(i => i.data <= fim && invFim(i) >= ini);
+  const porDia = {};
+  doMes.forEach(i => {
+    if (i.dataFim && i.dataFim !== i.data) { // semana: marca no 1.º dia dentro do mês
+      const d0 = i.data < ini ? ini : i.data; (porDia[d0] = porDia[d0] || []).push(i);
+    } else (porDia[i.data] = porDia[i.data] || []).push(i);
+  });
+  const umaLoja = !!S.fi.loja || !S.isAdmin && minhasLojas().length <= 1;
+  const chips = its => {
+    const g = {}; its.forEach(i => invCats(i).forEach(c => { (g[c] = g[c] || []).push(i); }));
+    return Object.entries(g).map(([c, arr]) => {
+      const feitos = arr.filter(i => i.estado === 'feito').length, atr = arr.filter(invAtraso).length;
+      const cls = feitos === arr.length ? 'ok' : atr ? 'bad' : '';
+      const sem = arr[0].dataFim ? ' (sem.)' : '';
+      return `<span class="cchip ${cls}" style="--c:${CAT_COR[c] || '#888'}">${esc(catCurto(c))}${sem}${!umaLoja && arr.length > 1 ? ' ' + feitos + '/' + arr.length : ''}${cls === 'ok' ? ' ✓' : ''}</span>`;
+    }).join('');
+  };
+  let cells = '';
+  for (let k = 0; k < offset; k++) cells += '<div class="cday out"></div>';
+  for (let d = 1; d <= dias; d++) {
+    const ds = `${S.fi.mes}-${pad(d)}`; const its = porDia[ds] || [];
+    cells += `<div class="cday ${ds === h ? 'today' : ''} ${S.fi.dia === ds ? 'sel' : ''} ${its.length ? 'has' : ''}" ${its.length ? `data-a="fiDia" data-v="${ds}"` : ''}><span class="dn">${d}</span>${chips(its)}</div>`;
+  }
+  const sel = S.fi.dia && S.fi.dia.startsWith(S.fi.mes) ? (porDia[S.fi.dia] || []) : [];
+  return `<div class="row" style="justify-content:center;margin:4px 0 8px">${navMes()}</div>
+  <div class="cal"><div class="cwd">Seg</div><div class="cwd">Ter</div><div class="cwd">Qua</div><div class="cwd">Qui</div><div class="cwd">Sex</div><div class="cwd">Sáb</div><div class="cwd">Dom</div>${cells}</div>
+  <div class="legend">${INV_CATS.concat([['global', 'Global']]).map(([k, n]) => `<span><i style="border-color:${CAT_COR[k]};background:${CAT_COR[k]}"></i>${n}</span>`).join('')}<span>✓ com resultado</span><span style="color:var(--bad)">vermelho = sem resultado</span></div>
+  ${sel.length ? `<h3>${fmtData(S.fi.dia)}</h3><div class="list">${sel.map(i => invHTML(i, !S.fi.loja)).join('')}</div>` : '<p class="muted" style="font-size:13px">Toca num dia para ver os inventários.</p>'}`;
+}
+function vInvRes(base, lojasSel) {
+  const ini = `${S.fi.mes}-01`, fim = `${S.fi.mes}-31`;
+  const doMes = base.filter(i => i.data >= ini && i.data <= fim);
+  const cols = ['global', ...INV_CATS.map(c => c[0])].filter(c => !S.fi.tipo || S.fi.tipo === c);
+  const lojas = (S.fi.loja ? lojasSel.filter(l => l.id === S.fi.loja) : lojasSel);
+  const totCol = {}; let totGeral = 0;
+  const linhas = lojas.map(l => {
+    let totL = 0;
+    const tds = cols.map(c => {
+      const its = doMes.filter(i => i.lojaId === l.id && invCats(i).includes(c));
+      if (!its.length) return '<td class="muted">—</td>';
+      let soma = 0, tem = 0;
+      its.forEach(i => (i.resultado ? i.resultado.linhas || [] : []).forEach(x => { if (x.cat === c && x.valor != null) { soma += +x.valor; tem++; } }));
+      const falta = its.filter(invAtraso).length, pend = its.filter(i => i.estado !== 'feito' && !invAtraso(i)).length;
+      if (tem) { totL += soma; totCol[c] = (totCol[c] || 0) + soma; }
+      const alvo = its.length === 1 ? `data-a="abrirInv" data-id="${esc(its[0].id)}"` : `data-a="fiResCel" data-l="${esc(l.id)}" data-k="${c}"`;
+      return `<td class="rc" ${alvo}>${tem ? `<b style="color:${soma < 0 ? 'var(--bad)' : 'var(--ok)'}">${eur(soma)}</b>` : ''}
+        ${falta ? `<div><span class="pill bad">${falta} sem resultado</span></div>` : ''}${!tem && !falta && pend ? `<span class="muted" style="font-size:12px">${its.filter(i => i.estado !== 'feito').map(i => fmtData(i.data).slice(0, 5)).join(', ')}</span>` : ''}</td>`;
+    }).join('');
+    totGeral += totL;
+    return `<tr><td class="ln"><b>${esc(l.nome)}</b></td>${tds}<td><b style="color:${totL < 0 ? 'var(--bad)' : 'inherit'}">${eur(totL)}</b></td></tr>`;
+  }).join('');
+  return `<div class="row" style="justify-content:center;margin:4px 0 8px">${navMes()}</div>
+  <div class="card" style="padding:4px 6px;overflow-x:auto"><table class="restab">
+    <thead><tr><th>Loja</th>${cols.map(c => `<th>${esc(catCurto(c))}</th>`).join('')}<th>Total</th></tr></thead>
+    <tbody>${linhas}${lojas.length > 1 ? `<tr class="tot"><td><b>Total</b></td>${cols.map(c => `<td><b>${totCol[c] != null ? eur(totCol[c]) : '—'}</b></td>`).join('')}<td><b>${eur(totGeral)}</b></td></tr>` : ''}</tbody>
+  </table></div>
+  <p class="muted" style="font-size:12.5px">Diferenças de inventário em € registadas pelas lojas no mês (negativo = falta de stock). Toca numa célula para ver o detalhe.</p>`;
+}
+const parseNum = s => { if (s == null) return null; s = String(s).trim().replace(/\s|€/g, ''); if (!s) return null; if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.'); const n = Number(s); return isNaN(n) ? NaN : Math.round(n * 100) / 100; };
+function abrirNovoInv() {
+  abrirModal(`<h2>Agendar inventário</h2>
+    <label class="f">Tipo</label>
+    <div class="seg" id="ni-tipo"><button class="on" data-v="global" type="button">Global</button><button data-v="parcial" type="button">Parcial</button></div>
+    <div id="ni-cats" hidden><label class="f">Artigos do inventário parcial</label>
+      <div class="row">${INV_CATS.map(([k, n]) => `<label class="cbx card" style="padding:8px 12px;box-shadow:none"><input type="checkbox" value="${k}"> ${n}</label>`).join('')}</div></div>
+    <label class="f">Lojas</label>
+    <label class="cbx"><input type="checkbox" id="ni-todas"> Todas as lojas</label>
+    <div class="row mt" id="ni-lojas">${S.lojas.map(l => `<label class="cbx card" style="padding:6px 10px;box-shadow:none"><input type="checkbox" value="${esc(l.id)}" ${S.fi.loja === l.id ? 'checked' : ''}> ${esc(l.nome)}</label>`).join('')}</div>
+    <div class="row" style="align-items:flex-start">
+      <div class="sp" style="min-width:150px"><label class="f">Data</label><input type="date" id="ni-d" value="${addDias(1)}" min="${hoje()}"></div>
+      <div style="width:120px"><label class="f">Hora (opcional)</label><input type="time" id="ni-h" style="width:100%;border:1px solid var(--line);border-radius:10px;padding:8px"></div>
+    </div>
+    <div class="row" style="align-items:flex-start">
+      <div class="sp"><label class="f">Repetir</label><select id="ni-r"><option value="0">Não repetir</option><option value="7">Todas as semanas</option><option value="14">De 2 em 2 semanas</option><option value="m">Todos os meses</option></select></div>
+      <div style="width:120px"><label class="f">Nº de vezes</label><input type="text" inputmode="numeric" id="ni-n" value="4" disabled></div>
+    </div>
+    <label class="f">Notas para a loja</label><textarea id="ni-o" placeholder="Ex.: contar antes da abertura, enviar o resultado ao responsável"></textarea>
+    <div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" id="ni-ok">Agendar</button></div>`);
+  let tipo = 'global';
+  $('#ni-tipo').onclick = e => { const b = e.target.closest('button'); if (!b) return; tipo = b.dataset.v; [...$('#ni-tipo').children].forEach(x => x.classList.toggle('on', x === b)); $('#ni-cats').hidden = tipo !== 'parcial'; };
+  $('#ni-todas').onchange = e => $('#ni-lojas').querySelectorAll('input').forEach(i => i.checked = e.target.checked);
+  $('#ni-r').onchange = e => { $('#ni-n').disabled = e.target.value === '0'; };
+  $('#ni-ok').onclick = async () => {
+    const cats = [...$('#ni-cats').querySelectorAll('input:checked')].map(i => i.value);
+    const lojas = [...$('#ni-lojas').querySelectorAll('input:checked')].map(i => i.value);
+    const d0 = $('#ni-d').value, hora = $('#ni-h').value || null, rep = $('#ni-r').value, notas = $('#ni-o').value.trim();
+    let n = rep === '0' ? 1 : Math.max(1, Math.min(24, parseInt($('#ni-n').value, 10) || 1));
+    if (tipo === 'parcial' && !cats.length) { toast('Escolhe os artigos do inventário parcial.'); return; }
+    if (!lojas.length) { toast('Escolhe pelo menos uma loja.'); return; }
+    if (!d0) { toast('Escolhe a data.'); return; }
+    const datas = [];
+    for (let k = 0; k < n; k++) {
+      const dt = new Date(d0 + 'T12:00');
+      if (rep === 'm') dt.setMonth(dt.getMonth() + k); else dt.setDate(dt.getDate() + k * (+rep || 0));
+      datas.push(`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`);
+    }
+    const total = datas.length * lojas.length;
+    if (total > 60 && !(await confirmar(`Vão ser criados ${total} inventários. Continuar?`, 'Criar'))) return;
+    fecharModal();
+    const grupo = 'g' + rid(); let c = 0;
+    for (const d of datas) for (const l of lojas) {
+      const ok = await escrever(() => S.db.collection('inventarios').add({ lojaId: l, tipo, categorias: tipo === 'parcial' ? cats : [], data: d, hora, notas,
+        estado: 'agendado', grupo, criadoPor: S.me || null, criadoEm: new Date().toISOString(), feitoEm: null, feitoPor: null, obsLoja: '' }));
+      if (!ok) break; c++;
+    }
+    if (c) toast(c === 1 ? 'Inventário agendado' : `${c} inventários agendados`);
+  };
+}
+function abrirInv(id, editar) {
+  const i = S.inventarios.find(x => x.id === id); if (!i) return;
+  const feito = i.estado === 'feito'; const pw = podeEscrever(); const r = i.resultado;
+  const form = pw && (!feito || editar);
+  const cats = invCats(i);
+  const linhaDe = c => (r && (r.linhas || []).find(x => x.cat === c)) || {};
+  const fotosR = (r && r.fotos) || [];
+  abrirModal(`
+    <div class="row"><h2 class="sp" style="margin:0">${i.tipo === 'global' ? 'Inventário global' : 'Inventário parcial'}</h2>${feito ? '<span class="pill ok">✓ Com resultado</span>' : invAtraso(i) ? '<span class="pill bad">Sem resultado</span>' : ''}</div>
+    <div class="muted" style="margin:4px 0 12px">${esc(nomeLoja(i.lojaId))} · ${invDatas(i)}${i.hora ? ' às ' + esc(i.hora) : ''}${i.tipo === 'parcial' ? ' · ' + esc(cats.map(catNome).join(', ')) : ''}</div>
+    ${i.notas ? `<div class="note"><small>Notas do responsável</small>${esc(i.notas)}</div>` : ''}
+    ${form ? `
+      <h3 style="margin-top:14px">Resultado do inventário</h3>
+      ${cats.map(c => { const l = linhaDe(c); return `<div class="card" style="padding:10px 12px;margin-bottom:8px;box-shadow:none">
+        <b>${esc(catNome(c))}</b>
+        <div class="row" style="align-items:flex-start">
+          <div class="sp" style="min-width:140px"><label class="f">Diferença (€)</label><input type="text" inputmode="decimal" class="res-v" data-cat="${c}" value="${l.valor != null ? String(l.valor).replace('.', ',') : ''}" placeholder="ex.: -12,50"></div>
+          <div class="sp" style="min-width:120px"><label class="f">Unidades com diferença</label><input type="text" inputmode="numeric" class="res-u" data-cat="${c}" value="${l.unidades != null ? l.unidades : ''}" placeholder="opcional"></div>
+        </div></div>`; }).join('')}
+      <p class="muted" style="font-size:12.5px;margin:2px 0 0">Usa o sinal menos para faltas (ex.: -12,50) e valor positivo para sobras. Se não houve diferenças, escreve 0.</p>
+      <label class="f">Observações</label><textarea id="res-o" placeholder="Ex.: artigos com maior diferença, possível causa…">${esc((r && r.obs) || '')}</textarea>
+      <label class="f">Foto da folha / relatório do inventário (opcional)</label>
+      ${fotosR.length ? `<div class="thumbs">${fotosR.map(f => `<button type="button">${imgTag(f)}</button>`).join('')}</div>` : ''}
+      <label class="upbtn"><span id="res-fl">📷 Juntar foto</span><input type="file" accept="image/*" multiple id="res-f"></label>
+    ` : r ? `
+      <h3 style="margin-top:14px">Resultado</h3>
+      <div class="card" style="padding:4px 12px;box-shadow:none"><table><tbody>
+        ${(r.linhas || []).map(x => `<tr><td>${esc(catNome(x.cat))}</td><td style="text-align:right"><b style="color:${x.valor < 0 ? 'var(--bad)' : 'var(--ok)'}">${eur(x.valor)}</b></td><td class="muted" style="text-align:right">${x.unidades != null ? x.unidades + ' un.' : ''}</td></tr>`).join('')}
+        ${(r.linhas || []).length > 1 ? `<tr><td><b>Total</b></td><td style="text-align:right"><b>${eur(invTotal(i))}</b></td><td></td></tr>` : ''}
+      </tbody></table></div>
+      ${r.obs ? `<div class="note mt"><small>Observações da loja</small>${esc(r.obs)}</div>` : ''}
+      ${fotosR.length ? `<div class="bigph mt">${fotosR.map(f => `<figure>${imgTag(f)}</figure>`).join('')}</div>` : ''}
+      <div class="muted mt" style="font-size:12.5px">Registado por ${esc(nome(r.por))} em ${fmtDataHora(r.em)}</div>
+    ` : feito ? `<div class="muted mt">Marcado como feito${i.feitoEm ? ' em ' + fmtDataHora(i.feitoEm) : ''}, sem resultado registado.</div>` : `<div class="card empty mt">${i.data > hoje() ? 'O resultado pode ser registado a partir do dia do inventário.' : 'Ainda sem resultado.'}</div>`}
+    ${S.isAdmin && pw && !feito && !editar ? `<label class="f">Mudar a data</label><input type="date" id="inv-d" value="${esc(i.data)}">` : ''}
+    <div class="row" style="margin-top:16px">
+      ${S.isAdmin && pw && !form ? `<button class="btn ghost danger" data-a="invApagar" data-id="${esc(i.id)}">Apagar</button>` : ''}
+      ${feito && pw && !form ? `<button class="btn ghost" data-a="invEditar" data-id="${esc(i.id)}">Corrigir resultado</button>` : ''}
+      ${feito && pw && S.isAdmin && !form ? `<button class="btn ghost" data-a="invReabrir" data-id="${esc(i.id)}">Reabrir</button>` : ''}
+      <span class="sp"></span><button class="btn" data-a="fechar">${form ? 'Cancelar' : 'Fechar'}</button>
+      ${S.isAdmin && pw && !feito && !form ? `<button class="btn" data-a="invGuardarData" data-id="${esc(i.id)}">Guardar data</button>` : ''}
+      ${form ? `${S.isAdmin && !feito ? `<button class="btn" data-a="invGuardarData" data-id="${esc(i.id)}">Guardar data</button>` : ''}<button class="btn pri" data-a="invGuardarRes" data-id="${esc(i.id)}">Guardar resultado</button>` : ''}
+    </div>`);
+  const ff = $('#res-f'); if (ff) ff.onchange = () => { const n = ff.files.length; $('#res-fl').textContent = n ? `📷 ${n} foto${n > 1 ? 's' : ''} para enviar` : '📷 Juntar foto'; };
+}
+
+/* ---------- encomendas de palamenta ---------- */
+const ENC_ESTADOS = { pendente: ['Pendente', 'warn'], aprovada: ['Aprovada', 'br'], encomendada: ['Encomendada', ''], entregue: ['Entregue', 'ok'], recusada: ['Recusada', 'bad'] };
+function encPill(e) { const [n, c] = ENC_ESTADOS[e] || [e, '']; return `<span class="pill ${c}">${esc(n)}</span>`; }
+function palGrupos() { // [{grupo, itens:[nome]}]
+  const out = []; let g = null;
+  (S.palamenta || PALAMENTA_BASE).split('\n').map(s => s.trim()).filter(Boolean).forEach(s => {
+    if (s.startsWith('#')) { g = { grupo: s.replace(/^#+\s*/, ''), itens: [] }; out.push(g); }
+    else { if (!g) { g = { grupo: 'Artigos', itens: [] }; out.push(g); } g.itens.push(s); }
+  });
+  return out;
+}
+const encQtd = e => (e.itens || []).reduce((s, x) => s + (+x.qtd || 0), 0);
+function encHTML(e, mostrarLoja) {
+  const n = (e.itens || []).length;
+  return `<div class="card task" data-a="abrirEnc" data-id="${esc(e.id)}">
+    <div style="flex:1;min-width:0">
+      <div class="tt">Pedido de ${fmtData(e.criadoEm)} · ${n} artigo${n !== 1 ? 's' : ''} (${encQtd(e)} un.)</div>
+      <div class="meta">${mostrarLoja ? `<span class="pill br">${esc(nomeLoja(e.lojaId))}</span>` : ''}${encPill(e.estado)}
+        <span>${esc((e.itens || []).slice(0, 3).map(x => x.qtd + '× ' + x.nome).join(', '))}${n > 3 ? '…' : ''}</span>
+        ${e.resposta ? '<span>· 💬</span>' : ''}</div>
+    </div></div>`;
+}
+function vEncomendas() {
+  const lojasSel = S.isAdmin ? S.lojas : minhasLojas();
+  const ids = new Set(lojasSel.map(l => l.id));
+  let es = S.encomendas.filter(e => ids.has(e.lojaId) || (S.isAdmin && !lojaById(e.lojaId)));
+  if (S.fe.loja) es = es.filter(e => e.lojaId === S.fe.loja);
+  const abertos = es.filter(e => e.estado === 'pendente' || e.estado === 'aprovada' || e.estado === 'encomendada');
+  const modos = S.isAdmin ? [['pedidos', 'Pedidos'], ['total', 'Total a encomendar'], ...(S.isOwner ? [['gastos', 'Gastos']] : [])] : [];
+  let corpo;
+  if (S.isOwner && S.fe.modo === 'gastos') corpo = vGastos('palamenta');
+  else if (S.isAdmin && S.fe.modo === 'total') corpo = vEncTotal(es);
+  else {
+    let lista = S.fe.estado === 'abertos' ? abertos : S.fe.estado === 'todos' ? es : es.filter(e => e.estado === S.fe.estado);
+    lista = lista.slice().sort((a, b) => (b.criadoEm || '').localeCompare(a.criadoEm || ''));
+    const seg = [['abertos', 'Em curso'], ['pendente', 'Pendentes'], ['entregue', 'Entregues'], ['todos', 'Todos']];
+    corpo = `<div class="seg" style="display:flex;margin-bottom:6px">${seg.map(([k, l]) => `<button style="flex:1" class="${S.fe.estado === k ? 'on' : ''}" data-a="feEstado" data-v="${k}">${l}</button>`).join('')}</div>
+      <div class="list mt">${lista.length ? lista.map(e => encHTML(e, !S.fe.loja && lojasSel.length > 1)).join('') : `<div class="card empty">${S.loaded.encomendas ? 'Sem pedidos.' : 'A carregar…'}</div>`}</div>`;
+  }
+  return `
+  <div class="row"><h2 class="sp">Palamenta</h2>${podeEscrever() && lojasSel.length && S.fe.modo !== 'gastos' ? '<button class="btn pri" data-a="novaEnc">+ Novo pedido</button>' : ''}</div>
+  ${modos.length ? `<div class="seg" style="display:flex;margin-bottom:10px">${modos.map(([k, l]) => `<button style="flex:1" class="${S.fe.modo === k ? 'on' : ''}" data-a="feModo" data-v="${k}">${l}</button>`).join('')}</div>` : ''}
+  ${lojasSel.length > 1 && S.fe.modo !== 'gastos' ? `<div class="filters" style="grid-template-columns:1fr"><select data-c="feLoja"><option value="">Todas as lojas</option>${lojasSel.map(l => `<option value="${esc(l.id)}" ${S.fe.loja === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select></div>` : ''}
+  ${!lojasSel.length ? '<div class="card empty">Ainda não estás associado a nenhuma loja.</div>' : corpo}`;
+}
+function vEncTotal(es) {
+  const est = S.fe.totEst;
+  const sel = es.filter(e => est.includes(e.estado));
+  const tot = {}; const porLoja = {};
+  sel.forEach(e => (e.itens || []).forEach(x => { tot[x.nome] = (tot[x.nome] || 0) + (+x.qtd || 0); (porLoja[x.nome] = porLoja[x.nome] || []).push([e.lojaId, +x.qtd || 0]); }));
+  const ordem = palGrupos().flatMap(g => g.itens);
+  const nomes = Object.keys(tot).sort((a, b) => { const ia = ordem.indexOf(a), ib = ordem.indexOf(b); return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib); });
+  return `<div class="row" style="margin-bottom:8px"><span class="muted" style="font-size:13px">Somar pedidos:</span>
+    ${['pendente', 'aprovada'].map(k => `<label class="cbx"><input type="checkbox" data-c="feTot" value="${k}" ${est.includes(k) ? 'checked' : ''}> ${ENC_ESTADOS[k][0]}s</label>`).join('')}</div>
+  <div class="card" style="padding:4px 6px;overflow-x:auto">${nomes.length ? `<table><thead><tr><th>Artigo</th><th style="text-align:right">Qtd.</th><th>Lojas</th></tr></thead><tbody>
+    ${nomes.map(n => `<tr><td><b>${esc(n)}</b></td><td style="text-align:right;font-size:16px"><b>${tot[n]}</b></td><td class="muted" style="font-size:12.5px">${porLoja[n].map(([l, q]) => esc(nomeLoja(l)) + ' ' + q).join(' · ')}</td></tr>`).join('')}
+  </tbody></table>` : '<div class="empty">Não há pedidos nestes estados.</div>'}</div>
+  ${nomes.length ? `<div class="row mt"><span class="muted sp" style="font-size:13px">${sel.length} pedido${sel.length !== 1 ? 's' : ''} de ${new Set(sel.map(e => e.lojaId)).size} loja(s)</span>
+    <button class="btn" data-a="encCopiar">Copiar lista</button>${podeEscrever() ? `<button class="btn pri" data-a="encMarcarTodas">Marcar como encomendados</button>` : ''}</div>` : ''}`;
+}
+function abrirEnc(id) {
+  const ex = id ? S.encomendas.find(e => e.id === id) : null;
+  const ml = S.isAdmin ? S.lojas : minhasLojas();
+  const editavel = podeEscrever() && (!ex || ex.estado === 'pendente' || S.isAdmin);
+  const qtds = {}; (ex ? ex.itens || [] : []).forEach(x => qtds[x.nome] = x.qtd);
+  const grupos = palGrupos();
+  const extra = Object.keys(qtds).filter(n => !grupos.some(g => g.itens.includes(n)));
+  if (extra.length) grupos.push({ grupo: 'Outros', itens: extra });
+  if (!editavel && ex) {
+    abrirModal(`<div class="row"><h2 class="sp" style="margin:0">Pedido de palamenta</h2>${encPill(ex.estado)}</div>
+      <div class="muted" style="margin:4px 0 12px">${esc(nomeLoja(ex.lojaId))} · ${fmtDataHora(ex.criadoEm)} · por ${esc(nome(ex.criadoPor))}</div>
+      <div class="card" style="padding:4px 12px;box-shadow:none"><table><tbody>${(ex.itens || []).map(x => `<tr><td>${esc(x.nome)}</td><td style="text-align:right"><b>${x.qtd}</b></td></tr>`).join('')}</tbody></table></div>
+      ${ex.obs ? `<div class="note mt"><small>Observações da loja</small>${esc(ex.obs)}</div>` : ''}
+      ${ex.resposta ? `<div class="note mt"><small>Resposta do responsável</small>${esc(ex.resposta)}</div>` : ''}
+      <div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button></div>`);
+    return;
+  }
+  const lojaId = ex ? ex.lojaId : (S.fe.loja || (ml.length === 1 ? ml[0].id : ''));
+  abrirModal(`
+    <div class="row"><h2 class="sp" style="margin:0">${ex ? 'Pedido de palamenta' : 'Novo pedido de palamenta'}</h2>${ex ? encPill(ex.estado) : ''}</div>
+    ${ex ? `<div class="muted" style="margin:4px 0 6px">${fmtDataHora(ex.criadoEm)} · por ${esc(nome(ex.criadoPor))}</div>` : ''}
+    <label class="f">Loja</label>
+    <select id="en-l" ${ex ? 'disabled' : ''}><option value="">Escolhe…</option>${ml.map(l => `<option value="${esc(l.id)}" ${lojaId === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
+    <input type="search" id="en-q" placeholder="Procurar artigo…" style="margin-top:10px">
+    <div id="en-itens">${grupos.map(g => `<div class="engrp"><h3>${esc(g.grupo)}</h3>${g.itens.map(n => `<div class="enrow" data-n="${esc(n.toLowerCase())}">
+      <span class="sp">${esc(n)}</span>
+      <button type="button" class="stp" data-d="-1" aria-label="Menos">−</button>
+      <input type="text" inputmode="numeric" class="enq" data-nome="${esc(n)}" value="${qtds[n] || ''}" placeholder="0">
+      <button type="button" class="stp" data-d="1" aria-label="Mais">+</button></div>`).join('')}</div>`).join('')}</div>
+    <label class="f">Observações</label><textarea id="en-o" placeholder="Ex.: urgente, partiram-se 6 chávenas no fim de semana">${esc(ex ? ex.obs || '' : '')}</textarea>
+    ${S.isAdmin && ex ? `<label class="f">Estado</label><select id="en-e">${Object.entries(ENC_ESTADOS).map(([k, [n]]) => `<option value="${k}" ${ex.estado === k ? 'selected' : ''}>${n}</option>`).join('')}</select>
+      <label class="f">Resposta para a loja (opcional)</label><textarea id="en-r" placeholder="Ex.: aprovado com quantidades ajustadas">${esc(ex.resposta || '')}</textarea>` : ''}
+    ${ex && S.isOwner ? `<div class="row mt" style="background:#FFF8EA;border:1px solid var(--line);border-radius:10px;padding:8px 10px"><span class="sp" style="font-size:13.5px">💶 Custo registado: <b>${eur(gastosDe('encomendaId', ex.id).reduce((s, g) => s + (+g.valor || 0), 0))}</b></span><button class="btn sm" type="button" data-a="gastoDeEnc" data-id="${esc(ex.id)}">+ Registar custo</button></div>` : ''}
+    ${ex && ex.resposta && !S.isAdmin ? `<div class="note mt"><small>Resposta do responsável</small>${esc(ex.resposta)}</div>` : ''}
+    <div class="stickybar" style="padding-bottom:0">
+      ${ex && (S.isAdmin || ex.estado === 'pendente') ? `<button class="btn ghost danger" data-a="encApagar" data-id="${esc(ex.id)}">Apagar</button>` : ''}
+      <span class="sp" id="en-tot" style="align-self:center;font-weight:700"></span>
+      <button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" data-a="encGuardar" data-id="${ex ? esc(ex.id) : ''}">${ex ? 'Guardar' : 'Enviar pedido'}</button>
+    </div>`);
+  const totUp = () => { let n = 0, q = 0; document.querySelectorAll('.enq').forEach(i => { const v = parseInt(i.value, 10); if (v > 0) { n++; q += v; } i.closest('.enrow').classList.toggle('on', v > 0); }); $('#en-tot').textContent = n ? `${n} artigo${n > 1 ? 's' : ''} · ${q} un.` : ''; };
+  $('#en-itens').addEventListener('click', ev => { const b = ev.target.closest('.stp'); if (!b) return; const i = b.parentElement.querySelector('.enq'); i.value = Math.max(0, (parseInt(i.value, 10) || 0) + +b.dataset.d) || ''; totUp(); });
+  $('#en-itens').addEventListener('input', totUp);
+  $('#en-q').addEventListener('input', ev => { const q = ev.target.value.trim().toLowerCase(); document.querySelectorAll('.enrow').forEach(r => r.hidden = q && !r.dataset.n.includes(q)); document.querySelectorAll('.engrp').forEach(g => g.hidden = ![...g.querySelectorAll('.enrow')].some(r => !r.hidden)); });
+  totUp();
+}
+
+/* ---------- quebras de caixa ---------- */
+const QC_ESTADOS = { aguarda: ['Aguarda justificação', 'warn'], justificada: ['Justificada · por validar', 'br'], aceite: ['Aceite', 'ok'], recusada: ['Não aceite', 'bad'] };
+const qcPill = q => { const atr = q.estado === 'aguarda' && q.prazo && q.prazo < hoje(); const [n, c] = QC_ESTADOS[q.estado] || [q.estado, '']; return `<span class="pill ${atr ? 'bad' : c}">${atr ? 'Justificação em atraso' : esc(n)}</span>`; };
+function qcHTML(q, mostrarLoja) {
+  return `<div class="card task ${q.valor < 0 ? 'pri-alta' : 'pri-media'}" data-a="abrirQC" data-id="${esc(q.id)}">
+    <div style="flex:1;min-width:0">
+      <div class="tt"><span style="color:${q.valor < 0 ? 'var(--bad)' : 'var(--ok)'}">${eur(q.valor)}</span> · caixa de ${fmtData(q.data)}${q.caixa ? ' · ' + esc(q.caixa) : ''}</div>
+      <div class="meta">${mostrarLoja ? `<span class="pill br">${esc(nomeLoja(q.lojaId))}</span>` : ''}${qcPill(q)}
+        ${q.estado === 'aguarda' && q.prazo ? `<span>Justificar até ${fmtData(q.prazo)}</span>` : ''}${q.justificacao ? '<span>· 💬</span>' : ''}</div>
+    </div>
+    ${!S.isAdmin && q.estado === 'aguarda' && podeEscrever() ? `<button class="btn sm pri" data-a="abrirQC" data-id="${esc(q.id)}">Justificar</button>` : ''}
+    ${S.isAdmin && q.estado === 'justificada' && podeEscrever() ? `<button class="btn sm pri" data-a="abrirQC" data-id="${esc(q.id)}">Validar</button>` : ''}
+  </div>`;
+}
+/* ---------- mapa diário de quebras de caixa (importado do ficheiro qbr) ---------- */
+const CX_LIMITE = -20;
+const cxAlerta = d => (+d.valor || 0) <= CX_LIMITE;
+const cxResolvido = d => !!((d.justificacao || '').trim()) && (d.registo === 'nao' || (d.registo === 'sim' && (d.nRegisto || '').trim()));
+let cxUnsub = null, cxMesSub = null;
+function subscreverCaixaMes(mes) {
+  if (!S.db || cxMesSub === mes) return;
+  if (cxUnsub) cxUnsub();
+  cxMesSub = mes; S.caixaDias = []; S.loaded.caixaDias = false;
+  cxUnsub = S.db.collection('caixaDias').where('data', '>=', mes + '-01').where('data', '<=', mes + '-31').limit(1000).onSnapshot(snap => {
+    S.caixaDias = snap.docs.map(d => ({ id: d.id, ...d.data() })); S.loaded.caixaDias = true;
+    carregarPerfis(S.caixaDias.map(d => d.atualizadoPor));
+    if (S.view === 'caixa' && S.fq.modo === 'mapa' && document.activeElement && document.activeElement.closest && document.activeElement.closest('.cxrow')) return;
+    renderDados();
+  }, () => { S.loaded.caixaDias = true; renderDados(); });
+}
+function cxRowHTML(d, pw) {
+  const al = cxAlerta(d), ok = cxResolvido(d);
+  const dis = pw ? '' : 'disabled';
+  return `<div class="cxrow ${al ? 'alerta' : ''} ${al && ok ? 'feito' : ''}" data-id="${esc(d.id)}">
+    <div class="cx-d">${fmtData(d.data).slice(0, 5)} <span class="muted">${esc(new Date(d.data + 'T12:00').toLocaleDateString('pt-PT', { weekday: 'short' }).replace('.', ''))}</span></div>
+    <div class="cx-v" style="color:${d.valor < 0 ? 'var(--bad)' : d.valor > 0 ? 'var(--ok)' : 'inherit'}">${eur(d.valor)}${al ? (ok ? ' <span title="Justificada">✓</span>' : ' <span title="Por justificar">⚠️</span>') : ''}</div>
+    <div class="cx-r"><select data-c="cxReg" data-id="${esc(d.id)}" ${al ? dis : 'disabled'} aria-label="Registo aberto">
+      <option value="" ${!d.registo ? 'selected' : ''}>${al ? 'Registo aberto?' : '—'}</option><option value="sim" ${d.registo === 'sim' ? 'selected' : ''}>Sim</option><option value="nao" ${d.registo === 'nao' ? 'selected' : ''}>Não</option></select></div>
+    <div class="cx-n"><input type="text" data-c="cxNum" data-id="${esc(d.id)}" value="${esc(d.nRegisto || '')}" placeholder="${al ? 'Nº do registo' : '—'}" ${al && d.registo === 'sim' && pw ? '' : 'disabled'}></div>
+    <div class="cx-j"><input type="text" data-c="cxJust" data-id="${esc(d.id)}" value="${esc(d.justificacao || '')}" placeholder="${al ? 'Justificação da quebra (obrigatória)' : 'Justificação'}" ${dis}></div>
+  </div>`;
+}
+function vCaixaMapa(lojasSel) {
+  const pw = podeEscrever();
+  let ds = S.caixaDias.filter(d => lojasSel.some(l => l.id === d.lojaId));
+  if (S.fq.loja) ds = ds.filter(d => d.lojaId === S.fq.loja);
+  const nav = `<div class="row" style="justify-content:center;margin:4px 0 8px"><div class="datenav"><button class="btn sm" data-a="fqMes" data-v="-1">‹</button><b style="min-width:140px;text-align:center">${esc(mesTxt(S.fq.mes))}</b><button class="btn sm" data-a="fqMes" data-v="1">›</button></div></div>
+    <div class="row" style="margin-bottom:8px"><label class="cbx"><input type="checkbox" data-c="cxSo" ${S.fq.so20 ? 'checked' : ''}> Só quebras de ${eur(CX_LIMITE)} ou mais</label><span class="sp"></span>
+      ${S.isAdmin && pw ? '<label class="btn sm" style="cursor:pointer">⬆ Importar ficheiro qbr<input type="file" accept=".xls,.xlsx" data-c="cxImport" hidden></label>' : ''}</div>`;
+  if (!S.loaded.caixaDias) return nav + '<div class="card empty">A carregar…</div>';
+  if (!ds.length) return nav + `<div class="card empty">Sem valores de caixa neste mês.${S.isAdmin ? ' Importa o ficheiro qbr do mês.' : ''}</div>`;
+  const porLoja = lojasSel.map(l => ({ l, ds: ds.filter(d => d.lojaId === l.id).sort((a, b) => a.data.localeCompare(b.data)) })).filter(x => x.ds.length);
+  const resumo = porLoja.map(x => { const al = x.ds.filter(cxAlerta); return { ...x, tot: x.ds.reduce((s, d) => s + (+d.valor || 0), 0), nal: al.length, nok: al.filter(cxResolvido).length }; });
+  const multi = resumo.length > 1;
+  return nav + `
+  ${multi ? `<div class="card" style="padding:4px 6px;overflow-x:auto;margin-bottom:12px"><table class="restab"><thead><tr><th>Loja</th><th>Saldo do mês</th><th>Dias ≤ ${eur(CX_LIMITE)}</th><th>Justificados</th></tr></thead><tbody>
+    ${resumo.slice().sort((a, b) => a.tot - b.tot).map(x => `<tr class="click" data-a="cxIrLoja" data-v="${esc(x.l.id)}"><td><b>${esc(x.l.nome)}</b></td><td><b style="color:${x.tot < 0 ? 'var(--bad)' : 'var(--ok)'}">${eur(x.tot)}</b></td><td>${x.nal ? `<span class="pill bad">${x.nal}</span>` : '0'}</td><td>${x.nal ? (x.nok === x.nal ? `<span class="pill ok">${x.nok}/${x.nal}</span>` : `<span class="pill warn">${x.nok}/${x.nal}</span>`) : '—'}</td></tr>`).join('')}
+    <tr class="tot"><td><b>Total</b></td><td><b>${eur(resumo.reduce((s, x) => s + x.tot, 0))}</b></td><td>${resumo.reduce((s, x) => s + x.nal, 0)}</td><td>${resumo.reduce((s, x) => s + x.nok, 0)}/${resumo.reduce((s, x) => s + x.nal, 0)}</td></tr></tbody></table></div>` : ''}
+  ${resumo.map(x => {
+    const rows = S.fq.so20 ? x.ds.filter(cxAlerta) : x.ds;
+    return `<div class="card cxloja" id="cx-${esc(x.l.id)}">
+      <div class="row" style="padding:2px 2px 8px"><b class="sp" style="font-size:16px">${esc(x.l.nome)}</b>
+        <span class="pill ${x.tot < 0 ? 'bad' : 'ok'}">Saldo ${eur(x.tot)}</span>${x.nal ? `<span class="pill ${x.nok === x.nal ? 'ok' : 'warn'}">${x.nok}/${x.nal} justificadas</span>` : ''}</div>
+      <div class="cxhead"><div>Dia</div><div>Valor</div><div>Registo aberto</div><div>Nº registo</div><div>Justificação</div></div>
+      ${rows.length ? rows.map(d => cxRowHTML(d, pw)).join('') : `<div class="muted" style="padding:8px">Nenhuma quebra de ${eur(CX_LIMITE)} ou mais. 👏</div>`}
+    </div>`;
+  }).join('')}
+  <div class="legend"><span><i style="border-color:var(--bad);background:var(--bad-soft)"></i>Quebra de ${eur(CX_LIMITE)} ou mais</span><span>⚠️ por justificar</span><span>✓ justificada (registo indicado + justificação)</span></div>`;
+}
+async function cxGuardar(id, campo, valor) {
+  const d = S.caixaDias.find(x => x.id === id); if (!d) return;
+  if ((d[campo] || '') === valor) return;
+  const mud = { [campo]: valor, atualizadoPor: S.me || null, atualizadoEm: new Date().toISOString() };
+  if (campo === 'registo' && valor !== 'sim') mud.nRegisto = '';
+  await escrever(() => S.db.doc('caixaDias/' + id).update(mud));
+}
+/* importação do ficheiro qbr (.xls) */
+let XLSXlib = null;
+function carregarXLSX() {
+  if (XLSXlib) return Promise.resolve(XLSXlib);
+  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = () => { XLSXlib = window.XLSX; res(XLSXlib); }; s.onerror = rej; document.head.appendChild(s); });
+}
+const normNome = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/\s+/g, ' ').trim();
+async function importarQbr(file) {
+  let X; try { X = await carregarXLSX(); } catch (e) { toast('Não foi possível abrir o leitor de Excel.'); return; }
+  const wb = X.read(await file.arrayBuffer(), { type: 'array' });
+  const rows = X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false });
+  const lojas = {}; let cur = null;
+  rows.forEach(r => (r || []).forEach(c => {
+    const s = String(c || ''); let m;
+    if ((m = s.match(/^Loja\s*:\s*(.+?)\s*\((-?[\d.,]+)\)\s*$/))) { cur = m[1].trim(); lojas[cur] = lojas[cur] || []; }
+    else if (cur && (m = s.match(/Data caixa\s*:\s*(\d\d)\/(\d\d)\/(\d{4})\s*\((-?[\d.,]+)\)/))) lojas[cur].push({ data: `${m[3]}-${m[2]}-${m[1]}`, valor: Math.round(parseFloat(m[4].replace(',', '.')) * 100) / 100 });
+  }));
+  const nomes = Object.keys(lojas);
+  if (!nomes.length) { toast('Não encontrei valores de caixa neste ficheiro.'); return; }
+  const auto = n => S.lojas.find(l => (l.aliasesQbr || []).map(normNome).includes(normNome(n)));
+  abrirModal(`<h2>Importar quebras de caixa</h2>
+    <p class="muted" style="margin-top:-6px">Confirma a que loja corresponde cada nome do ficheiro. Os valores já existentes são atualizados; as justificações mantêm-se.</p>
+    ${nomes.map((n, i) => { const a = auto(n); return `<div class="row" style="margin:6px 0"><span class="sp" style="font-size:13.5px"><b>${esc(n)}</b><br><span class="muted">${lojas[n].length} dias · ${eur(lojas[n].reduce((s, x) => s + x.valor, 0))}</span></span>
+      <select class="imp-l" data-i="${i}" style="width:190px"><option value="">Ignorar</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${a && a.id === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select></div>`; }).join('')}
+    <div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" id="imp-ok">Importar</button></div>`);
+  $('#imp-ok').onclick = async () => {
+    const mapa = [...document.querySelectorAll('.imp-l')].map(s => [nomes[+s.dataset.i], s.value]).filter(x => x[1]);
+    $('#imp-ok').disabled = true; $('#imp-ok').textContent = 'A importar…';
+    let n = 0;
+    for (const [nomeF, lojaId] of mapa) {
+      const l = lojaById(lojaId);
+      if (l && !(l.aliasesQbr || []).map(normNome).includes(normNome(nomeF))) await escrever(() => S.db.doc('lojas/' + l.id).update({ aliasesQbr: [...(l.aliasesQbr || []), nomeF] }));
+      for (const x of lojas[nomeF]) {
+        const id = `${x.data}_${lojaId}`; const ref = S.db.doc('caixaDias/' + id);
+        const ex = S.caixaDias.find(d => d.id === id) || (await ref.get().then(s => s.exists ? s.data() : null).catch(() => null));
+        const ok = ex ? (ex.valor === x.valor ? true : await escrever(() => ref.update({ valor: x.valor }))) : await escrever(() => ref.set({ lojaId, data: x.data, valor: x.valor, registo: '', nRegisto: '', justificacao: '' }));
+        if (!ok) break; n++;
+      }
+    }
+    fecharModal(); toast(`${n} dias importados`);
+    const meses = Object.values(lojas).flat().map(x => x.data.slice(0, 7)).sort(); if (meses.length) { S.fq.mes = meses[meses.length - 1]; subscreverCaixaMes(S.fq.mes); render(); }
+  };
+}
+
+/* ---------- avarias de equipamentos ---------- */
+const EQUIPAMENTOS = ['Máquina de lavar louça', 'Forno', 'Máquina de sumo', 'Expositor refrigerado', 'Tostadeira', 'Máquina café', 'Moinho', 'Máquina gelo', 'Microondas',
+  'Bancada horizontal refrigerada', 'Blockit refrigerada', 'Blockit (-)', 'Sopeira', 'Luzes vitrine', 'Luzes sala', 'Luzes reclamo Bagga', 'Mesas altas', 'Mesas baixas', 'Cadeiras',
+  'Insectocaçador', 'Ar condicionado', 'Termoacumulador', 'Arrozeira', 'Hotte', 'Paredes danificadas', 'Vidro esplanada', 'Fritadeira'];
+const AV_ESTADOS = { aberta: ['Avariado', 'bad'], reparacao: ['Em reparação', 'warn'], resolvida: ['Resolvido', 'ok'] };
+const avPill = e => { const [n, c] = AV_ESTADOS[e] || [e, '']; return `<span class="pill ${c}">${esc(n)}</span>`; };
+const diasDesde = iso => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
+function avHTML(a, mostrarLoja) {
+  const d = a.criadoEm ? diasDesde(a.criadoEm) : 0;
+  return `<div class="card task ${a.estado === 'resolvida' ? 'done' : a.parado ? 'pri-alta' : 'pri-media'}" data-a="abrirAv" data-id="${esc(a.id)}">
+    <div style="flex:1;min-width:0">
+      <div class="tt">🔧 ${esc(a.equipamento)}${a.parado && a.estado !== 'resolvida' ? ' <span class="pill bad">Parado</span>' : ''}</div>
+      <div style="font-size:13.5px;margin-top:3px">${esc(a.motivo)}</div>
+      <div class="meta">${mostrarLoja ? `<span class="pill br">${esc(nomeLoja(a.lojaId))}</span>` : ''}${avPill(a.estado)}
+        <span>${fmtData(a.criadoEm)}${a.estado !== 'resolvida' ? (d === 0 ? ' · hoje' : ` · há ${d} dia${d !== 1 ? 's' : ''}`) : a.resolvidoEm ? ` · resolvido ${fmtData(a.resolvidoEm)}` : ''}</span>
+        ${a.nAssistencia ? `<span>· Nº ${esc(a.nAssistencia)}</span>` : ''}${(a.notas || []).length ? `<span>· 💬 ${(a.notas || []).length}</span>` : ''}${(a.fotos || []).length ? '<span>· 📷</span>' : ''}</div>
+    </div></div>`;
+}
+/* ---------- gastos (só o responsável) ---------- */
+const GASTO_TIPOS = { equipamentos: 'Assistência a equipamentos', palamenta: 'Compras de palamenta' };
+const MESES_C = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const eur0 = v => new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+function vGastos(tipo) {
+  const ano = S.fg.ano; const h = hoje();
+  let gs = S.gastos.filter(g => g.tipo === tipo && (g.data || '').startsWith(String(ano)));
+  const lojas = S.lojas;
+  const mesAtual = h.startsWith(String(ano)) ? +h.slice(5, 7) : 12;
+  const cel = {}; const totL = {}; const totM = Array(12).fill(0); let tot = 0;
+  gs.forEach(g => { const m = +g.data.slice(5, 7) - 1; const k = g.lojaId + '|' + m; cel[k] = (cel[k] || 0) + (+g.valor || 0); totL[g.lojaId] = (totL[g.lojaId] || 0) + (+g.valor || 0); totM[m] += +g.valor || 0; tot += +g.valor || 0; });
+  const mesesVis = Array.from({ length: mesAtual }, (_, i) => i);
+  const orf = [...new Set(gs.map(g => g.lojaId))].filter(id => !lojaById(id));
+  const linhasL = [...lojas.map(l => ({ id: l.id, nome: l.nome })), ...orf.map(id => ({ id, nome: 'Loja removida' }))];
+  let lista = S.fg.loja ? gs.filter(g => g.lojaId === S.fg.loja) : gs;
+  lista = lista.slice().sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+  const mesTot = h.startsWith(String(ano)) ? totM[mesAtual - 1] : null;
+  return `
+  <div class="row" style="margin-bottom:8px"><div class="datenav"><button class="btn sm" data-a="fgAno" data-v="-1">‹</button><b style="min-width:60px;text-align:center">${ano}</b><button class="btn sm" data-a="fgAno" data-v="1">›</button></div>
+    <span class="sp"></span><button class="btn pri" data-a="novoGasto" data-t="${tipo}">+ Registar gasto</button></div>
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card kpi"><b>${eur0(tot)}</b><span>Total ${ano}</span></div>
+    <div class="card kpi"><b>${mesTot != null ? eur0(mesTot) : '—'}</b><span>${mesTot != null ? 'Este mês' : 'Mês atual'}</span></div>
+    <div class="card kpi"><b>${eur0(tot / Math.max(1, mesAtual))}</b><span>Média por mês</span></div>
+  </div>
+  <div class="card gtabwrap" style="padding:4px 6px;overflow-x:auto"><table class="restab gtab">
+    <thead><tr><th>Loja</th>${mesesVis.map(m => `<th>${MESES_C[m]}</th>`).join('')}<th>Total</th></tr></thead>
+    <tbody>${linhasL.map(l => `<tr class="click ${S.fg.loja === l.id ? 'selrow' : ''}" data-a="fgLoja" data-v="${esc(l.id)}"><td><b>${esc(l.nome)}</b></td>${mesesVis.map(m => { const v = cel[l.id + '|' + m]; return `<td>${v ? eur0(v) : '<span class="muted">·</span>'}</td>`; }).join('')}<td><b>${totL[l.id] ? eur0(totL[l.id]) : '—'}</b></td></tr>`).join('')}
+    <tr class="tot"><td><b>Total</b></td>${mesesVis.map(m => `<td><b>${totM[m] ? eur0(totM[m]) : '—'}</b></td>`).join('')}<td><b>${eur0(tot)}</b></td></tr></tbody>
+  </table></div>
+  <div class="row" style="margin-top:18px"><h3 class="sp" style="margin:0">${S.fg.loja ? 'Gastos de ' + esc(nomeLoja(S.fg.loja)) : 'Todos os gastos de ' + ano}</h3>${S.fg.loja ? '<button class="btn sm ghost" data-a="fgLoja" data-v="">Ver todas</button>' : ''}</div>
+  <div class="list mt">${lista.length ? lista.map(g => `<div class="card task" data-a="abrirGasto" data-id="${esc(g.id)}"><div style="flex:1;min-width:0">
+      <div class="tt">${eur(g.valor)} · ${esc(g.descricao || GASTO_TIPOS[tipo])}</div>
+      <div class="meta"><span class="pill br">${esc(nomeLoja(g.lojaId))}</span><span>${fmtData(g.data)}</span>${g.equipamento ? `<span>· ${esc(g.equipamento)}</span>` : ''}${g.fornecedor ? `<span>· ${esc(g.fornecedor)}</span>` : ''}${g.fatura ? `<span>· Fat. ${esc(g.fatura)}</span>` : ''}</div>
+    </div></div>`).join('') : `<div class="card empty">${S.loaded.gastos ? 'Ainda sem gastos registados.' : 'A carregar…'}</div>`}</div>`;
+}
+function abrirGasto(id, pre) {
+  const g = id ? S.gastos.find(x => x.id === id) : { tipo: pre.tipo, lojaId: pre.lojaId || S.fg.loja || '', data: hoje(), valor: null, descricao: pre.descricao || '', equipamento: pre.equipamento || '', avariaId: pre.avariaId || null, encomendaId: pre.encomendaId || null, fornecedor: '', fatura: '' };
+  if (!g) return;
+  const tipo = g.tipo;
+  abrirModal(`<h2>${id ? 'Gasto' : 'Registar gasto'} · ${esc(GASTO_TIPOS[tipo])}</h2>
+    <label class="f">Loja</label><select id="g-l"><option value="">Escolhe…</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${g.lojaId === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
+    <div class="row" style="align-items:flex-start">
+      <div class="sp" style="min-width:140px"><label class="f">Data</label><input type="date" id="g-d" value="${esc(g.data)}"></div>
+      <div class="sp" style="min-width:140px"><label class="f">Valor (€)</label><input type="text" inputmode="decimal" id="g-v" value="${g.valor != null ? String(g.valor).replace('.', ',') : ''}" placeholder="ex.: 125,50"></div>
+    </div>
+    ${tipo === 'equipamentos' ? `<label class="f">Equipamento</label><select id="g-e"><option value="">—</option>${[...new Set([...EQUIPAMENTOS, ...(g.equipamento ? [g.equipamento] : [])])].map(e => `<option ${g.equipamento === e ? 'selected' : ''}>${esc(e)}</option>`).join('')}</select>` : ''}
+    <label class="f">Descrição</label><input type="text" id="g-ds" value="${esc(g.descricao || '')}" placeholder="${tipo === 'equipamentos' ? 'ex.: reparação da resistência do forno' : 'ex.: 24 chávenas café + 12 pratos bolos'}">
+    <div class="row" style="align-items:flex-start">
+      <div class="sp" style="min-width:140px"><label class="f">Fornecedor / técnico</label><input type="text" id="g-f" value="${esc(g.fornecedor || '')}" placeholder="opcional"></div>
+      <div class="sp" style="min-width:120px"><label class="f">Nº fatura</label><input type="text" id="g-n" value="${esc(g.fatura || '')}" placeholder="opcional"></div>
+    </div>
+    ${g.avariaId ? `<div class="muted mt" style="font-size:12.5px">Ligado a uma avaria reportada pela loja.</div>` : ''}${g.encomendaId ? `<div class="muted mt" style="font-size:12.5px">Ligado a um pedido de palamenta da loja.</div>` : ''}
+    <div class="row" style="margin-top:16px">${id ? `<button class="btn ghost danger" data-a="gastoApagar" data-id="${esc(id)}">Apagar</button>` : ''}<span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" id="g-ok">Guardar</button></div>`);
+  $('#g-ok').onclick = async () => {
+    const valor = parseNum($('#g-v').value); const lojaId = $('#g-l').value; const data = $('#g-d').value;
+    if (!lojaId) { toast('Escolhe a loja.'); return; }
+    if (!data) { toast('Indica a data.'); return; }
+    if (valor === null || isNaN(valor) || valor <= 0) { toast('Indica o valor gasto (ex.: 125,50).'); return; }
+    const d = { tipo, lojaId, data, valor, descricao: $('#g-ds').value.trim(), fornecedor: $('#g-f').value.trim(), fatura: $('#g-n').value.trim(),
+      equipamento: tipo === 'equipamentos' ? $('#g-e').value : '', avariaId: g.avariaId || null, encomendaId: g.encomendaId || null };
+    fecharModal();
+    if (id) await escrever(() => S.db.doc('gastos/' + id).update(d), 'Gasto atualizado');
+    else { d.criadoEm = new Date().toISOString(); await escrever(() => S.db.collection('gastos').add(d), 'Gasto registado'); if (!(data || '').startsWith(String(S.fg.ano))) { S.fg.ano = +data.slice(0, 4); render(); } }
+  };
+}
+const gastosDe = (campo, id) => S.gastos.filter(g => g[campo] === id);
+
+function vAvarias() {
+  const lojasSel = S.isAdmin ? S.lojas : minhasLojas();
+  const ids = new Set(lojasSel.map(l => l.id));
+  let as = S.avarias.filter(a => ids.has(a.lojaId) || (S.isAdmin && !lojaById(a.lojaId)));
+  const base = as;
+  if (S.fa.loja) as = as.filter(a => a.lojaId === S.fa.loja);
+  as = S.fa.estado === 'abertas' ? as.filter(a => a.estado !== 'resolvida') : S.fa.estado === 'resolvidas' ? as.filter(a => a.estado === 'resolvida') : as;
+  as = as.slice().sort((a, b) => (a.estado === 'resolvida') - (b.estado === 'resolvida') || (b.parado ? 1 : 0) - (a.parado ? 1 : 0) || (a.criadoEm || '').localeCompare(b.criadoEm || ''));
+  if (S.fa.estado === 'resolvidas') as.sort((a, b) => (b.resolvidoEm || '').localeCompare(a.resolvidoEm || ''));
+  const seg = [['abertas', 'Por resolver'], ['resolvidas', 'Resolvidas'], ['todas', 'Todas']];
+  const resumo = S.isAdmin && !S.fa.loja && lojasSel.length > 1 ? lojasSel.map(l => { const ab = base.filter(a => a.lojaId === l.id && a.estado !== 'resolvida'); return { l, n: ab.length, p: ab.filter(a => a.parado).length, r: ab.filter(a => a.estado === 'reparacao').length }; }) : [];
+  // agrupar por loja
+  const grupos = []; if (!S.fa.loja && lojasSel.length > 1) { lojasSel.forEach(l => { const g = as.filter(a => a.lojaId === l.id); if (g.length) grupos.push({ l, g }); }); const orf = as.filter(a => !lojaById(a.lojaId)); if (orf.length) grupos.push({ l: { nome: 'Loja removida' }, g: orf }); }
+  const modoSeg = S.isOwner ? `<div class="seg" style="display:flex;margin-bottom:10px">${[['avarias', 'Avarias'], ['gastos', 'Gastos com assistência']].map(([k, l]) => `<button style="flex:1" class="${S.fa.modo === k ? 'on' : ''}" data-a="faModo" data-v="${k}">${l}</button>`).join('')}</div>` : '';
+  if (S.isOwner && S.fa.modo === 'gastos') return `<div class="row"><h2 class="sp">Equipamentos</h2></div>${modoSeg}${vGastos('equipamentos')}`;
+  return `
+  <div class="row"><h2 class="sp">Equipamentos</h2>${podeEscrever() && lojasSel.length ? '<button class="btn pri" data-a="novaAv">+ Reportar avaria</button>' : ''}</div>
+  ${modoSeg}
+  ${resumo.length ? `<div class="card" style="padding:4px 6px;overflow-x:auto;margin-bottom:12px"><table class="restab"><thead><tr><th>Loja</th><th>Por resolver</th><th>Parados</th><th>Em reparação</th></tr></thead><tbody>
+    ${resumo.map(x => `<tr class="click" data-a="faLoja" data-v="${esc(x.l.id)}"><td><b>${esc(x.l.nome)}</b></td><td>${x.n ? `<span class="pill ${x.p ? 'bad' : 'warn'}">${x.n}</span>` : '<span class="muted">0</span>'}</td><td>${x.p ? `<span class="pill bad">${x.p}</span>` : '0'}</td><td>${x.r}</td></tr>`).join('')}
+  </tbody></table></div>` : ''}
+  <div class="filters" style="grid-template-columns:1fr ${lojasSel.length > 1 ? '1fr' : ''}">
+    ${lojasSel.length > 1 ? `<select data-c="faLoja"><option value="">Todas as lojas</option>${lojasSel.map(l => `<option value="${esc(l.id)}" ${S.fa.loja === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>` : ''}
+    <div class="seg" style="display:flex">${seg.map(([k, l]) => `<button style="flex:1" class="${S.fa.estado === k ? 'on' : ''}" data-a="faEstado" data-v="${k}">${l}</button>`).join('')}</div>
+  </div>
+  ${!lojasSel.length ? '<div class="card empty">Ainda não estás associado a nenhuma loja.</div>'
+    : !as.length ? `<div class="card empty">${S.loaded.avarias ? (S.fa.estado === 'abertas' ? 'Nenhum equipamento avariado. 👍' : 'Sem registos.') : 'A carregar…'}</div>`
+    : grupos.length ? grupos.map(x => `<h3>${esc(x.l.nome)}</h3><div class="list">${x.g.map(a => avHTML(a, false)).join('')}</div>`).join('')
+    : `<div class="list">${as.map(a => avHTML(a, false)).join('')}</div>`}`;
+}
+function abrirNovaAv() {
+  const ml = S.isAdmin ? S.lojas : minhasLojas();
+  const lojaId = S.fa.loja || (ml.length === 1 ? ml[0].id : '');
+  abrirModal(`<h2>Reportar avaria</h2>
+    <label class="f">Loja</label><select id="av-l"><option value="">Escolhe…</option>${ml.map(l => `<option value="${esc(l.id)}" ${lojaId === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
+    <label class="f">Equipamento</label><select id="av-e"><option value="">Escolhe o equipamento…</option>${EQUIPAMENTOS.map(e => `<option>${esc(e)}</option>`).join('')}<option value="__outro">Outro…</option></select>
+    <input type="text" id="av-eo" placeholder="Qual?" hidden style="margin-top:6px">
+    <label class="f">Motivo da avaria</label><textarea id="av-m" placeholder="O que se passa? Ex.: não aquece, perde água, faz barulho, não liga…"></textarea>
+    <label class="cbx mt"><input type="checkbox" id="av-p"> O equipamento está parado / não se pode usar</label>
+    <label class="f">Foto (opcional)</label>
+    <label class="upbtn"><span id="av-fl">📷 Juntar foto</span><input type="file" accept="image/*" multiple id="av-f"></label>
+    <div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" data-a="avGuardar">Enviar</button></div>`);
+  $('#av-e').onchange = e => { $('#av-eo').hidden = e.target.value !== '__outro'; if (!$('#av-eo').hidden) $('#av-eo').focus(); };
+  $('#av-f').onchange = () => { const n = $('#av-f').files.length; $('#av-fl').textContent = n ? `📷 ${n} foto${n > 1 ? 's' : ''} para enviar` : '📷 Juntar foto'; };
+}
+function abrirAv(id) {
+  const a = S.avarias.find(x => x.id === id); if (!a) return;
+  const pw = podeEscrever();
+  abrirModal(`
+    <div class="row"><h2 class="sp" style="margin:0">🔧 ${esc(a.equipamento)}</h2>${avPill(a.estado)}</div>
+    <div class="muted" style="margin:4px 0 10px">${esc(nomeLoja(a.lojaId))} · reportado por ${esc(nome(a.criadoPor))} em ${fmtDataHora(a.criadoEm)}${a.parado ? ' · <b style="color:var(--bad)">equipamento parado</b>' : ''}</div>
+    <div class="note"><small>Motivo da avaria</small><div style="white-space:pre-wrap">${esc(a.motivo)}</div></div>
+    ${(a.fotos || []).length ? `<div class="bigph mt">${a.fotos.map(f => `<figure>${imgTag(f)}</figure>`).join('')}</div>` : ''}
+    ${pw ? `<div class="row" style="align-items:flex-start">
+      <div class="sp" style="min-width:150px"><label class="f">Estado</label><select id="av-st">${Object.entries(AV_ESTADOS).map(([k, [n]]) => `<option value="${k}" ${a.estado === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+      <div class="sp" style="min-width:150px"><label class="f">Nº pedido de assistência</label><input type="text" id="av-n" value="${esc(a.nAssistencia || '')}" placeholder="opcional"></div></div>
+      <label class="cbx mt"><input type="checkbox" id="av-pp" ${a.parado ? 'checked' : ''}> Equipamento parado</label>` : a.nAssistencia ? `<div class="muted mt">Nº pedido de assistência: ${esc(a.nAssistencia)}</div>` : ''}
+    ${S.isOwner ? `<div class="row mt" style="background:#FFF8EA;border:1px solid var(--line);border-radius:10px;padding:8px 10px"><span class="sp" style="font-size:13.5px">💶 Custos registados: <b>${eur(gastosDe('avariaId', a.id).reduce((s, g) => s + (+g.valor || 0), 0))}</b></span><button class="btn sm" data-a="gastoDeAv" data-id="${esc(a.id)}">+ Registar custo</button></div>` : ''}
+    <label class="f">Atualizações</label>
+    <div class="notes">${(a.notas || []).map(n => `<div class="note"><small>${esc(nome(n.autorId))} · ${fmtDataHora(n.em)}</small>${esc(n.texto)}</div>`).join('') || '<div class="muted" style="font-size:13px">Sem atualizações.</div>'}</div>
+    ${pw ? `<input type="text" id="av-nt" placeholder="Escreve uma atualização (ex.: técnico vem amanhã)" style="margin-top:8px">` : ''}
+    <div class="row" style="margin-top:16px">
+      ${pw && (S.isAdmin || a.criadoPor === S.me) ? `<button class="btn ghost danger" data-a="avApagar" data-id="${esc(a.id)}">Apagar</button>` : ''}
+      <span class="sp"></span><button class="btn" data-a="fechar">${pw ? 'Cancelar' : 'Fechar'}</button>
+      ${pw ? `<button class="btn pri" data-a="avAtualizar" data-id="${esc(a.id)}">Guardar</button>` : ''}
+    </div>`);
+}
+
+function vCaixa() {
+  const lojasSel = S.isAdmin ? S.lojas : minhasLojas();
+  const ids = new Set(lojasSel.map(l => l.id));
+  let qs = S.quebras.filter(q => ids.has(q.lojaId) || (S.isAdmin && !lojaById(q.lojaId)));
+  if (S.fq.loja) qs = qs.filter(q => q.lojaId === S.fq.loja);
+  const nAg = qs.filter(q => q.estado === 'aguarda').length, nJu = qs.filter(q => q.estado === 'justificada').length;
+  if (!S.fq.mes) S.fq.mes = S.cxUltimoMes || hoje().slice(0, 7);
+  subscreverCaixaMes(S.fq.mes);
+  const seg = [['mapa', 'Mapa diário'], ['abertas', `Por resolver${nAg + nJu ? ' (' + (nAg + nJu) + ')' : ''}`], ['fechadas', 'Resolvidas']];
+  let corpo;
+  if (S.fq.modo === 'mapa') corpo = vCaixaMapa(lojasSel);
+  else if (S.fq.modo === 'resumo') {
+    if (!S.fq.mes) S.fq.mes = hoje().slice(0, 7);
+    const doMes = qs.filter(q => (q.data || '').startsWith(S.fq.mes));
+    const linhas = lojasSel.filter(l => !S.fq.loja || l.id === S.fq.loja).map(l => {
+      const a = doMes.filter(q => q.lojaId === l.id); if (!a.length) return null;
+      const tot = a.reduce((s, q) => s + (+q.valor || 0), 0), neg = a.filter(q => q.valor < 0).reduce((s, q) => s + q.valor, 0);
+      const ac = a.filter(q => q.estado === 'aceite').length, rc = a.filter(q => q.estado === 'recusada').length, ab = a.filter(q => q.estado === 'aguarda' || q.estado === 'justificada').length;
+      return { l, n: a.length, tot, neg, ac, rc, ab };
+    }).filter(Boolean).sort((a, b) => a.tot - b.tot);
+    const T = linhas.reduce((s, x) => s + x.tot, 0);
+    corpo = `<div class="row" style="justify-content:center;margin:4px 0 8px"><div class="datenav"><button class="btn sm" data-a="fqMes" data-v="-1">‹</button><b style="min-width:140px;text-align:center">${esc(mesTxt(S.fq.mes))}</b><button class="btn sm" data-a="fqMes" data-v="1">›</button></div></div>
+    <div class="card" style="padding:4px 6px;overflow-x:auto">${linhas.length ? `<table class="restab"><thead><tr><th>Loja</th><th>Nº</th><th>Saldo</th><th>Faltas</th><th>Aceites</th><th>Não aceites</th><th>Por resolver</th></tr></thead><tbody>
+      ${linhas.map(x => `<tr class="click" data-a="fqLoja" data-v="${esc(x.l.id)}"><td><b>${esc(x.l.nome)}</b></td><td>${x.n}</td><td><b style="color:${x.tot < 0 ? 'var(--bad)' : 'var(--ok)'}">${eur(x.tot)}</b></td><td>${eur(x.neg)}</td><td>${x.ac}</td><td>${x.rc ? `<span class="pill bad">${x.rc}</span>` : 0}</td><td>${x.ab ? `<span class="pill warn">${x.ab}</span>` : 0}</td></tr>`).join('')}
+      ${linhas.length > 1 ? `<tr class="tot"><td><b>Total</b></td><td>${linhas.reduce((s, x) => s + x.n, 0)}</td><td><b>${eur(T)}</b></td><td>${eur(linhas.reduce((s, x) => s + x.neg, 0))}</td><td></td><td></td><td></td></tr>` : ''}
+    </tbody></table>` : '<div class="empty">Sem quebras de caixa neste mês.</div>'}</div>`;
+  } else {
+    let lista = S.fq.modo === 'fechadas' ? qs.filter(q => q.estado === 'aceite' || q.estado === 'recusada') : qs.filter(q => q.estado === 'aguarda' || q.estado === 'justificada');
+    const ord = { justificada: 0, aguarda: 1 };
+    lista = lista.slice().sort((a, b) => S.fq.modo === 'fechadas' ? (b.data || '').localeCompare(a.data || '') : ((S.isAdmin ? (ord[a.estado] - ord[b.estado]) : (ord[b.estado] - ord[a.estado])) || (a.data || '').localeCompare(b.data || '')));
+    corpo = `<div class="list">${lista.length ? lista.map(q => qcHTML(q, !S.fq.loja && lojasSel.length > 1)).join('') : `<div class="card empty">${S.loaded.quebras ? (S.fq.modo === 'fechadas' ? 'Ainda sem quebras resolvidas.' : 'Nada por resolver. 👏') : 'A carregar…'}</div>`}</div>`;
+  }
+  return `
+  <div class="row"><h2 class="sp">Quebras de caixa</h2>${S.isAdmin && podeEscrever() && S.fq.modo !== 'mapa' ? '<button class="btn pri" data-a="novaQC">+ Registar quebra</button>' : ''}</div>
+  ${!S.isAdmin && nAg ? `<div class="card banner" style="border-color:var(--bad)"><span class="big">💶</span><div class="sp"><b>${nAg} quebra${nAg > 1 ? 's' : ''} de caixa por justificar</b><div class="meta">Abre cada uma e explica a diferença.</div></div></div>` : ''}
+  ${S.isAdmin && nJu ? `<div class="card banner" data-a="fqModo" data-v="abertas"><span class="big">📝</span><div class="sp"><b>${nJu} justificaç${nJu > 1 ? 'ões' : 'ão'} por validar</b></div></div>` : ''}
+  <div class="seg" style="display:flex;margin-bottom:10px">${seg.map(([k, l]) => `<button style="flex:1" class="${S.fq.modo === k ? 'on' : ''}" data-a="fqModo" data-v="${k}">${l}</button>`).join('')}</div>
+  ${lojasSel.length > 1 ? `<div class="filters" style="grid-template-columns:1fr"><select data-c="fqLoja"><option value="">Todas as lojas</option>${lojasSel.map(l => `<option value="${esc(l.id)}" ${S.fq.loja === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select></div>` : ''}
+  ${!lojasSel.length ? '<div class="card empty">Ainda não estás associado a nenhuma loja.</div>' : corpo}`;
+}
+function abrirNovaQC(pre) {
+  pre = pre || {};
+  abrirModal(`<h2>Registar quebra de caixa</h2>
+    <label class="f">Loja</label><select id="qc-l"><option value="">Escolhe…</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${pre.lojaId === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
+    <div class="row" style="align-items:flex-start">
+      <div class="sp" style="min-width:140px"><label class="f">Data da caixa</label><input type="date" id="qc-d" value="${esc(pre.data || addDias(-1))}" max="${hoje()}"></div>
+      <div class="sp" style="min-width:140px"><label class="f">Valor (€)</label><input type="text" inputmode="decimal" id="qc-v" placeholder="ex.: -15,40"></div>
+    </div>
+    <p class="muted" style="font-size:12.5px;margin:4px 0 0">Negativo = falta de dinheiro na caixa; positivo = sobra.</p>
+    <div class="row" style="align-items:flex-start">
+      <div class="sp" style="min-width:140px"><label class="f">Caixa / operador (opcional)</label><input type="text" id="qc-c" placeholder="ex.: Caixa 1 · turno da tarde"></div>
+      <div style="width:150px"><label class="f">Justificar até</label><input type="date" id="qc-p" value="${addDias(2)}"></div>
+    </div>
+    <label class="f">Nota para a loja (opcional)</label><textarea id="qc-n" placeholder="Ex.: diferença no fecho de domingo, confirmar pagamentos com cartão"></textarea>
+    <div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button>
+      <button class="btn" data-a="qcGuardar" data-mais="1">Guardar e registar outra</button><button class="btn pri" data-a="qcGuardar">Guardar</button></div>`);
+  setTimeout(() => (pre.lojaId ? $('#qc-v') : $('#qc-l'))?.focus(), 30);
+}
+function abrirQC(id) {
+  const q = S.quebras.find(x => x.id === id); if (!q) return;
+  const pw = podeEscrever();
+  const podeJust = pw && !S.isAdmin && (q.estado === 'aguarda' || q.estado === 'recusada' && q.reabrir);
+  const loja = !S.isAdmin && (q.estado === 'aguarda');
+  const fotos = q.fotos || [];
+  abrirModal(`
+    <div class="row"><h2 class="sp" style="margin:0">Quebra de caixa</h2>${qcPill(q)}</div>
+    <div class="muted" style="margin:4px 0 10px">${esc(nomeLoja(q.lojaId))} · caixa de ${fmtData(q.data)}${q.caixa ? ' · ' + esc(q.caixa) : ''}</div>
+    <div class="card" style="text-align:center;padding:14px;box-shadow:none"><div class="muted" style="font-size:12.5px">${q.valor < 0 ? 'Falta' : 'Sobra'} na caixa</div><div style="font-size:30px;font-weight:700;color:${q.valor < 0 ? 'var(--bad)' : 'var(--ok)'}">${eur(q.valor)}</div>
+      ${q.prazo && q.estado === 'aguarda' ? `<div class="muted" style="font-size:12.5px">Justificar até ${fmtData(q.prazo)}</div>` : ''}</div>
+    ${q.nota ? `<div class="note mt"><small>Nota do responsável</small>${esc(q.nota)}</div>` : ''}
+    ${loja && pw ? `
+      <label class="f">Justificação</label><textarea id="qc-j" style="min-height:110px" placeholder="Explica o que aconteceu: troco errado, pagamento registado no método errado, devolução, etc.">${esc(q.justificacao || '')}</textarea>
+      <label class="f">Comprovativo (opcional)</label>
+      <label class="upbtn"><span id="qc-fl">📷 Juntar foto (talão, fecho de caixa…)</span><input type="file" accept="image/*" multiple id="qc-f"></label>
+    ` : q.justificacao ? `<div class="note mt"><small>Justificação da loja · ${esc(nome(q.justificadoPor))} · ${fmtDataHora(q.justificadoEm)}</small><div style="white-space:pre-wrap">${esc(q.justificacao)}</div></div>` : `<div class="card empty mt">A loja ainda não justificou.</div>`}
+    ${fotos.length ? `<div class="bigph mt">${fotos.map(f => `<figure>${imgTag(f)}</figure>`).join('')}</div>` : ''}
+    ${q.decisao ? `<div class="note mt"><small>Decisão do responsável · ${fmtDataHora(q.decididoEm)}</small>${esc(q.decisao)}</div>` : ''}
+    ${S.isAdmin && pw && q.estado !== 'aguarda' ? `<label class="f">Comentário da decisão (opcional)</label><textarea id="qc-dc" placeholder="Ex.: aceite, confirmado no extrato de cartões">${esc(q.decisao || '')}</textarea>` : ''}
+    <div class="row" style="margin-top:16px;flex-wrap:wrap">
+      ${S.isAdmin && pw ? `<button class="btn ghost danger" data-a="qcApagar" data-id="${esc(q.id)}">Apagar</button>` : ''}
+      ${S.isAdmin && pw && q.estado !== 'aguarda' ? `<button class="btn ghost" data-a="qcDecidir" data-v="aguarda" data-id="${esc(q.id)}">Pedir nova justificação</button>` : ''}
+      <span class="sp"></span><button class="btn" data-a="fechar">${loja && pw ? 'Cancelar' : 'Fechar'}</button>
+      ${loja && pw ? `<button class="btn pri" data-a="qcJustificar" data-id="${esc(q.id)}">Enviar justificação</button>` : ''}
+      ${S.isAdmin && pw && q.estado !== 'aguarda' ? `<button class="btn danger" data-a="qcDecidir" data-v="recusada" data-id="${esc(q.id)}">✗ Não aceitar</button><button class="btn pri" data-a="qcDecidir" data-v="aceite" data-id="${esc(q.id)}">✓ Aceitar</button>` : ''}
+    </div>`);
+  const ff = $('#qc-f'); if (ff) ff.onchange = () => { const n = ff.files.length; $('#qc-fl').textContent = n ? `📷 ${n} foto${n > 1 ? 's' : ''} para enviar` : '📷 Juntar foto (talão, fecho de caixa…)'; };
+}
+
+/* ---------- exportar / importar todos os dados ---------- */
+const IS_PWA = !!window.FIREBASE_CONFIG;
+const COLECOES = ['lojas', 'config', 'tarefas', 'visitas', 'fotos', 'fotosImg', 'inventarios', 'encomendas', 'quebrasCaixa', 'caixaDias', 'avarias', 'gastos', 'membros'];
+async function exportarTudo(btn) {
+  btn.disabled = true; btn.textContent = 'A preparar…';
+  try {
+    const out = { app: 'bagga-ops', versao: 1, exportadoEm: new Date().toISOString(), colecoes: {}, assets: {} };
+    for (const c of COLECOES) {
+      try { const snap = await S.db.collection(c).limit(1000).get(); out.colecoes[c] = snap.docs.map(d => ({ id: d.id, data: d.data() })); } catch (e) {}
+    }
+    const ids = new Set(); JSON.stringify(out.colecoes, (k, v) => { if (k === 'asset' && typeof v === 'string') ids.add(v); return v; });
+    let i = 0;
+    for (const id of ids) { i++; btn.textContent = `A copiar fotos ${i}/${ids.size}…`; try { const r = await fetch('/_blob/' + id); if (r.ok) out.assets[id] = await blobToDataURL(await r.blob()); } catch (e) {} }
+    const txt = JSON.stringify(out);
+    const dl = await window.APP.use('downloads').catch(() => null);
+    let feito = false;
+    if (dl) { try { await dl.save({ filename: 'bagga-ops-dados-' + hoje() + '.json', data: txt }); toast('Ficheiro exportado ✓'); feito = true; } catch (e) { if (e && e.code === 'declined') { toast('Exportação cancelada'); feito = true; } } }
+    if (!feito) {
+      const kb = Math.round(txt.length / 1024);
+      abrirModal(`<h2>Exportar dados</h2><p>Os dados estão prontos (${kb} KB, ${Object.values(out.colecoes).reduce((s, a) => s + a.length, 0)} registos, ${Object.keys(out.assets).length} fotos).</p>
+        <p class="muted" style="font-size:13.5px">1. Carrega em <b>Copiar dados</b>.<br>2. Na nova app (PWA), vai a Configurar › Importar dados › <b>Colar dados</b> e cola.</p>
+        <div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button><button class="btn pri" id="exp-c">Copiar dados</button></div>`);
+      $('#exp-c').onclick = async () => { try { await navigator.clipboard.writeText(txt); toast('Dados copiados ✓'); } catch (e) { toast('Não foi possível copiar.'); } };
+    }
+  } catch (e) { toast(e && e.code === 'declined' ? 'Exportação cancelada' : 'Não foi possível exportar.'); }
+  btn.disabled = false; btn.textContent = '⬇ Exportar todos os dados';
+}
+async function recomprimirDataURL(u, max) {
+  if (u.length < 900000) return u;
+  const img = new Image(); img.src = u; await img.decode();
+  const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', 0.75);
+}
+async function importarTudo(texto, btn) {
+  let dados; try { dados = JSON.parse(texto); } catch (e) { toast('Os dados não são válidos.'); return; }
+  if (!dados || dados.app !== 'bagga-ops' || !dados.colecoes) { toast('Este ficheiro não é uma exportação da Bagga Ops.'); return; }
+  const n = Object.values(dados.colecoes).reduce((s, a) => s + a.length, 0);
+  if (!(await confirmar(`Importar ${n} registos e ${Object.keys(dados.assets || {}).length} fotos? Registos com o mesmo identificador são substituídos.`, 'Importar'))) return;
+  btn.disabled = true;
+  const mapa = {};
+  try {
+    let i = 0; const as = Object.entries(dados.assets || {});
+    for (const [id, u] of as) {
+      i++; btn.textContent = `A importar fotos ${i}/${as.length}…`;
+      const nid = 'a_' + id; await S.db.doc('fotosImg/' + nid).set({ data: await recomprimirDataURL(u, 1400), importado: true }); mapa[id] = nid;
+    }
+    const remap = v => Array.isArray(v) ? v.map(remap) : (v && typeof v === 'object') ? (v.asset && mapa[v.asset] ? (({ asset, ...r }) => ({ ...r, img: mapa[asset] }))(v) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, remap(x)]))) : v;
+    const todos = []; for (const [c, arr] of Object.entries(dados.colecoes)) { if (c === 'membros') continue; arr.forEach(d => todos.push([c, d])); }
+    let feitos = 0;
+    const lote = async ([c, d]) => { await S.db.doc(c + '/' + d.id).set(remap(d.data)); feitos++; if (feitos % 20 === 0) btn.textContent = `A importar ${feitos}/${todos.length}…`; };
+    for (let k = 0; k < todos.length; k += 10) await Promise.all(todos.slice(k, k + 10).map(lote));
+    toast(`Importação concluída: ${feitos} registos ✓`);
+  } catch (e) { toast('A importação parou: ' + (e && e.message ? e.message : 'erro')); }
+  render();
+}
+/* códigos de acesso (só PWA) */
+function gerarCodigo() { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 8; i++) s += a[Math.floor(Math.random() * a.length)]; return s.slice(0, 4) + '-' + s.slice(4); }
+function vCodigos() {
+  if (!IS_PWA) return '';
+  const cs = (S.codigos || []).slice().sort((a, b) => (a.data.papel || '').localeCompare(b.data.papel || '') || (a.data.nome || '').localeCompare(b.data.nome || ''));
+  const ses = S.sessoes || [];
+  return `<h2 style="margin-top:28px">Códigos de acesso</h2>
+  <p class="muted" style="margin-top:-6px;font-size:13.5px">Cada loja entra na app com o seu código. Quem tiver um código de responsável vê também o Configurar e os gastos. Apagar um código desliga todos os telemóveis que o usam.</p>
+  <div class="card row"><input type="text" id="cod-n" placeholder="Para quem? (ex.: Loja Gaia)" style="flex:1;min-width:160px">
+    <select id="cod-p" style="width:150px"><option value="loja">Loja</option><option value="admin">Responsável</option></select>
+    <select id="cod-l" style="width:170px"><option value="">Loja que abre primeiro…</option>${S.lojas.map(l => `<option value="${esc(l.id)}">${esc(l.nome)}</option>`).join('')}</select>
+    <button class="btn pri" data-a="codNovo">Criar código</button></div>
+  <div class="card mt" style="padding:4px 6px;overflow-x:auto">${cs.length ? `<table><thead><tr><th>Código</th><th>Para</th><th>Tipo</th><th>Telemóveis</th><th></th></tr></thead><tbody>
+    ${cs.map(c => `<tr><td><b style="font-family:monospace;font-size:15px">${esc(c.id)}</b></td><td>${esc(c.data.nome || '')}${c.data.lojaId ? `<div class="muted" style="font-size:12px">${esc(nomeLoja(c.data.lojaId))}</div>` : ''}</td><td>${c.data.papel === 'admin' ? '<span class="pill br">Responsável</span>' : '<span class="pill">Loja</span>'}</td><td>${ses.filter(s => s.data.codigo === c.id).length}</td>
+      <td style="text-align:right"><button class="btn sm ghost" data-a="codCopiar" data-v="${esc(c.id)}">Copiar</button>${c.id !== S.meuCodigo ? `<button class="btn sm ghost danger" data-a="codApagar" data-v="${esc(c.id)}">Apagar</button>` : ''}</td></tr>`).join('')}
+  </tbody></table>` : '<div class="empty">Ainda sem códigos.</div>'}</div>`;
+}
+
+/* ---------- formulário de visita ---------- */
+function lerRascunho() { try { const r = localStorage.getItem(DRAFT_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+function gravarRascunho() { try { if (S.v) localStorage.setItem(DRAFT_KEY, JSON.stringify(S.v)); } catch (e) {} }
+function apagarRascunho() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+
+function iniciarVisita(lojaId) {
+  const r = lerRascunho();
+  if (r && !lojaId) { S.v = r; }
+  else {
+    S.v = { lojaId: lojaId || (S.isAdmin ? '' : (minhasLojas()[0]?.id || '')), data: hoje(), notas: '',
+      seccoes: S.checklist.seccoes.map(s => ({ titulo: s.titulo, itens: s.itens.map(i => ({ id: i.id, texto: i.texto, r: null, nota: '', tarefa: true })) })) };
+  }
+  S.view = 'visitaForm'; render(); window.scrollTo(0, 0);
+}
+function contagem(v) {
+  let ok = 0, nok = 0, na = 0, total = 0;
+  v.seccoes.forEach(s => s.itens.forEach(i => { total++; if (i.r === 'ok') ok++; else if (i.r === 'nok') nok++; else if (i.r === 'na') na++; }));
+  return { ok, nok, na, total, resp: ok + nok + na, pont: ok + nok ? Math.round(ok / (ok + nok) * 100) : null };
+}
+function itemHTML(si, ii) {
+  const i = S.v.seccoes[si].itens[ii];
+  return `<div class="item" id="it-${si}-${ii}">
+    <div class="item-top"><div class="txt">${esc(i.texto)}</div>
+      <div class="ans">
+        <button class="ok ${i.r === 'ok' ? 'on' : ''}" data-a="resp" data-s="${si}" data-i="${ii}" data-r="ok" aria-label="Conforme">✓</button>
+        <button class="nok ${i.r === 'nok' ? 'on' : ''}" data-a="resp" data-s="${si}" data-i="${ii}" data-r="nok" aria-label="Não conforme">✗</button>
+        <button class="na ${i.r === 'na' ? 'on' : ''}" data-a="resp" data-s="${si}" data-i="${ii}" data-r="na" aria-label="Não aplicável">N/A</button>
+      </div></div>
+    ${i.r === 'nok' ? `<div class="item-extra">
+      <textarea placeholder="O que está mal e o que deve ser feito?" data-c="nota" data-s="${si}" data-i="${ii}">${esc(i.nota)}</textarea>
+      <label class="cbx"><input type="checkbox" data-c="mkTarefa" data-s="${si}" data-i="${ii}" ${i.tarefa ? 'checked' : ''}> Criar tarefa para o gerente (prazo 7 dias)</label>
+    </div>` : (i.nota ? `<div class="item-extra"><textarea data-c="nota" data-s="${si}" data-i="${ii}">${esc(i.nota)}</textarea></div>` : '')}
+  </div>`;
+}
+function vVisitaForm() {
+  const v = S.v, c = contagem(v);
+  return `
+  <div class="row"><button class="btn ghost" data-a="ir" data-v="visitas">← Visitas</button><span class="sp"></span><button class="btn sm danger" data-a="descartarVisita">Descartar</button></div>
+  <h2>Nova visita</h2>
+  <div class="card">
+    <div class="row" style="align-items:flex-end">
+      <div class="sp" style="min-width:180px"><label class="f" style="margin-top:0">Loja</label>
+        <select data-c="vLoja"><option value="">Escolhe a loja…</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${v.lojaId === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select></div>
+      <div style="width:160px"><label class="f" style="margin-top:0">Data</label><input type="date" data-c="vData" value="${esc(v.data)}"></div>
+    </div>
+    <div class="row mt" style="font-size:13.5px"><span class="muted" id="v-prog-txt">${c.resp} de ${c.total} respondidos</span><span class="sp"></span><span id="v-score">${scoreHTML(c.pont)}</span></div>
+    <div class="progress"><i id="v-prog" style="width:${c.total ? c.resp / c.total * 100 : 0}%"></i></div>
+  </div>
+  <div class="mt">${v.seccoes.map((s, si) => `<div class="card vsec"><h4><span>${esc(s.titulo)}</span></h4>${s.itens.map((_, ii) => itemHTML(si, ii)).join('')}</div>`).join('')}</div>
+  <div class="card"><label class="f" style="margin-top:0">Notas gerais da visita</label><textarea data-c="vNotas" placeholder="Pontos fortes, conversa com o gerente, próximos passos…">${esc(v.notas)}</textarea></div>
+  <div class="stickybar"><button class="btn pri" data-a="concluirVisita">Concluir visita</button></div>`;
+}
+function atualizarProgresso() {
+  const c = contagem(S.v);
+  const p = $('#v-prog'); if (p) p.style.width = (c.total ? c.resp / c.total * 100 : 0) + '%';
+  const t = $('#v-prog-txt'); if (t) t.textContent = `${c.resp} de ${c.total} respondidos`;
+  const s = $('#v-score'); if (s) s.innerHTML = scoreHTML(c.pont);
+}
+async function concluirVisita() {
+  const v = S.v;
+  if (!v.lojaId) { toast('Escolhe a loja.'); return; }
+  const c = contagem(v);
+  if (!c.resp) { toast('Responde a pelo menos um item.'); return; }
+  if (c.resp < c.total && !(await confirmar(`Há ${c.total - c.resp} itens sem resposta. Concluir na mesma?`, 'Concluir'))) return;
+  const seccoes = v.seccoes.map(s => ({ titulo: s.titulo, itens: s.itens.map(i => ({ id: i.id, texto: i.texto, r: i.r || null, nota: (i.nota || '').trim() })) }));
+  const doc = { lojaId: v.lojaId, data: v.data || hoje(), autorId: S.me || null, criadoEm: new Date().toISOString(),
+    seccoes, ok: c.ok, nok: c.nok, na: c.na, pontuacao: c.pont, notas: (v.notas || '').trim() };
+  const ref = S.db.collection('visitas').doc();
+  const ok = await escrever(() => ref.set(doc));
+  if (!ok) return;
+  const novas = [];
+  v.seccoes.forEach(s => s.itens.forEach(i => { if (i.r === 'nok' && i.tarefa) novas.push(i); }));
+  for (const i of novas) {
+    await escrever(() => S.db.collection('tarefas').add({
+      titulo: i.texto, descricao: (i.nota || '').trim(), lojaId: v.lojaId, responsavelId: null, prazo: addDias(7),
+      prioridade: 'media', estado: 'aberta', criadoPor: S.me || null, criadoEm: new Date().toISOString(), visitaId: ref.id, notas: [] }));
+  }
+  apagarRascunho(); S.v = null;
+  toast(novas.length ? `Visita guardada · ${novas.length} tarefa(s) criada(s)` : 'Visita guardada');
+  S.verVisita = ref.id; S.view = 'visitaVer'; render(); window.scrollTo(0, 0);
+}
+
+function vVisitaVer() {
+  const v = S.visitas.find(x => x.id === S.verVisita);
+  if (!v) return `<button class="btn ghost" data-a="ir" data-v="visitas">← Visitas</button><div class="card empty">A carregar visita…</div>`;
+  const ts = S.tarefas.filter(t => t.visitaId === v.id).sort(ordenarTarefas);
+  const ic = { ok: '✓', nok: '✗', na: '–' };
+  return `
+  <div class="row"><button class="btn ghost" data-a="ir" data-v="visitas">← Visitas</button><span class="sp"></span>
+    ${S.isAdmin && podeEscrever() ? `<button class="btn sm danger" data-a="apagarVisita" data-id="${esc(v.id)}">Apagar</button>` : ''}</div>
+  <div class="row"><h2 class="sp">${esc(nomeLoja(v.lojaId))}</h2>${scoreHTML(v.pontuacao)}</div>
+  <div class="muted" style="margin-top:-6px">Visita de ${fmtData(v.data)} · por ${esc(nome(v.autorId))} · ${v.ok || 0} conformes, ${v.nok || 0} a corrigir</div>
+  ${v.notas ? `<h3>Notas gerais</h3><div class="card" style="white-space:pre-wrap">${esc(v.notas)}</div>` : ''}
+  ${ts.length ? `<h3>Tarefas criadas nesta visita</h3><div class="list">${ts.map(t => tarefaHTML(t, false)).join('')}</div>` : ''}
+  <h3>Checklist</h3>
+  ${(v.seccoes || []).map(s => `<div class="card vsec"><h4><span>${esc(s.titulo)}</span></h4>
+    ${s.itens.map(i => `<div class="res"><span class="ic ${i.r || 'no'}">${ic[i.r] || '?'}</span><div>${esc(i.texto)}${i.nota ? `<small>${esc(i.nota)}</small>` : ''}</div></div>`).join('')}</div>`).join('')}`;
+}
+
+/* ---------- lojas e checklist (admin) ---------- */
+function vLojas() {
+  if (!S.isAdmin) return '<div class="card empty">Só o responsável pode configurar lojas.</div>';
+  const ck = S.ckEdit || S.checklist;
+  return `
+  <h2>Dados da app</h2>
+  <div class="card row">${IS_PWA ? '<button class="btn" data-a="impAbrir">⬆ Importar dados</button><span class="muted sp" style="font-size:13px">Traz os registos e fotos da versão anterior da app (Claude).</span>' : '<button class="btn" data-a="expTudo">⬇ Exportar todos os dados</button><span class="muted sp" style="font-size:13px">Guarda um ficheiro com todos os registos e fotos, para passar a app para fora do Claude.</span>'}</div>
+  ${vCodigos()}
+  <h2 style="margin-top:28px">Lojas</h2>
+  <div class="card row"><input type="text" id="novaLoja" placeholder="Nome da loja (ex.: Fanzeres)" style="flex:1;min-width:180px"><button class="btn pri" data-a="addLoja">Adicionar</button></div>
+  <div class="list mt">${S.lojas.length ? S.lojas.map(l => `<div class="card loja">
+    <div class="row"><b class="sp" style="font-size:16px">${esc(l.nome)}</b>
+      <button class="btn sm ghost" data-a="renLoja" data-id="${esc(l.id)}">Renomear</button>
+      <button class="btn sm ghost danger" data-a="delLoja" data-id="${esc(l.id)}">Remover</button></div>
+    ${IS_PWA ? '' : `<div class="row mt">${gerentesDe(l).map(g => `<span class="chip">${esc(nomeM(g))}<button data-a="rmGerente" data-id="${esc(l.id)}" data-g="${esc(g)}" aria-label="Remover">✕</button></span>`).join('')}
+      <button class="btn sm" data-a="addGerente" data-id="${esc(l.id)}">+ Gerente</button></div>`}
+  </div>`).join('') : '<div class="card empty">Ainda sem lojas.</div>'}</div>
+  ${IS_PWA ? '' : `<p class="muted" style="font-size:13px">Convida cada gerente pelo email (botão Partilhar, acesso <b>Can edit</b>). Quando o gerente abrir a app pela primeira vez, escolhe a sua loja e fica logo associado aqui. Também o podes associar tu em “+ Gerente”.</p>`}
+
+  <h2 style="margin-top:28px">Lista de palamenta</h2>
+  <p class="muted" style="margin-top:-6px;font-size:13.5px">Um artigo por linha. Linhas a começar por # são títulos de grupo.</p>
+  <div class="card"><textarea id="pal-t" style="min-height:220px;font-size:13.5px">${esc(S.palamenta || PALAMENTA_BASE)}</textarea>
+    <div class="row mt"><span class="sp"></span><button class="btn sm pri" data-a="palSave">Guardar lista</button></div></div>
+
+  <h2 style="margin-top:28px">Períodos das fotos</h2>
+  <p class="muted" style="margin-top:-6px;font-size:13.5px">A hora limite define quando uma foto passa a contar como “em falta”.</p>
+  <div class="card">${(S.perEdit || S.periodos).map((p, i) => `<div class="ck-item"><input type="text" value="${esc(p.nome)}" data-c="perNome" data-i="${i}" placeholder="Nome do período"><input type="time" value="${esc(p.ate)}" data-c="perAte" data-i="${i}" style="flex:none;width:110px;border:1px solid var(--line);border-radius:10px;padding:8px"><button class="btn sm ghost danger" data-a="perDel" data-i="${i}" aria-label="Remover">✕</button></div>`).join('')}
+    <div class="row mt"><button class="btn sm ghost" data-a="perAdd">+ Período</button><span class="sp"></span>${S.perEdit ? '<button class="btn sm ghost" data-a="perCancel">Cancelar</button>' : ''}<button class="btn sm pri" data-a="perSave" ${S.perEdit ? '' : 'disabled'}>Guardar períodos</button></div></div>
+
+`;
+}
+function ckMut() { if (!S.ckEdit) S.ckEdit = JSON.parse(JSON.stringify(S.checklist)); return S.ckEdit; }
+
+function abrirGerente(lojaId) {
+  const l = lojaById(lojaId);
+  abrirModal(`<h2>Gerente para ${esc(l.nome)}</h2>
+    <input type="search" id="gq" placeholder="Pesquisar por nome…" autocomplete="off">
+    <div class="hits" id="ghits"><div class="muted">A procurar…</div></div>
+    ${S.membros.length ? `<label class="f">Pessoas que já entraram na app</label><div class="hits">${S.membros.map(m => `<button data-a="assocMembro" data-l="${esc(l.id)}" data-g="${esc(m.id)}">${esc(nomeM(m.id))}${(m.lojas || []).length ? ' · ' + esc((m.lojas || []).map(nomeLoja).join(', ')) : ''}</button>`).join('')}</div>` : ''}
+    <p class="muted" style="font-size:13px">Se o gerente não aparecer, pede-lhe para abrir a app: ao entrar escolhe a loja e fica associado automaticamente.</p>
+    <div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button></div>`);
+  const procurar = async q => {
+    const box = $('#ghits'); if (!box) return;
+    if (!S.user || !S.user.search) { box.innerHTML = '<div class="muted">Pesquisa indisponível.</div>'; return; }
+    try {
+      const hits = (await S.user.search(q)) || [];
+      if (!$('#ghits')) return;
+      box.innerHTML = hits.length ? '' : '<div class="muted">Ninguém encontrado.</div>';
+      hits.forEach(h => {
+        const b = document.createElement('button');
+        b.textContent = (h.name || 'Sem nome') + (h.id === S.me ? ' (eu)' : '');
+        b.onclick = async () => {
+          S.profiles[h.id] = { name: h.name || '' };
+          const g = Array.from(new Set([...(l.gerentes || []), h.id]));
+          fecharModal();
+          await escrever(() => S.db.doc('lojas/' + l.id).update({ gerentes: g }), 'Gerente associado');
+        };
+        box.appendChild(b);
+      });
+    } catch (e) { box.innerHTML = '<div class="muted">Pesquisa indisponível.</div>'; }
+  };
+  let tmr; const gq = $('#gq');
+  gq.addEventListener('input', () => { clearTimeout(tmr); tmr = setTimeout(() => procurar(gq.value.trim()), 250); });
+  gq.focus(); procurar('');
+}
+
+/* ---------- modal de tarefa ---------- */
+function pessoasConhecidas() {
+  const ids = new Set(); S.lojas.forEach(l => gerentesDe(l).forEach(g => ids.add(g)));
+  if (S.me) ids.add(S.me);
+  return [...ids];
+}
+function abrirTarefa(id) {
+  const ex = id ? S.tarefas.find(t => t.id === id) : null;
+  const t = ex || { titulo: '', descricao: '', lojaId: S.f.loja || (S.isAdmin ? '' : (minhasLojas()[0]?.id || '')), responsavelId: null, prazo: addDias(7), prioridade: 'media', estado: 'aberta', notas: [] };
+  const ro = !podeEscrever();
+  const dis = ro ? 'disabled' : '';
+  const pode_apagar = ex && podeEscrever() && (S.isAdmin || ex.criadoPor === S.me);
+  abrirModal(`
+    <h2>${ex ? 'Tarefa' : 'Nova tarefa'}</h2>
+    <label class="f">Título</label><input type="text" id="tf-t" value="${esc(t.titulo)}" placeholder="O que é preciso fazer?" ${dis}>
+    <label class="f">Loja</label><select id="tf-l" ${dis}><option value="">Escolhe…</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${t.lojaId === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
+    <div class="row" style="align-items:flex-start">
+      <div class="sp" style="min-width:150px"><label class="f">Responsável</label><select id="tf-r" ${dis}><option value="">Gerente da loja</option>${pessoasConhecidas().map(p => `<option value="${esc(p)}" ${t.responsavelId === p ? 'selected' : ''}>${esc(nomeM(p))}</option>`).join('')}</select></div>
+      <div style="width:150px"><label class="f">Prazo</label><input type="date" id="tf-p" value="${esc(t.prazo || '')}" ${dis}></div>
+    </div>
+    <div class="row" style="align-items:flex-start">
+      <div class="sp"><label class="f">Prioridade</label><select id="tf-pr" ${dis}>${Object.entries(PRIORIDADES).map(([k, l]) => `<option value="${k}" ${t.prioridade === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      <div class="sp"><label class="f">Estado</label><select id="tf-e" ${dis}>${Object.entries(ESTADOS).map(([k, l]) => `<option value="${k}" ${t.estado === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    </div>
+    <label class="f">Descrição</label><textarea id="tf-d" placeholder="Detalhes, contexto…" ${dis}>${esc(t.descricao || '')}</textarea>
+    ${ex ? `<div class="muted" style="font-size:12.5px;margin-top:8px">Criada por ${esc(nome(ex.criadoPor))} em ${fmtDataHora(ex.criadoEm)}${ex.estado === 'feita' && ex.concluidaEm ? ` · concluída por ${esc(nome(ex.concluidaPor))} em ${fmtDataHora(ex.concluidaEm)}` : ''}</div>
+      <label class="f">Atualizações</label>
+      <div class="notes">${(ex.notas || []).map(n => `<div class="note"><small>${esc(nome(n.autorId))} · ${fmtDataHora(n.em)}</small>${esc(n.texto)}</div>`).join('') || '<div class="muted" style="font-size:13px">Sem atualizações.</div>'}</div>
+      ${ro ? '' : `<div class="row mt"><input type="text" id="tf-n" placeholder="Escreve uma atualização…" style="flex:1"><button class="btn sm" data-a="addNota" data-id="${esc(ex.id)}">Enviar</button></div>`}` : ''}
+    <div class="row" style="margin-top:18px">
+      ${pode_apagar ? `<button class="btn ghost danger" data-a="apagarTarefa" data-id="${esc(ex.id)}">Apagar</button>` : ''}
+      <span class="sp"></span><button class="btn" data-a="fechar">${ro ? 'Fechar' : 'Cancelar'}</button>
+      ${ro ? '' : `<button class="btn pri" data-a="guardarTarefa" data-id="${ex ? esc(ex.id) : ''}">Guardar</button>`}
+    </div>`);
+  if (!ex) setTimeout(() => $('#tf-t')?.focus(), 30);
+}
+async function guardarTarefa(id) {
+  const d = {
+    titulo: $('#tf-t').value.trim(), lojaId: $('#tf-l').value, responsavelId: $('#tf-r').value || null,
+    prazo: $('#tf-p').value || null, prioridade: $('#tf-pr').value, estado: $('#tf-e').value, descricao: $('#tf-d').value.trim(),
+  };
+  if (!d.titulo) { toast('Escreve o título.'); return; }
+  if (!d.lojaId) { toast('Escolhe a loja.'); return; }
+  if (id) {
+    const ex = S.tarefas.find(t => t.id === id);
+    const mud = {}; Object.keys(d).forEach(k => { if ((ex[k] ?? null) !== (d[k] ?? null)) mud[k] = d[k]; });
+    if (mud.estado === 'feita') { mud.concluidaEm = new Date().toISOString(); mud.concluidaPor = S.me || null; }
+    else if (mud.estado) { mud.concluidaEm = null; mud.concluidaPor = null; }
+    fecharModal();
+    if (Object.keys(mud).length) await escrever(() => S.db.doc('tarefas/' + id).update(mud), 'Tarefa atualizada');
+  } else {
+    Object.assign(d, { criadoPor: S.me || null, criadoEm: new Date().toISOString(), notas: [], visitaId: null });
+    if (d.estado === 'feita') { d.concluidaEm = d.criadoEm; d.concluidaPor = S.me || null; }
+    fecharModal();
+    await escrever(() => S.db.collection('tarefas').add(d), 'Tarefa criada');
+  }
+}
+
+/* ---------- ações ---------- */
+const A = {
+  novoInv: () => abrirNovoInv(),
+  expTudo: el => exportarTudo(el),
+  impAbrir: () => {
+    abrirModal(`<h2>Importar dados</h2><p class="muted" style="font-size:13.5px">Cola aqui os dados copiados na versão anterior da app, ou escolhe o ficheiro .json exportado.</p>
+      <textarea id="imp-t" style="min-height:140px;font-family:monospace;font-size:12px" placeholder="Colar dados aqui…"></textarea>
+      <div class="row mt"><label class="btn" style="cursor:pointer">Escolher ficheiro<input type="file" accept=".json,application/json" data-c="impTudo" hidden></label><span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" id="imp-ok">Importar</button></div>`);
+    $('#imp-ok').onclick = () => { const t = $('#imp-t').value.trim(); if (!t) { toast('Cola os dados primeiro.'); return; } fecharModal(); importarTudo(t, document.querySelector('[data-a="impAbrir"]') || document.createElement('button')); };
+  },
+  codNovo: async () => { const nome = $('#cod-n').value.trim(); const papel = $('#cod-p').value; const lojaId = $('#cod-l').value || null; if (!nome) { toast('Escreve para quem é o código.'); return; } const c = gerarCodigo(); if (await escrever(() => S.db.doc('codigos/' + c).set({ nome, papel, lojaId, criadoEm: new Date().toISOString() }), 'Código criado: ' + c)) { $('#cod-n').value = ''; } },
+  codCopiar: async el => { try { await navigator.clipboard.writeText(el.dataset.v); toast('Código copiado'); } catch (e) { toast(el.dataset.v); } },
+  codApagar: async el => { const c = el.dataset.v; if (await confirmar(`Apagar o código ${c}? Os telemóveis que o usam deixam de conseguir entrar.`, 'Apagar')) await escrever(() => S.db.doc('codigos/' + c).delete(), 'Código apagado'); },
+  novaEnc: () => abrirEnc(null),
+  novaQC: () => abrirNovaQC(),
+  abrirQC: el => abrirQC(el.dataset.id),
+  fqModo: el => { S.fq.modo = el.dataset.v; render(); },
+  novaAv: () => abrirNovaAv(),
+  faModo: el => { S.fa.modo = el.dataset.v; render(); },
+  fgAno: el => { S.fg.ano += +el.dataset.v; render(); },
+  fgLoja: el => { S.fg.loja = S.fg.loja === el.dataset.v ? '' : el.dataset.v; render(); },
+  novoGasto: el => abrirGasto(null, { tipo: el.dataset.t }),
+  abrirGasto: el => abrirGasto(el.dataset.id),
+  gastoDeAv: el => { const a = S.avarias.find(x => x.id === el.dataset.id); if (a) abrirGasto(null, { tipo: 'equipamentos', lojaId: a.lojaId, equipamento: a.equipamento, descricao: a.motivo, avariaId: a.id }); },
+  gastoDeEnc: el => { const e = S.encomendas.find(x => x.id === el.dataset.id); if (e) abrirGasto(null, { tipo: 'palamenta', lojaId: e.lojaId, descricao: (e.itens || []).map(x => x.qtd + '× ' + x.nome).join(', ').slice(0, 180), encomendaId: e.id }); },
+  gastoApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar este gasto?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('gastos/' + id).delete(), 'Gasto apagado'); } },
+  abrirAv: el => abrirAv(el.dataset.id),
+  faEstado: el => { S.fa.estado = el.dataset.v; render(); },
+  faLoja: el => { S.fa.loja = el.dataset.v; render(); window.scrollTo(0, 0); },
+  avGuardar: async el => {
+    const lojaId = $('#av-l').value; let eq = $('#av-e').value; const motivo = $('#av-m').value.trim();
+    if (eq === '__outro') eq = $('#av-eo').value.trim();
+    if (!lojaId) { toast('Escolhe a loja.'); return; }
+    if (!eq) { toast('Escolhe o equipamento.'); return; }
+    if (motivo.length < 3) { toast('Escreve o motivo da avaria.'); return; }
+    const files = [...($('#av-f').files || [])]; const parado = $('#av-p').checked;
+    el.disabled = true; el.textContent = 'A enviar…';
+    const fotos = [];
+    for (const f of files) { if (!f.type.startsWith('image/')) continue; const it = await guardarImagem(f, { lojaId, avaria: true }); if (it) fotos.push(it); }
+    fecharModal();
+    await escrever(() => S.db.collection('avarias').add({ lojaId, equipamento: eq, motivo, parado, fotos, estado: 'aberta', criadoPor: S.me || null, criadoEm: new Date().toISOString(), notas: [], nAssistencia: '' }), 'Avaria reportada ✓');
+  },
+  avAtualizar: async el => {
+    const a = S.avarias.find(x => x.id === el.dataset.id); if (!a) return;
+    const mud = {}; const st = $('#av-st').value, n = $('#av-n').value.trim(), pp = $('#av-pp').checked, nt = $('#av-nt').value.trim();
+    if (st !== a.estado) { mud.estado = st; mud.resolvidoEm = st === 'resolvida' ? new Date().toISOString() : null; mud.resolvidoPor = st === 'resolvida' ? (S.me || null) : null; }
+    if (n !== (a.nAssistencia || '')) mud.nAssistencia = n;
+    if (pp !== !!a.parado) mud.parado = pp;
+    if (nt) mud.notas = [...(a.notas || []), { autorId: S.me || null, texto: nt, em: new Date().toISOString() }];
+    fecharModal();
+    if (Object.keys(mud).length) await escrever(() => S.db.doc('avarias/' + a.id).update(mud), mud.estado === 'resolvida' ? 'Marcado como resolvido ✓' : 'Atualizado');
+  },
+  avApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar este registo de avaria?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('avarias/' + id).delete(), 'Apagado'); } },
+  cxIrLoja: el => { document.getElementById('cx-' + el.dataset.v)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+  fqLoja: el => { S.fq.loja = el.dataset.v; S.fq.modo = 'abertas'; render(); },
+  fqMes: el => { S.fq.mesUser = true; const [y, m] = S.fq.mes.split('-').map(Number); const d = new Date(y, m - 1 + +el.dataset.v, 1); S.fq.mes = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; render(); },
+  qcGuardar: async el => {
+    const lojaId = $('#qc-l').value, data = $('#qc-d').value, valor = parseNum($('#qc-v').value);
+    if (!lojaId) { toast('Escolhe a loja.'); return; }
+    if (!data) { toast('Indica a data da caixa.'); return; }
+    if (valor === null || isNaN(valor) || valor === 0) { toast('Indica o valor da quebra (ex.: -15,40).'); return; }
+    const d = { lojaId, data, valor, caixa: $('#qc-c').value.trim(), prazo: $('#qc-p').value || null, nota: $('#qc-n').value.trim(), estado: 'aguarda',
+      criadoPor: S.me || null, criadoEm: new Date().toISOString(), justificacao: '', fotos: [], decisao: '' };
+    const mais = !!el.dataset.mais;
+    fecharModal();
+    const ok = await escrever(() => S.db.collection('quebrasCaixa').add(d), 'Quebra registada');
+    if (ok && mais) abrirNovaQC({ data });
+  },
+  qcJustificar: async el => {
+    const q = S.quebras.find(x => x.id === el.dataset.id); if (!q) return;
+    const j = $('#qc-j').value.trim(); if (j.length < 5) { toast('Escreve a justificação.'); return; }
+    const files = [...($('#qc-f')?.files || [])];
+    el.disabled = true; el.textContent = 'A enviar…';
+    const fotos = [...(q.fotos || [])];
+    for (const f of files) { if (!f.type.startsWith('image/')) continue; const it = await guardarImagem(f, { lojaId: q.lojaId, dia: q.data, quebra: q.id }); if (it) fotos.push(it); }
+    fecharModal();
+    await escrever(() => S.db.doc('quebrasCaixa/' + q.id).update({ justificacao: j, fotos, estado: 'justificada', justificadoPor: S.me || null, justificadoEm: new Date().toISOString() }), 'Justificação enviada ✓');
+  },
+  qcDecidir: async el => {
+    const id = el.dataset.id, v = el.dataset.v; const dc = ($('#qc-dc')?.value || '').trim();
+    const mud = { estado: v, decisao: dc, decididoPor: S.me || null, decididoEm: new Date().toISOString() };
+    if (v === 'aguarda') { mud.prazo = addDias(2); if (!dc) { toast('Escreve o que falta esclarecer no comentário.'); return; } }
+    fecharModal();
+    await escrever(() => S.db.doc('quebrasCaixa/' + id).update(mud), v === 'aceite' ? 'Justificação aceite' : v === 'recusada' ? 'Justificação não aceite' : 'Pedido de nova justificação enviado');
+  },
+  qcApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar esta quebra de caixa?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('quebrasCaixa/' + id).delete(), 'Apagada'); } },
+  abrirEnc: el => abrirEnc(el.dataset.id),
+  feModo: el => { S.fe.modo = el.dataset.v; render(); },
+  feEstado: el => { S.fe.estado = el.dataset.v; render(); },
+  encGuardar: async el => {
+    const id = el.dataset.id || null; const ex = id ? S.encomendas.find(e => e.id === id) : null;
+    const lojaId = ex ? ex.lojaId : $('#en-l').value;
+    if (!lojaId) { toast('Escolhe a loja.'); return; }
+    const itens = [...document.querySelectorAll('.enq')].map(i => ({ nome: i.dataset.nome, qtd: parseInt(i.value, 10) || 0 })).filter(x => x.qtd > 0);
+    if (!itens.length) { toast('Indica a quantidade de pelo menos um artigo.'); return; }
+    const obs = $('#en-o').value.trim(); const agora = new Date().toISOString();
+    if (ex) {
+      const mud = { itens, obs, atualizadoEm: agora, atualizadoPor: S.me || null };
+      if (S.isAdmin && $('#en-e')) { mud.estado = $('#en-e').value; mud.resposta = $('#en-r').value.trim(); }
+      fecharModal(); await escrever(() => S.db.doc('encomendas/' + id).update(mud), 'Pedido atualizado');
+    } else {
+      fecharModal(); await escrever(() => S.db.collection('encomendas').add({ lojaId, itens, obs, estado: 'pendente', criadoPor: S.me || null, criadoEm: agora, resposta: '' }), 'Pedido enviado ✓');
+    }
+  },
+  encApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar este pedido?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('encomendas/' + id).delete(), 'Pedido apagado'); } },
+  encCopiar: async () => {
+    const es = S.encomendas.filter(e => S.fe.totEst.includes(e.estado) && (!S.fe.loja || e.lojaId === S.fe.loja));
+    const tot = {}; es.forEach(e => (e.itens || []).forEach(x => tot[x.nome] = (tot[x.nome] || 0) + x.qtd));
+    const txt = 'Encomenda de palamenta\n' + Object.entries(tot).map(([n, q]) => `${q} × ${n}`).join('\n');
+    try { await navigator.clipboard.writeText(txt); toast('Lista copiada'); } catch (e) { abrirModal(`<h2>Lista</h2><textarea style="min-height:260px">${esc(txt)}</textarea><div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button></div>`); }
+  },
+  encMarcarTodas: async () => {
+    const es = S.encomendas.filter(e => S.fe.totEst.includes(e.estado) && (!S.fe.loja || e.lojaId === S.fe.loja));
+    if (!es.length || !(await confirmar(`Marcar ${es.length} pedido(s) como encomendados?`, 'Marcar'))) return;
+    let n = 0; for (const e of es) { if (await escrever(() => S.db.doc('encomendas/' + e.id).update({ estado: 'encomendada', atualizadoEm: new Date().toISOString(), atualizadoPor: S.me || null }))) n++; else break; }
+    toast(`${n} pedido(s) marcados como encomendados`);
+  },
+  palSave: async () => { const v = $('#pal-t').value.trim(); if (!v) return; if (await escrever(() => S.db.doc('config/palamenta').set({ lista: v }), 'Lista de palamenta guardada')) { S.palamenta = v; } },
+  abrirInv: el => abrirInv(el.dataset.id),
+  fiEstado: el => { S.fi.estado = el.dataset.v; render(); },
+  fiModo: el => { S.fi.modo = el.dataset.v; render(); },
+  fiMes: el => { const [y, m] = S.fi.mes.split('-').map(Number); const d = new Date(y, m - 1 + +el.dataset.v, 1); S.fi.mes = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; S.fi.dia = null; render(); },
+  fiDia: el => { S.fi.dia = S.fi.dia === el.dataset.v ? null : el.dataset.v; render(); },
+  fiAtraso: () => { S.fi.modo = 'lista'; S.fi.estado = 'atraso'; render(); },
+  fiResCel: el => { S.fi.modo = 'lista'; S.fi.estado = 'todos'; S.fi.loja = el.dataset.l; S.fi.tipo = el.dataset.k; render(); },
+  invEditar: el => abrirInv(el.dataset.id, true),
+  invGuardarRes: async el => {
+    const i = S.inventarios.find(x => x.id === el.dataset.id); if (!i) return;
+    const linhas = []; let erro = '';
+    invCats(i).forEach(c => {
+      const v = parseNum(document.querySelector(`.res-v[data-cat="${c}"]`).value);
+      const u = parseNum(document.querySelector(`.res-u[data-cat="${c}"]`).value);
+      if (v === null) erro = `Indica a diferença em € de ${catNome(c)} (0 se não houve).`;
+      else if (isNaN(v) || (u !== null && isNaN(u))) erro = `Valor inválido em ${catNome(c)}.`;
+      linhas.push({ cat: c, valor: v, unidades: u === null || isNaN(u) ? null : Math.round(u) });
+    });
+    if (erro) { toast(erro); return; }
+    const obs = $('#res-o').value.trim();
+    const files = [...($('#res-f')?.files || [])];
+    el.disabled = true; el.textContent = 'A guardar…';
+    const fotos = [...((i.resultado && i.resultado.fotos) || [])];
+    for (const f of files) { if (!f.type.startsWith('image/')) continue; const it = await guardarImagem(f, { lojaId: i.lojaId, dia: i.data, inventario: i.id }); if (it) fotos.push(it); }
+    const em = new Date().toISOString();
+    const resultado = { linhas, obs, fotos, por: S.me || null, em };
+    fecharModal();
+    await escrever(() => S.db.doc('inventarios/' + i.id).update({ resultado, estado: 'feito', feitoEm: (i.estado === 'feito' && i.feitoEm) || em, feitoPor: (i.estado === 'feito' && i.feitoPor) || S.me || null }), 'Resultado guardado ✓');
+  },
+  invReabrir: async el => { const id = el.dataset.id; fecharModal(); await escrever(() => S.db.doc('inventarios/' + id).update({ estado: 'agendado', feitoEm: null, feitoPor: null }), 'Inventário reaberto'); },
+  invGuardarData: async el => { const id = el.dataset.id; const d = $('#inv-d').value; fecharModal(); if (d) await escrever(() => S.db.doc('inventarios/' + id).update({ data: d, dataFim: null }), 'Data alterada'); },
+  invApagar: async el => {
+    const i = S.inventarios.find(x => x.id === el.dataset.id); if (!i) return;
+    const futuros = i.grupo ? S.inventarios.filter(x => x.grupo === i.grupo && x.lojaId === i.lojaId && x.tipo === i.tipo && (x.categorias || []).join() === (i.categorias || []).join() && x.estado !== 'feito' && x.data >= i.data && x.id !== i.id) : [];
+    if (!(await confirmar(futuros.length ? `Apagar este inventário e as ${futuros.length} repetições seguintes desta loja?` : 'Apagar este inventário?', 'Apagar'))) return;
+    for (const x of [i, ...futuros]) { if (!(await escrever(() => S.db.doc('inventarios/' + x.id).delete()))) break; }
+    toast('Apagado');
+  },
+  ir: el => { S.view = el.dataset.v; S.ckEdit = S.view === 'lojas' ? S.ckEdit : null; render(); window.scrollTo(0, 0); },
+  fechar: () => fecharModal(),
+  novaTarefa: () => abrirTarefa(null),
+  abrirTarefa: el => abrirTarefa(el.dataset.id),
+  guardarTarefa: el => guardarTarefa(el.dataset.id || null),
+  toggleTarefa: async (el, e) => {
+    e.stopPropagation();
+    const t = S.tarefas.find(x => x.id === el.dataset.id); if (!t) return;
+    const feita = t.estado !== 'feita';
+    await escrever(() => S.db.doc('tarefas/' + t.id).update(feita
+      ? { estado: 'feita', concluidaEm: new Date().toISOString(), concluidaPor: S.me || null }
+      : { estado: 'aberta', concluidaEm: null, concluidaPor: null }), feita ? 'Concluída ✓' : 'Reaberta');
+  },
+  addNota: async el => {
+    const inp = $('#tf-n'); const txt = inp.value.trim(); if (!txt) return;
+    const t = S.tarefas.find(x => x.id === el.dataset.id); if (!t) return;
+    el.disabled = true;
+    const ok = await escrever(() => S.db.doc('tarefas/' + t.id).update({ notas: [...(t.notas || []), { autorId: S.me || null, texto: txt, em: new Date().toISOString() }] }));
+    if (ok) { setTimeout(() => abrirTarefa(t.id), 50); }
+    else el.disabled = false;
+  },
+  apagarTarefa: async el => { const id = el.dataset.id; if (await confirmar('Apagar esta tarefa?', 'Apagar')) await escrever(() => S.db.doc('tarefas/' + id).delete(), 'Tarefa apagada'); },
+  fEstado: el => { S.f.estado = el.dataset.v; render(); },
+  verLoja: el => { S.f.loja = el.dataset.id; S.f.estado = 'abertas'; S.view = 'tarefas'; render(); window.scrollTo(0, 0); },
+  novaVisita: () => iniciarVisita(),
+  descartarVisita: async () => { if (await confirmar('Descartar esta visita? As respostas perdem-se.', 'Descartar')) { apagarRascunho(); S.v = null; S.view = 'visitas'; render(); } },
+  resp: el => {
+    const si = +el.dataset.s, ii = +el.dataset.i, i = S.v.seccoes[si].itens[ii];
+    i.r = i.r === el.dataset.r ? null : el.dataset.r;
+    const node = document.getElementById(`it-${si}-${ii}`);
+    if (node) node.outerHTML = itemHTML(si, ii);
+    atualizarProgresso(); gravarRascunho();
+    if (i.r === 'nok') setTimeout(() => document.querySelector(`#it-${si}-${ii} textarea`)?.focus(), 30);
+  },
+  concluirVisita: () => concluirVisita(),
+  verVisita: (el, e) => { e.preventDefault(); fecharModal(); S.verVisita = el.dataset.id; S.view = 'visitaVer'; render(); window.scrollTo(0, 0); },
+  apagarVisita: async el => {
+    const id = el.dataset.id;
+    if (await confirmar('Apagar esta visita? As tarefas criadas a partir dela mantêm-se.', 'Apagar')) {
+      if (await escrever(() => S.db.doc('visitas/' + id).delete(), 'Visita apagada')) { S.view = 'visitas'; render(); }
+    }
+  },
+  addLoja: async () => {
+    const inp = $('#novaLoja'); const n = inp.value.trim(); if (!n) return;
+    if (S.lojas.some(l => l.nome.toLowerCase() === n.toLowerCase())) { toast('Essa loja já existe.'); return; }
+    inp.value = '';
+    await escrever(() => S.db.collection('lojas').add({ nome: n, gerentes: [], criadoEm: new Date().toISOString() }), 'Loja adicionada');
+  },
+  renLoja: el => {
+    const l = lojaById(el.dataset.id);
+    abrirModal(`<h2>Renomear loja</h2><input type="text" id="rn" value="${esc(l.nome)}"><div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" id="rn-ok">Guardar</button></div>`);
+    $('#rn-ok').onclick = async () => { const n = $('#rn').value.trim(); fecharModal(); if (n && n !== l.nome) await escrever(() => S.db.doc('lojas/' + l.id).update({ nome: n }), 'Loja renomeada'); };
+  },
+  delLoja: async el => {
+    const l = lojaById(el.dataset.id);
+    if (await confirmar(`Remover a loja ${l.nome}? Os registos da loja ficam guardados mas sem loja.`, 'Remover')) await escrever(() => S.db.doc('lojas/' + l.id).delete(), 'Loja removida');
+  },
+  addGerente: el => abrirGerente(el.dataset.id),
+  assocMembro: async el => { const l = lojaById(el.dataset.l); const g = el.dataset.g; fecharModal(); await escrever(() => S.db.doc('lojas/' + l.id).update({ gerentes: [...new Set([...(l.gerentes || []), g])] }), 'Gerente associado'); },
+  rmGerente: async el => {
+    const l = lojaById(el.dataset.id); const g = el.dataset.g;
+    if ((l.gerentes || []).includes(g)) await escrever(() => S.db.doc('lojas/' + l.id).update({ gerentes: (l.gerentes || []).filter(x => x !== g) }));
+    const m = S.membros.find(x => x.id === g);
+    if (m && (m.lojas || []).includes(l.id)) await escrever(() => S.db.doc('membros/' + g).update({ lojas: (m.lojas || []).filter(x => x !== l.id) }));
+  },
+  escolherLoja: async () => {
+    const lojaId = $('#el-l').value; const nomeI = ($('#el-n').value || '').trim();
+    if (!lojaId) { toast('Escolhe a tua loja.'); return; }
+    if (!S.me) { toast('Inicia sessão no Claude para continuar.'); return; }
+    const ex = S.membros.find(x => x.id === S.me);
+    const d = { lojas: [...new Set([...(ex ? ex.lojas || [] : []), lojaId])], nomeIndicado: nomeI, em: new Date().toISOString() };
+    if (await escrever(() => S.db.doc('membros/' + S.me).set(d), 'Loja associada ✓')) { S.view = 'fotos'; render(); }
+  },
+  ffDia: el => { const d = new Date((S.ff.data || hoje()) + 'T12:00'); d.setDate(d.getDate() + +el.dataset.v); S.ff.data = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; if (S.ff.data > hoje()) S.ff.data = hoje(); render(); },
+  ffHoje: () => { S.ff.data = hoje(); render(); },
+  ffDias: el => { S.ff.dias = +el.dataset.v; render(); },
+  ffIr: el => { S.ff.data = el.dataset.d; render(); window.scrollTo(0, 0); },
+  abrirFotos: el => abrirFotos(el.dataset.l, el.dataset.d, el.dataset.p),
+  marcarFoto: async el => {
+    const key = el.dataset.k, v = el.dataset.v, doc = S.fotos[key]; if (!doc) return;
+    const obs = ($('#fo-obs')?.value || '').trim(); const mkT = $('#fo-t')?.checked;
+    fecharModal();
+    const ok = await escrever(() => S.db.doc('fotos/' + key).update({ estado: v, obs, verificadoPor: S.me || null, verificadoEm: new Date().toISOString() }), v === 'ok' ? 'Verificada ✓' : 'Marcada como não conforme');
+    if (ok && v === 'nok' && mkT) {
+      const p = S.periodos.find(x => x.id === doc.periodo);
+      await escrever(() => S.db.collection('tarefas').add({ titulo: `Foto ${p ? p.nome : doc.periodo} de ${fmtData(doc.data)}: corrigir`, descricao: obs, lojaId: doc.lojaId, responsavelId: null,
+        prazo: addDias(1), prioridade: 'alta', estado: 'aberta', criadoPor: S.me || null, criadoEm: new Date().toISOString(), visitaId: null, notas: [] }), 'Tarefa criada');
+    }
+  },
+  verificarTodas: async el => {
+    const d = S.ff.data || hoje();
+    const ks = Object.keys(S.fotos).filter(k => { const f = S.fotos[k]; return f.data === d && (f.itens || []).length && !f.estado && lojaById(f.lojaId); });
+    if (!ks.length) return;
+    if (!(await confirmar(`Marcar como verificadas as ${ks.length} fotos pendentes de ${fmtData(d)}?`, 'Verificar'))) return;
+    el.disabled = true; let n = 0;
+    for (const k of ks) { if (await escrever(() => S.db.doc('fotos/' + k).update({ estado: 'ok', verificadoPor: S.me || null, verificadoEm: new Date().toISOString() }))) n++; else break; }
+    toast(`${n} verificadas ✓`);
+  },
+  rmFoto: async el => {
+    const key = el.dataset.k, i = +el.dataset.i, doc = S.fotos[key]; if (!doc) return;
+    if (!(await confirmar('Remover esta foto?', 'Remover'))) return;
+    const it = doc.itens[i]; const itens = doc.itens.filter((_, j) => j !== i);
+    const ok = await escrever(() => S.db.doc('fotos/' + key).update({ itens, estado: itens.length ? doc.estado : null }), 'Foto removida');
+    if (ok) {
+      if (it.img) { try { await S.db.doc('fotosImg/' + it.img).delete(); } catch (e) {} }
+      if (it.asset && S.assets) { try { await S.assets.delete(it.asset); } catch (e) {} }
+    }
+  },
+  perSave: async () => {
+    const ps = S.perEdit.filter(p => p.nome.trim()).map(p => ({ id: p.id, nome: p.nome.trim(), curto: p.nome.trim().slice(0, 7), ate: /^\d\d:\d\d$/.test(p.ate) ? p.ate : '23:59' }));
+    if (!ps.length) { toast('É preciso pelo menos um período.'); return; }
+    if (await escrever(() => S.db.doc('config/fotos').set({ periodos: ps }), 'Períodos guardados')) { S.periodos = ps; S.perEdit = null; render(); }
+  },
+  perAdd: () => { perMut().push({ id: 'p' + rid(), nome: '', ate: '12:00' }); render(); },
+  perDel: el => { perMut().splice(+el.dataset.i, 1); render(); },
+  perCancel: () => { S.perEdit = null; render(); },
+  ckAddItem: el => { ckMut().seccoes[+el.dataset.s].itens.push({ id: 'i' + rid(), texto: '' }); render(); },
+  ckDelItem: el => { ckMut().seccoes[+el.dataset.s].itens.splice(+el.dataset.i, 1); render(); },
+  ckAddSec: () => { ckMut().seccoes.push({ titulo: 'Nova secção', itens: [{ id: 'i' + rid(), texto: '' }] }); render(); },
+  ckDelSec: async el => { if (await confirmar('Remover esta secção da checklist?', 'Remover')) { ckMut().seccoes.splice(+el.dataset.s, 1); render(); } },
+  ckCancel: () => { S.ckEdit = null; render(); },
+  ckSave: async () => {
+    const ck = { seccoes: S.ckEdit.seccoes.map(s => ({ titulo: s.titulo.trim() || 'Secção', itens: s.itens.filter(i => i.texto.trim()).map(i => ({ id: i.id, texto: i.texto.trim() })) })).filter(s => s.itens.length) };
+    if (!ck.seccoes.length) { toast('A checklist precisa de pelo menos um item.'); return; }
+    if (await escrever(() => S.db.doc('config/checklist').set(ck), 'Checklist guardada')) { S.ckEdit = null; S.checklist = ck; render(); }
+  },
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
+  const fn = A[el.dataset.a]; if (fn) fn(el, e);
+});
+const C = {
+  fiLoja: el => { S.fi.loja = el.value; render(); },
+  impTudo: async el => { const f = el.files && el.files[0]; el.value = ''; if (f) { const b = $('#imp-ok'); fecharModal(); importarTudo(await f.text(), document.querySelector('[data-a="impAbrir"]') || document.createElement('button')); } },
+  feLoja: el => { S.fe.loja = el.value; render(); },
+  fqLoja: el => { S.fq.loja = el.value; render(); },
+  faLoja: el => { S.fa.loja = el.value; render(); },
+  cxSo: el => { S.fq.so20 = el.checked; render(); },
+  cxReg: el => { cxGuardar(el.dataset.id, 'registo', el.value); const n = el.closest('.cxrow').querySelector('[data-c="cxNum"]'); n.disabled = el.value !== 'sim'; if (el.value === 'sim') n.focus(); else n.value = ''; },
+  cxNum: el => { const k = el.dataset.id + '|nRegisto'; clearTimeout((cxPend.get(k) || {}).t); cxPend.delete(k); cxGuardar(el.dataset.id, 'nRegisto', el.value.trim()); },
+  cxJust: el => { const k = el.dataset.id + '|justificacao'; clearTimeout((cxPend.get(k) || {}).t); cxPend.delete(k); cxGuardar(el.dataset.id, 'justificacao', el.value.trim()); },
+  cxImport: el => { const f = el.files && el.files[0]; el.value = ''; if (f) importarQbr(f); },
+  feTot: el => { const s = new Set(S.fe.totEst); el.checked ? s.add(el.value) : s.delete(el.value); S.fe.totEst = [...s]; render(); },
+  fiTipo: el => { S.fi.tipo = el.value; render(); },
+  fLoja: el => { S.f.loja = el.value; render(); },
+  fMinhas: el => { S.f.minhas = el.checked; render(); },
+  fvLoja: el => { S.fv.loja = el.value; render(); },
+  vLoja: el => { S.v.lojaId = el.value; gravarRascunho(); },
+  vData: el => { S.v.data = el.value; gravarRascunho(); },
+  vNotas: el => { S.v.notas = el.value; gravarRascunho(); },
+  nota: el => { S.v.seccoes[+el.dataset.s].itens[+el.dataset.i].nota = el.value; gravarRascunho(); },
+  mkTarefa: el => { S.v.seccoes[+el.dataset.s].itens[+el.dataset.i].tarefa = el.checked; gravarRascunho(); },
+  ckSec: el => { ckMut().seccoes[+el.dataset.s].titulo = el.value; refreshCkSave(); },
+  ckItem: el => { ckMut().seccoes[+el.dataset.s].itens[+el.dataset.i].texto = el.value; refreshCkSave(); },
+  ffData: el => { if (el.value) { S.ff.data = el.value > hoje() ? hoje() : el.value; render(); } },
+  ffLoja: el => { S.ff.loja = el.value; try { localStorage.setItem('bagga-loja', el.value); } catch (e) {} render(); },
+  foto: el => { const fs = [...(el.files || [])]; if (fs.length) enviarFotos(fs, el.dataset.l, el.dataset.d, el.dataset.p); el.value = ''; },
+  perNome: el => { perMut()[+el.dataset.i].nome = el.value; const b = document.querySelector('[data-a="perSave"]'); if (b) b.disabled = false; },
+  perAte: el => { perMut()[+el.dataset.i].ate = el.value; const b = document.querySelector('[data-a="perSave"]'); if (b) b.disabled = false; },
+};
+function perMut() { if (!S.perEdit) S.perEdit = JSON.parse(JSON.stringify(S.periodos)); return S.perEdit; }
+function refreshCkSave() { const b = document.querySelector('[data-a="ckSave"]'); if (b) b.disabled = false; }
+const viaInput = new Set(['vNotas', 'nota', 'ckSec', 'ckItem', 'perNome']);
+document.addEventListener('input', e => { const el = e.target.closest('[data-c]'); if (el && viaInput.has(el.dataset.c)) C[el.dataset.c](el); });
+/* gravação automática enquanto se escreve (mapa diário da caixa) */
+const cxPend = new Map();
+function cxAgendar(el) {
+  const campo = el.dataset.c === 'cxNum' ? 'nRegisto' : 'justificacao'; const k = el.dataset.id + '|' + campo;
+  clearTimeout((cxPend.get(k) || {}).t);
+  const v = el.value.trim();
+  cxPend.set(k, { id: el.dataset.id, campo, v, t: setTimeout(() => { cxPend.delete(k); cxGuardar(el.dataset.id, campo, v); }, 1000) });
+}
+function cxFlush() { cxPend.forEach(x => { clearTimeout(x.t); cxGuardar(x.id, x.campo, x.v); }); cxPend.clear(); }
+document.addEventListener('input', e => { const el = e.target.closest('[data-c="cxNum"],[data-c="cxJust"]'); if (el) cxAgendar(el); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') cxFlush(); });
+window.addEventListener('pagehide', cxFlush);
+document.addEventListener('change', e => { const el = e.target.closest('[data-c]'); if (el && !viaInput.has(el.dataset.c) && C[el.dataset.c]) C[el.dataset.c](el); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('#modal').hidden) fecharModal();
+  if (e.key === 'Enter' && e.target.id === 'novaLoja') A.addLoja();
+  if (e.key === 'Enter' && e.target.id === 'tf-n') document.querySelector('[data-a="addNota"]')?.click();
+});
+
+/* ---------- render ---------- */
+function render() {
+  renderNav();
+  const app = $('#app');
+  if (!S.db && S.ready) { app.innerHTML = '<div class="card empty">Para ver e guardar dados, abre esta app com a sessão iniciada no Claude.</div>'; return; }
+  if (S.view === 'lojas' && !S.isAdmin) S.view = 'inicio';
+  if (false) {
+    app.dataset.v = 'escolher';
+    app.innerHTML = `<div class="card" style="max-width:460px;margin:30px auto;padding:20px">
+      <h2 style="margin-top:0">Bem-vindo 👋</h2><p class="muted" style="margin-top:-6px">Escolhe a tua loja para começares a usar a app.</p>
+      <label class="f">A tua loja</label><select id="el-l"><option value="">Escolhe…</option>${S.lojas.map(l => `<option value="${esc(l.id)}">${esc(l.nome)}</option>`).join('')}</select>
+      <label class="f">O teu nome</label><input type="text" id="el-n" value="${esc(S.meuNome || '')}" placeholder="Nome e apelido">
+      <div class="row mt"><span class="sp"></span><button class="btn pri" data-a="escolherLoja">Entrar</button></div></div>`;
+    return;
+  }
+  if (S.view === 'visitas' || S.view.startsWith('visita')) S.view = 'inicio';
+  const views = { inicio: vInicio, tarefas: vTarefas, visitas: vVisitas, visitaForm: vVisitaForm, visitaVer: vVisitaVer, lojas: vLojas, fotos: vFotos, inventarios: vInventarios, encomendas: vEncomendas, caixa: vCaixa, avarias: vAvarias };
+  // não redesenhar o formulário de visita/checklist por baixo do utilizador quando chegam dados
+  if (render.lock && (S.view === 'visitaForm') && app.dataset.v === 'visitaForm') return;
+  app.dataset.v = S.view;
+  app.innerHTML = (views[S.view] || vInicio)();
+  document.querySelectorAll('.gtabwrap').forEach(w => { w.scrollLeft = w.scrollWidth; });
+}
+let renderPendente = false;
+const aEscrever = () => { const a = document.activeElement; return !!(a && $('#app').contains(a) && a.matches('input:not([type=checkbox]):not([type=file]),textarea,select')); };
+document.addEventListener('focusout', () => setTimeout(() => { if (renderPendente && !aEscrever()) { renderPendente = false; renderDados(); } }, 150));
+let renderTimer = null;
+function renderDados() { clearTimeout(renderTimer); renderTimer = setTimeout(renderDadosAgora, 40); }
+function renderDadosAgora() {
+  if (aEscrever()) { renderPendente = true; renderNav(); return; }
+  // chamado quando chegam dados: evita apagar o que se está a escrever
+  if (S.view === 'visitaForm') { renderNav(); return; }
+  if (S.view === 'lojas' && (S.ckEdit || S.perEdit) && document.activeElement && document.activeElement.matches('[data-c^="ck"],[data-c^="per"]')) return;
+  if (!$('#modal').hidden && document.activeElement && $('#sheet').contains(document.activeElement)) { render(); return; }
+  render();
+}
+
+/* ---------- arranque ---------- */
+async function init() {
+  render();
+  if (!window.APP || !window.APP.use) { S.ready = true; render(); return; }
+  const [db, user] = await Promise.all([window.APP.use('db'), window.APP.use('user')]);
+  S.db = db; S.user = user; S.ready = true;
+  if (user) {
+    try { S.me = await user.id(); } catch (e) {}
+    try { S.isOwner = !!(await user.isOwner()); } catch (e) {}
+    S.isAdmin = S.isOwner;
+    try { const c = await user.can('data.write'); S.canWrite = c === null || c === undefined ? true : !!c; } catch (e) {}
+    try { const me = await user.me(); S.meuNome = (me && me.name) || ''; $('#quem').textContent = (me && me.name) ? `Olá, ${me.name.split(' ')[0]}` : 'Lojas Bagga'; } catch (e) { $('#quem').textContent = 'Lojas Bagga'; }
+  } else $('#quem').textContent = 'Lojas Bagga';
+  if (IS_PWA) {
+    const sb = document.getElementById('sair'); if (sb) sb.hidden = false;
+    S.meuCodigo = window.PWA_INFO && window.PWA_INFO.codigo;
+    if (S.isAdmin && db) {
+      db.collection('codigos').onSnapshot(s => { S.codigos = s.docs.map(d => ({ id: d.id, data: d.data() })); renderDados(); }, () => {});
+      db.collection('sessoes').onSnapshot(s => { S.sessoes = s.docs.map(d => ({ id: d.id, data: d.data() })); renderDados(); }, () => {});
+    }
+  }
+  if (!S.isAdmin) { S.view = 'fotos'; try { S.ff.loja = localStorage.getItem('bagga-loja') || ''; } catch (e) {} if (!S.ff.loja && window.PWA_INFO && window.PWA_INFO.lojaId) S.ff.loja = window.PWA_INFO.lojaId; }
+  if (!db) { render(); return; }
+  window.APP.use('assets').then(a => { S.assets = a; }).catch(() => {});
+  setInterval(() => { if (S.view === 'fotos' || S.view === 'inicio') { if ($('#modal').hidden) renderDados(); } }, 60000);
+
+  let confirmados = 0;
+  const timer = setTimeout(() => aviso('Não está a ser possível ligar aos dados. O que vês pode estar desatualizado.'), 10000);
+  const confirma = snap => { if (!snap.metadata.fromCache) { confirmados++; if (confirmados >= 8) { clearTimeout(timer); aviso(''); } } };
+  const erro = e => { clearTimeout(timer); if (e && e.code !== 'revoked') aviso('Houve um problema a ler os dados. Volta a abrir a app mais tarde.'); };
+  const docs = snap => snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  db.collection('membros').limit(500).onSnapshot(snap => { S.membros = docs(snap); S.loaded.membros = true; carregarPerfis(S.membros.map(m => m.id)); renderDados(); }, () => { S.loaded.membros = true; renderDados(); });
+  db.collection('lojas').onSnapshot(snap => {
+    S.lojas = docs(snap).sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt'));
+    S.loaded.lojas = true; confirma(snap);
+    carregarPerfis(S.lojas.flatMap(l => l.gerentes || []));
+    renderDados();
+  }, erro);
+  db.collection('tarefas').limit(1000).onSnapshot(snap => {
+    S.tarefas = docs(snap); S.loaded.tarefas = true; confirma(snap);
+    carregarPerfis(S.tarefas.flatMap(t => [t.responsavelId, t.criadoPor, t.concluidaPor, ...(t.notas || []).map(n => n.autorId)]));
+    renderDados();
+  }, erro);
+  db.collection('visitas').orderBy('data', 'desc').limit(300).onSnapshot(snap => {
+    S.visitas = docs(snap); S.loaded.visitas = true; confirma(snap);
+    carregarPerfis(S.visitas.map(v => v.autorId));
+    renderDados();
+  }, erro);
+  if (S.isOwner) db.collection('gastos').orderBy('data', 'desc').limit(1000).onSnapshot(snap => { S.gastos = docs(snap); S.loaded.gastos = true; renderDados(); }, () => { S.loaded.gastos = true; });
+  db.collection('avarias').orderBy('criadoEm', 'desc').limit(500).onSnapshot(snap => {
+    S.avarias = docs(snap); S.loaded.avarias = true; confirma(snap);
+    carregarPerfis(S.avarias.flatMap(a => [a.criadoPor, ...(a.notas || []).map(n => n.autorId)]));
+    renderDados();
+  }, erro);
+  db.collection('caixaDias').orderBy('data', 'desc').limit(1).get().then(s => {
+    const d = s.docs[0] && s.docs[0].data(); if (!d || !d.data) return;
+    S.cxUltimoMes = d.data.slice(0, 7);
+    if (!S.fq.mesUser) { S.fq.mes = S.cxUltimoMes; subscreverCaixaMes(S.fq.mes); renderDados(); }
+  }).catch(() => {});
+  db.collection('quebrasCaixa').orderBy('data', 'desc').limit(1000).onSnapshot(snap => {
+    S.quebras = docs(snap); S.loaded.quebras = true; confirma(snap);
+    carregarPerfis(S.quebras.flatMap(q => [q.justificadoPor, q.criadoPor]));
+    renderDados();
+  }, erro);
+  db.collection('encomendas').orderBy('criadoEm', 'desc').limit(500).onSnapshot(snap => {
+    S.encomendas = docs(snap); S.loaded.encomendas = true; confirma(snap);
+    carregarPerfis(S.encomendas.flatMap(e => [e.criadoPor, e.atualizadoPor]));
+    renderDados();
+  }, erro);
+  db.doc('config/palamenta').onSnapshot(snap => { if (snap.exists && snap.data().lista) S.palamenta = snap.data().lista; }, () => {});
+  db.collection('inventarios').where('data', '>=', addDias(-120)).limit(1000).onSnapshot(snap => {
+    S.inventarios = docs(snap); S.loaded.inventarios = true; confirma(snap);
+    carregarPerfis(S.inventarios.flatMap(i => [i.feitoPor, i.resultado && i.resultado.por]));
+    renderDados();
+  }, erro);
+  db.collection('fotos').where('data', '>=', addDias(-(JANELA_DIAS - 1))).limit(1000).onSnapshot(snap => {
+    const m = {}; snap.docs.forEach(d => { m[d.id] = { id: d.id, ...d.data() }; });
+    S.fotos = m; S.loaded.fotos = true; confirma(snap);
+    carregarPerfis(Object.values(m).flatMap(f => [...(f.itens || []).map(i => i.autorId), f.verificadoPor]));
+    renderDados();
+    const k = $('#sheet').dataset.foto;
+    if (k && !$('#modal').hidden && !($('#sheet').contains(document.activeElement) && document.activeElement.tagName === 'TEXTAREA')) { const [d, ...r] = k.split('_'); const pid = r.pop(); abrirFotos(r.join('_'), d, pid); }
+  }, erro);
+  db.doc('config/fotos').onSnapshot(snap => {
+    if (snap.exists) { const d = snap.data(); if (d && Array.isArray(d.periodos) && d.periodos.length) { S.periodos = d.periodos; if (!S.perEdit) renderDados(); } }
+  }, () => {});
+  db.doc('config/checklist').onSnapshot(snap => {
+    if (snap.exists) { const d = snap.data(); if (d && Array.isArray(d.seccoes) && d.seccoes.length) S.checklist = d; }
+    if (S.view === 'lojas' && !S.ckEdit) render();
+  }, () => {});
+}
+window.APP_READY.then(init);
+</script>
+</body>
+</html>

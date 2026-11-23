@@ -1,0 +1,46 @@
+rules_version = '2';
+// Regras de segurança da Bagga Ops.
+// Copia este texto para: Consola Firebase › Firestore Database › Regras › Publicar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function sessPath() { return /databases/$(database)/documents/sessoes/$(request.auth.uid); }
+    function temSessao() { return signedIn() && exists(sessPath()); }
+    function codPath() { return /databases/$(database)/documents/codigos/$(get(sessPath()).data.codigo); }
+    function valido() { return temSessao() && exists(codPath()); }
+    function admin() { return valido() && get(codPath()).data.papel == 'admin'; }
+    function instalado() { return exists(/databases/$(database)/documents/config/instalado); }
+
+    // Configuração inicial (só pode ser criada uma vez)
+    match /config/instalado {
+      allow get: if signedIn();
+      allow create: if signedIn() && !instalado();
+    }
+    // Códigos de acesso: quem sabe o código consegue confirmá-lo; só o responsável os lista e gere
+    match /codigos/{c} {
+      allow get: if signedIn();
+      allow list, update, delete: if admin();
+      allow create: if admin()
+        || (signedIn() && !instalado()
+            && existsAfter(/databases/$(database)/documents/config/instalado)
+            && request.resource.data.papel == 'admin');
+    }
+    // Sessões: cada telemóvel regista a sua, com um código válido
+    match /sessoes/{uid} {
+      allow get: if valido() || (signedIn() && request.auth.uid == uid);
+      allow list: if admin();
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && existsAfter(/databases/$(database)/documents/codigos/$(request.resource.data.codigo));
+      allow delete: if (signedIn() && request.auth.uid == uid) || admin();
+    }
+    // Configurações e lojas: todos leem, só o responsável altera
+    match /config/{d} { allow read: if valido(); allow write: if admin(); }
+    match /lojas/{d} { allow read: if valido(); allow write: if admin(); }
+    // Gastos: só o responsável
+    match /gastos/{d} { allow read, write: if admin(); }
+    // Restantes registos (fotos, tarefas, inventários, caixa, equipamentos, palamenta…)
+    match /{col}/{d} {
+      allow read, write: if valido() && !(col in ['codigos', 'sessoes', 'config', 'lojas', 'gastos']);
+    }
+  }
+}
