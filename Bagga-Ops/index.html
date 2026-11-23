@@ -1042,7 +1042,7 @@ function abrirEnc(id) {
     <label class="f">Observações</label><textarea id="en-o" placeholder="Ex.: urgente, partiram-se 6 chávenas no fim de semana">${esc(ex ? ex.obs || '' : '')}</textarea>
     ${S.isAdmin && ex ? `<label class="f">Estado</label><select id="en-e">${Object.entries(ENC_ESTADOS).map(([k, [n]]) => `<option value="${k}" ${ex.estado === k ? 'selected' : ''}>${n}</option>`).join('')}</select>
       <label class="f">Resposta para a loja (opcional)</label><textarea id="en-r" placeholder="Ex.: aprovado com quantidades ajustadas">${esc(ex.resposta || '')}</textarea>` : ''}
-    ${ex && S.isOwner ? `<div class="row mt" style="background:#FFF8EA;border:1px solid var(--line);border-radius:10px;padding:8px 10px"><span class="sp" style="font-size:13.5px">💶 Custo registado: <b>${eur(gastosDe('encomendaId', ex.id).reduce((s, g) => s + (+g.valor || 0), 0))}</b></span><button class="btn sm" type="button" data-a="gastoDeEnc" data-id="${esc(ex.id)}">+ Registar custo</button></div>` : ''}
+    ${ex && S.isOwner ? `<div class="row mt" style="background:#FFF8EA;border:1px solid var(--line);border-radius:10px;padding:8px 10px"><span class="sp" style="font-size:13.5px">💶 Custo registado: <b>${eur(gastosDe('encomendaId', ex.id).reduce((s, g) => s + (+g.valor || 0), 0))}</b></span><button class="btn sm" type="button" data-a="gastoDeEnc" data-id="${esc(ex.id)}">+ Registar custo</button></div>${gastosLista('encomendaId', ex.id)}` : ''}
     ${ex && ex.resposta && !S.isAdmin ? `<div class="note mt"><small>Resposta do responsável</small>${esc(ex.resposta)}</div>` : ''}
     <div class="stickybar" style="padding-bottom:0">
       ${ex && (S.isAdmin || ex.estado === 'pendente') ? `<button class="btn ghost danger" data-a="encApagar" data-id="${esc(ex.id)}">Apagar</button>` : ''}
@@ -1230,6 +1230,10 @@ function vGastos(tipo) {
       <div class="meta"><span class="pill br">${esc(nomeLoja(g.lojaId))}</span><span>${fmtData(g.data)}</span>${g.equipamento ? `<span>· ${esc(g.equipamento)}</span>` : ''}${g.fornecedor ? `<span>· ${esc(g.fornecedor)}</span>` : ''}${g.fatura ? `<span>· Fat. ${esc(g.fatura)}</span>` : ''}</div>
     </div></div>`).join('') : `<div class="card empty">${S.loaded.gastos ? 'Ainda sem gastos registados.' : 'A carregar…'}</div>`}</div>`;
 }
+function gastosLista(campo, id) {
+  const gs = gastosDe(campo, id); if (!gs.length) return '';
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${gs.map(g => `<button type="button" class="btn sm ghost" data-a="abrirGasto" data-id="${esc(g.id)}" title="Alterar ou apagar">✏️ ${g.data ? esc(fmtData(g.data).slice(0, 5)) + ' · ' : ''}${eur(+g.valor || 0)}${g.fornecedor ? ' · ' + esc(g.fornecedor) : ''}</button>`).join('')}<span class="muted" style="font-size:12px;align-self:center">Toca num custo para o alterar ou apagar.</span></div>`;
+}
 function abrirGasto(id, pre) {
   const g = id ? S.gastos.find(x => x.id === id) : { tipo: pre.tipo, lojaId: pre.lojaId || S.fg.loja || '', data: hoje(), valor: null, descricao: pre.descricao || '', equipamento: pre.equipamento || '', avariaId: pre.avariaId || null, encomendaId: pre.encomendaId || null, fornecedor: '', fatura: '' };
   if (!g) return;
@@ -1319,7 +1323,7 @@ function abrirAv(id) {
       <div class="sp" style="min-width:150px"><label class="f">Estado</label><select id="av-st">${Object.entries(AV_ESTADOS).map(([k, [n]]) => `<option value="${k}" ${a.estado === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
       <div class="sp" style="min-width:150px"><label class="f">Nº pedido de assistência</label><input type="text" id="av-n" value="${esc(a.nAssistencia || '')}" placeholder="opcional"></div></div>
       <label class="cbx mt"><input type="checkbox" id="av-pp" ${a.parado ? 'checked' : ''}> Equipamento parado</label>` : a.nAssistencia ? `<div class="muted mt">Nº pedido de assistência: ${esc(a.nAssistencia)}</div>` : ''}
-    ${S.isOwner ? `<div class="row mt" style="background:#FFF8EA;border:1px solid var(--line);border-radius:10px;padding:8px 10px"><span class="sp" style="font-size:13.5px">💶 Custos registados: <b>${eur(gastosDe('avariaId', a.id).reduce((s, g) => s + (+g.valor || 0), 0))}</b></span><button class="btn sm" data-a="gastoDeAv" data-id="${esc(a.id)}">+ Registar custo</button></div>` : ''}
+    ${S.isOwner ? `<div class="row mt" style="background:#FFF8EA;border:1px solid var(--line);border-radius:10px;padding:8px 10px"><span class="sp" style="font-size:13.5px">💶 Custos registados: <b>${eur(gastosDe('avariaId', a.id).reduce((s, g) => s + (+g.valor || 0), 0))}</b></span><button class="btn sm" data-a="gastoDeAv" data-id="${esc(a.id)}">+ Registar custo</button></div>${gastosLista('avariaId', a.id)}` : ''}
     <label class="f">Atualizações</label>
     <div class="notes">${(a.notas || []).map(n => `<div class="note"><small>${esc(nome(n.autorId))} · ${fmtDataHora(n.em)}</small>${esc(n.texto)}</div>`).join('') || '<div class="muted" style="font-size:13px">Sem atualizações.</div>'}</div>
     ${pw ? `<input type="text" id="av-nt" placeholder="Escreve uma atualização (ex.: técnico vem amanhã)" style="margin-top:8px">` : ''}
