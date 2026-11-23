@@ -369,8 +369,9 @@ const fotoId = (data, lojaId, pid) => `${data}_${lojaId}_${pid}`;
 const agoraHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 const lojasDoMembro = uid => { const m = S.membros.find(x => x.id === uid); return m ? (m.lojas || []) : []; };
 const gerentesDe = l => [...new Set([...(l.gerentes || []), ...S.membros.filter(m => (m.lojas || []).includes(l.id)).map(m => m.id)])];
-const minhasLojas = () => S.lojas; // todos acedem a todas as lojas
-function lojasFotos() { return S.isAdmin ? S.lojas : minhasLojas(); }
+const minhaLoja = () => (window.PWA_INFO && window.PWA_INFO.lojaId) || null;
+const minhasLojas = () => S.isAdmin ? S.lojas : S.lojas.filter(l => l.id === minhaLoja()); // cada loja só vê a sua; o responsável vê todas
+function lojasFotos() { return S.lojas; } // fotos visíveis para todas as lojas
 function estadoFoto(lojaId, data, p) {
   const doc = S.fotos[fotoId(data, lojaId, p.id)];
   const tem = doc && (doc.itens || []).length;
@@ -526,7 +527,7 @@ function renderNav() {
 
 function vInicio() {
   const lojasVis = S.isAdmin ? S.lojas : minhasLojas();
-  const lojasBase = lojasVis.length ? lojasVis : S.lojas;
+  const lojasBase = lojasVis;
   const ids = new Set(lojasBase.map(l => l.id));
   const ts = S.tarefas.filter(t => ids.has(t.lojaId));
   const abertas = ts.filter(t => t.estado !== 'feita');
@@ -585,6 +586,7 @@ function vInicio() {
 
 function vTarefas() {
   let ts = S.tarefas.slice();
+  if (!S.isAdmin) { const ids = new Set(minhasLojas().map(l => l.id)); ts = ts.filter(t => ids.has(t.lojaId)); }
   if (S.f.loja) ts = ts.filter(t => t.lojaId === S.f.loja);
   if (S.f.minhas) ts = ts.filter(eMinha);
   if (S.f.estado === 'abertas') ts = ts.filter(t => t.estado !== 'feita');
@@ -595,7 +597,7 @@ function vTarefas() {
   return `
   <div class="row"><h2 class="sp">Tarefas e pendentes</h2>${podeEscrever() ? '<button class="btn pri" data-a="novaTarefa">+ Nova tarefa</button>' : ''}</div>
   <div class="filters">
-    <select data-c="fLoja"><option value="">Todas as lojas</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${S.f.loja === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
+    <select data-c="fLoja"><option value="">Todas as lojas</option>${(S.isAdmin ? S.lojas : minhasLojas()).map(l => `<option value="${esc(l.id)}" ${S.f.loja === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
     <label class="cbx card" style="padding:8px 12px;box-shadow:none"><input type="checkbox" data-c="fMinhas" ${S.f.minhas ? 'checked' : ''}> Só as minhas</label>
     <div class="seg">${seg.map(([k, l]) => `<button class="${S.f.estado === k ? 'on' : ''}" data-a="fEstado" data-v="${k}">${l}</button>`).join('')}</div>
   </div>
@@ -667,8 +669,8 @@ function vFotos() {
     ${listaFalta(S.lojas)}`;
   }
   // gerente
-  const ml = minhasLojas();
-  if (!S.ff.loja || !ml.find(l => l.id === S.ff.loja)) S.ff.loja = ml[0].id;
+  const ml = S.lojas;
+  if (!S.ff.loja || !ml.find(l => l.id === S.ff.loja)) S.ff.loja = (minhaLoja() && ml.find(l => l.id === minhaLoja())) ? minhaLoja() : ml[0].id;
   const l = lojaById(S.ff.loja);
   return `
   <div class="row"><h2 class="sp">Fotos da loja</h2>${navData()}</div>
@@ -686,7 +688,7 @@ function tileFoto(l, d, p) {
   return `<div class="card tile"><div class="tile-h"><b>${esc(p.nome)}</b>${stPill(e, p)}</div>
     ${its.length ? `<div class="thumbs">${its.map(it => `<button data-a="abrirFotos" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}">${imgTag(it)}</button>`).join('')}</div>` : ''}
     ${e.doc && e.doc.estado === 'nok' && e.doc.obs ? `<div class="note" style="margin-bottom:8px"><small>Comentário do responsável</small>${esc(e.doc.obs)}</div>` : ''}
-    ${podeEscrever() ? `<label class="upbtn ${busy ? 'busy' : ''}">${busy ? 'A enviar…' : (its.length ? '📷 Juntar outra foto' : '📷 Tirar / enviar foto')}
+    ${podeEscrever() && (S.isAdmin || l.id === minhaLoja()) ? `<label class="upbtn ${busy ? 'busy' : ''}">${busy ? 'A enviar…' : (its.length ? '📷 Juntar outra foto' : '📷 Tirar / enviar foto')}
       <input type="file" accept="image/*" multiple data-c="foto" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}"></label>` : ''}
   </div>`;
 }
@@ -709,7 +711,7 @@ function abrirFotos(lojaId, d, pid) {
       <div class="row mt"><span class="sp"></span>
         <button class="btn danger" data-a="marcarFoto" data-k="${esc(key)}" data-v="nok">✗ Não conforme</button>
         <button class="btn pri" data-a="marcarFoto" data-k="${esc(key)}" data-v="ok">✓ Verificar</button></div>` : ''}
-    ${podeEscrever() && (!S.isAdmin || its.length === 0) ? `<label class="upbtn mt">📷 ${its.length ? 'Juntar outra foto' : 'Enviar foto'}<input type="file" accept="image/*" multiple data-c="foto" data-l="${esc(lojaId)}" data-d="${d}" data-p="${esc(pid)}"></label>` : ''}
+    ${podeEscrever() && (!S.isAdmin || its.length === 0) && (S.isAdmin || lojaId === minhaLoja()) ? `<label class="upbtn mt">📷 ${its.length ? 'Juntar outra foto' : 'Enviar foto'}<input type="file" accept="image/*" multiple data-c="foto" data-l="${esc(lojaId)}" data-d="${d}" data-p="${esc(pid)}"></label>` : ''}
     <div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button></div>`);
   $('#sheet').dataset.foto = key;
 }
@@ -1489,7 +1491,7 @@ function vCodigos() {
   <p class="muted" style="margin-top:-6px;font-size:13.5px">Cada loja entra na app com o seu código. Quem tiver um código de responsável vê também o Configurar e os gastos. Apagar um código desliga todos os telemóveis que o usam.</p>
   <div class="card row"><input type="text" id="cod-n" placeholder="Para quem? (ex.: Loja Gaia)" style="flex:1;min-width:160px">
     <select id="cod-p" style="width:150px"><option value="loja">Loja</option><option value="admin">Responsável</option></select>
-    <select id="cod-l" style="width:170px"><option value="">Loja que abre primeiro…</option>${S.lojas.map(l => `<option value="${esc(l.id)}">${esc(l.nome)}</option>`).join('')}</select>
+    <select id="cod-l" style="width:170px"><option value="">Loja do código…</option>${S.lojas.map(l => `<option value="${esc(l.id)}">${esc(l.nome)}</option>`).join('')}</select>
     <input type="text" id="cod-c" placeholder="Código (opcional)" style="width:170px;text-transform:uppercase"><button class="btn pri" data-a="codNovo">Criar código</button></div>
   <p class="muted" style="font-size:12.5px;margin:4px 2px 0">Deixa o código em branco para ser gerado automaticamente, ou escreve um teu (mín. 4 letras/números, ex.: GAIA-2026).</p>
   <div class="card mt" style="padding:4px 6px;overflow-x:auto">${cs.length ? `<table><thead><tr><th>Código</th><th>Para</th><th>Tipo</th><th>Telemóveis</th><th></th></tr></thead><tbody>
@@ -1678,7 +1680,7 @@ function abrirTarefa(id) {
   abrirModal(`
     <h2>${ex ? 'Tarefa' : 'Nova tarefa'}</h2>
     <label class="f">Título</label><input type="text" id="tf-t" value="${esc(t.titulo)}" placeholder="O que é preciso fazer?" ${dis}>
-    <label class="f">Loja</label><select id="tf-l" ${dis}><option value="">Escolhe…</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${t.lojaId === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
+    <label class="f">Loja</label><select id="tf-l" ${dis}><option value="">Escolhe…</option>${(S.isAdmin ? S.lojas : minhasLojas()).map(l => `<option value="${esc(l.id)}" ${t.lojaId === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select>
     <div class="row" style="align-items:flex-start">
       <div class="sp" style="min-width:150px"><label class="f">Responsável</label><select id="tf-r" ${dis}><option value="">Gerente da loja</option>${pessoasConhecidas().map(p => `<option value="${esc(p)}" ${t.responsavelId === p ? 'selected' : ''}>${esc(nomeM(p))}</option>`).join('')}</select></div>
       <div style="width:150px"><label class="f">Prazo</label><input type="date" id="tf-p" value="${esc(t.prazo || '')}" ${dis}></div>
@@ -1731,7 +1733,7 @@ const A = {
       <div class="row mt"><label class="btn" style="cursor:pointer">Escolher ficheiro<input type="file" accept=".json,application/json" data-c="impTudo" hidden></label><span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" id="imp-ok">Importar</button></div>`);
     $('#imp-ok').onclick = () => { const t = $('#imp-t').value.trim(); if (!t) { toast('Cola os dados primeiro.'); return; } fecharModal(); importarTudo(t, document.querySelector('[data-a="impAbrir"]') || document.createElement('button')); };
   },
-  codNovo: async () => { const nome = $('#cod-n').value.trim(); const papel = $('#cod-p').value; const lojaId = $('#cod-l').value || null; if (!nome) { toast('Escreve para quem é o código.'); return; } const man = ($('#cod-c').value || '').toUpperCase().replace(/[^A-Z0-9-]/g, ''); if (man && man.replace(/-/g, '').length < 4) { toast('O código precisa de pelo menos 4 letras/números.'); return; } if (man && (S.codigos || []).some(x => x.id === man)) { toast('Esse código já existe. Escolhe outro.'); return; } const c = man || gerarCodigo(); if (await escrever(() => S.db.doc('codigos/' + c).set({ nome, papel, lojaId, criadoEm: new Date().toISOString() }), 'Código criado: ' + c)) { $('#cod-n').value = ''; $('#cod-c').value = ''; } },
+  codNovo: async () => { const nome = $('#cod-n').value.trim(); const papel = $('#cod-p').value; const lojaId = $('#cod-l').value || null; if (!nome) { toast('Escreve para quem é o código.'); return; } if (papel === 'loja' && !lojaId) { toast('Escolhe a loja deste código.'); return; } const man = ($('#cod-c').value || '').toUpperCase().replace(/[^A-Z0-9-]/g, ''); if (man && man.replace(/-/g, '').length < 4) { toast('O código precisa de pelo menos 4 letras/números.'); return; } if (man && (S.codigos || []).some(x => x.id === man)) { toast('Esse código já existe. Escolhe outro.'); return; } const c = man || gerarCodigo(); if (await escrever(() => S.db.doc('codigos/' + c).set({ nome, papel, lojaId, criadoEm: new Date().toISOString() }), 'Código criado: ' + c)) { $('#cod-n').value = ''; $('#cod-c').value = ''; } },
   codCopiar: async el => { try { await navigator.clipboard.writeText(el.dataset.v); toast('Código copiado'); } catch (e) { toast(el.dataset.v); } },
   codApagar: async el => { const c = el.dataset.v; if (await confirmar(`Apagar o código ${c}? Os telemóveis que o usam deixam de conseguir entrar.`, 'Apagar')) await escrever(() => S.db.doc('codigos/' + c).delete(), 'Código apagado'); },
   novaEnc: () => abrirEnc(null),
