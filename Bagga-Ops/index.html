@@ -720,7 +720,7 @@ function tileFoto(l, d, p) {
     ${its.length ? `<div class="thumbs">${its.map(it => `<button data-a="abrirFotos" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}">${imgTag(it)}</button>`).join('')}</div>` : ''}
     ${e.doc && e.doc.estado === 'nok' && e.doc.obs ? `<div class="note" style="margin-bottom:8px"><small>Comentário do responsável</small>${esc(e.doc.obs)}</div>` : ''}
     ${podeEscrever() && (S.isAdmin || l.id === minhaLoja()) ? `<label class="upbtn ${busy ? 'busy' : ''}">${busy ? 'A enviar…' : (its.length ? '📷 Juntar outra foto' : '📷 Tirar / enviar foto')}
-      <input type="file" accept="image/*" multiple data-c="foto" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}"></label>` : ''}
+      <input type="file" accept="image/*" capture="environment" multiple data-c="foto" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}"></label>` : ''}
   </div>`;
 }
 function abrirFotos(lojaId, d, pid) {
@@ -742,7 +742,7 @@ function abrirFotos(lojaId, d, pid) {
       <div class="row mt"><span class="sp"></span>
         <button class="btn danger" data-a="marcarFoto" data-k="${esc(key)}" data-v="nok">✗ Não conforme</button>
         <button class="btn pri" data-a="marcarFoto" data-k="${esc(key)}" data-v="ok">✓ Verificar</button></div>` : ''}
-    ${podeEscrever() && (!S.isAdmin || its.length === 0) && (S.isAdmin || lojaId === minhaLoja()) ? `<label class="upbtn mt">📷 ${its.length ? 'Juntar outra foto' : 'Enviar foto'}<input type="file" accept="image/*" multiple data-c="foto" data-l="${esc(lojaId)}" data-d="${d}" data-p="${esc(pid)}"></label>` : ''}
+    ${podeEscrever() && (!S.isAdmin || its.length === 0) && (S.isAdmin || lojaId === minhaLoja()) ? `<label class="upbtn mt">📷 ${its.length ? 'Juntar outra foto' : 'Enviar foto'}<input type="file" accept="image/*" capture="environment" multiple data-c="foto" data-l="${esc(lojaId)}" data-d="${d}" data-p="${esc(pid)}"></label>` : ''}
     <div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button></div>`);
   $('#sheet').dataset.foto = key;
 }
