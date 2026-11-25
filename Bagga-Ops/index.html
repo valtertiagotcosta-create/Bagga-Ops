@@ -175,6 +175,9 @@ tr.click{cursor:pointer} tr.click:hover td{background:#FFFBF2}
 .banner .big{font-size:22px}
 .banner .bic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--custard-soft);color:var(--brand);flex:none}
 .banner .bic svg{width:22px;height:22px}
+.c-plano{background:#E0E7FF!important;color:#4F46E5!important}
+.plit{display:flex;gap:12px;align-items:flex-start;cursor:pointer}.plit.alta{border-left:4px solid var(--bad)}.plit.feito{opacity:.7}.plit.feito .tt{text-decoration:line-through}
+.plck{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--line);background:#fff;color:#fff;font-weight:800;display:grid;place-items:center;cursor:pointer;margin-top:1px}.plck.on{background:var(--ok);border-color:var(--ok)}
 .cxsec{font-weight:700;font-size:13px;padding:10px 2px 6px;cursor:default}.cxsec.bad{color:var(--bad)}.cxsec.ok{color:var(--ok)}
 .cxpend{border-left:4px solid var(--bad);padding-left:6px;border-radius:4px}
 .cxfeit summary{cursor:pointer;list-style:none}.cxfeit summary::before{content:'▸ ';}.cxfeit[open] summary::before{content:'▾ ';}.cxfeit{opacity:.85}
@@ -314,7 +317,7 @@ const S = {
   loaded: { lojas: false, tarefas: false, visitas: false, inventarios: false },
   avarias: [], fa: { loja: '', estado: 'abertas', modo: 'avarias' },
   membros: [],
-  gastos: [], fg: { ano: new Date().getFullYear(), loja: '' }, isOwner: false,
+  plano: [], gastos: [], fg: { ano: new Date().getFullYear(), loja: '' }, isOwner: false,
   quebras: [], caixaDias: [], fq: { modo: 'mapa', loja: '', mes: null, so20: false },
   encomendas: [], palamenta: null, fe: { modo: 'pedidos', estado: 'abertos', loja: '', totEst: ['pendente', 'aprovada'] },
   inventarios: [], fi: { estado: 'proximos', loja: '', tipo: '', modo: 'cal', mes: null, dia: null },
@@ -542,10 +545,11 @@ const ICON_P = {
   caixa: '<path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/>',
   avarias: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
   encomendas: '<path d="M10 2v2"/><path d="M14 2v2"/><path d="M6 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>',
+  plano: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
   lojas: '<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>'
 };
 const icone = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_P[k] || ''}</svg>`;
-const navTabs = () => { const t = [['inicio','Início'],['fotos','Fotos'],['tarefas','Tarefas'],['inventarios','Inventários'],['caixa','Caixa'],['avarias','Equipamentos'],['encomendas','Palamenta']]; if (S.isAdmin) t.push(['lojas','Configurar']); return t; };
+const navTabs = () => { const t = [['inicio','Início'],['fotos','Fotos'],['tarefas','Tarefas'],['inventarios','Inventários'],['caixa','Caixa'],['avarias','Equipamentos'],['encomendas','Palamenta']]; if (S.isAdmin) { t.push(['plano','Meu plano']); t.push(['lojas','Configurar']); } return t; };
 function renderNav() {
   const tabs = navTabs();
   const cur = S.view.startsWith('visita') ? 'visitas' : S.view;
@@ -590,7 +594,8 @@ function vInicio() {
     inventarios: S.inventarios.filter(i => ids.has(i.lojaId) && invAtraso(i)).length,
     caixa: S.caixaDias.filter(d => ids.has(d.lojaId) && cxAlerta(d) && !cxResolvido(d)).length,
     avarias: S.avarias.filter(a => ids.has(a.lojaId) && a.estado !== 'resolvida').length,
-    encomendas: S.encomendas.filter(e => ids.has(e.lojaId) && e.estado === 'pendente').length };
+    encomendas: S.encomendas.filter(e => ids.has(e.lojaId) && e.estado === 'pendente').length,
+    plano: S.isAdmin ? S.plano.filter(p => p.estado !== 'feito').length : 0 };
   const grelha = `<div class="apgrid">${navTabs().filter(([k]) => k !== 'inicio').map(([k, l]) => `<button class="ap" data-a="ir" data-v="${k}"><span class="ic c-${k}">${icone(k)}</span>${l}${nBadge[k] ? `<span class="bd">${nBadge[k]}</span>` : ''}</button>`).join('')}</div>`;
   return `
   ${grelha}
@@ -756,6 +761,50 @@ function abrirFotos(lojaId, d, pid) {
     ${podeEscrever() && (!S.isAdmin || its.length === 0) && (S.isAdmin || lojaId === minhaLoja()) ? `<label class="upbtn mt">📷 ${its.length ? 'Juntar outra foto' : 'Enviar foto'}<input type="file" accept="image/*" capture="environment" multiple data-c="foto" data-l="${esc(lojaId)}" data-d="${d}" data-p="${esc(pid)}"></label>` : ''}
     <div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button></div>`);
   $('#sheet').dataset.foto = key;
+}
+
+
+/* ---------- o meu plano (só o responsável) ---------- */
+const planoAtraso = p => p.estado !== 'feito' && p.prazo && p.prazo < hoje();
+function planoItem(p) {
+  const feito = p.estado === 'feito';
+  return `<div class="card plit ${feito ? 'feito' : ''} ${p.prio === 'alta' && !feito ? 'alta' : ''}">
+    <button class="plck ${feito ? 'on' : ''}" data-a="planoToggle" data-id="${esc(p.id)}" aria-label="${feito ? 'Reabrir' : 'Marcar como resolvido'}">${feito ? '✓' : ''}</button>
+    <div style="flex:1;min-width:0" data-a="planoAbrir" data-id="${esc(p.id)}">
+      <div class="tt">${esc(p.titulo)}</div>
+      <div class="meta">${p.prio === 'alta' && !feito ? '<span class="pill bad">Prioritário</span>' : ''}${p.lojaId ? `<span class="pill br">${esc(nomeLoja(p.lojaId))}</span>` : ''}${p.prazo ? `<span class="pill ${planoAtraso(p) ? 'bad' : feito ? '' : 'warn'}">${planoAtraso(p) ? 'Atrasado · ' : 'Até '}${esc(fmtData(p.prazo))}</span>` : ''}${feito && p.resolvidoEm ? `<span class="pill ok">Resolvido ${esc(fmtData(p.resolvidoEm))}</span>` : ''}</div>
+      ${p.notas ? `<div class="muted" style="font-size:13px;margin-top:4px;white-space:pre-wrap">${esc(p.notas)}</div>` : ''}
+    </div></div>`;
+}
+function vPlano() {
+  if (!S.isAdmin) return '<div class="card empty">Sem acesso.</div>';
+  const ord = (a, b) => (b.prio === 'alta') - (a.prio === 'alta') || String(a.prazo || '9999').localeCompare(String(b.prazo || '9999')) || String(a.criadoEm || '').localeCompare(String(b.criadoEm || ''));
+  const pf = S.plano.filter(p => p.estado !== 'feito').sort(ord);
+  const fe = S.plano.filter(p => p.estado === 'feito').sort((a, b) => String(b.resolvidoEm || '').localeCompare(String(a.resolvidoEm || '')));
+  const atr = pf.filter(planoAtraso).length;
+  return `<div class="row"><h2 class="sp">O meu plano</h2><button class="btn pri" data-a="planoAbrir">+ Novo</button></div>
+  <p class="muted" style="margin:-4px 0 10px;font-size:13px">🔒 Só tu vês este separador.</p>
+  <div class="card row" style="gap:8px"><input type="text" id="plano-rapido" placeholder="Escreve algo por resolver e carrega Enter…" style="flex:1;min-width:0">${(window.SpeechRecognition || window.webkitSpeechRecognition) ? '<button class="btn" data-a="planoVoz" title="Ditar por voz" aria-label="Ditar por voz">🎤</button>' : ''}<button class="btn" data-a="planoRapido">Adicionar</button></div>
+  <div class="row" style="margin:12px 0 4px;gap:8px">${pf.length ? `<span class="pill bad" style="font-size:13px">${pf.length} por resolver</span>` : '<span class="pill ok" style="font-size:13px">Tudo resolvido 👏</span>'}${atr ? `<span class="pill bad" style="font-size:13px">${atr} atrasado${atr > 1 ? 's' : ''}</span>` : ''}</div>
+  ${!S.loaded.plano ? '<div class="card empty">A carregar…</div>' : `
+  <div class="cxsec bad" style="font-size:14px">⚠️ Por resolver (${pf.length})</div>
+  <div class="list">${pf.length ? pf.map(planoItem).join('') : '<div class="card empty">Nada por resolver. 👏</div>'}</div>
+  <details class="cxfeit" style="margin-top:14px"><summary class="cxsec ok" style="font-size:14px">✓ Resolvido (${fe.length})</summary>
+  <div class="list">${fe.length ? fe.map(planoItem).join('') : '<div class="card empty">Ainda nada resolvido.</div>'}</div></details>`}`;
+}
+function abrirPlano(id) {
+  const p = id ? S.plano.find(x => x.id === id) : null;
+  abrirModal(`<h2 style="margin-top:0">${p ? 'Editar' : 'Novo ponto do plano'}</h2>
+    <label class="f">O que tenho de resolver</label><input type="text" id="pl-t" value="${esc(p ? p.titulo : '')}" placeholder="Ex.: falar com o gerente de Gaia sobre as quebras">
+    <div class="row" style="gap:10px;align-items:flex-end">
+      <div style="flex:1;min-width:140px"><label class="f">Loja (opcional)</label><select id="pl-l"><option value="">—</option>${S.lojas.map(l => `<option value="${esc(l.id)}" ${p && p.lojaId === l.id ? 'selected' : ''}>${esc(l.nome)}</option>`).join('')}</select></div>
+      <div style="flex:1;min-width:140px"><label class="f">Prazo (opcional)</label><input type="date" id="pl-d" value="${esc(p && p.prazo || '')}"></div>
+    </div>
+    <label class="cbx mt"><input type="checkbox" id="pl-p" ${p && p.prio === 'alta' ? 'checked' : ''}> Prioritário</label>
+    <label class="f">Notas</label><textarea id="pl-n" placeholder="Detalhes, próximos passos…">${esc(p && p.notas || '')}</textarea>
+    <div class="row mt">${p ? `<button class="btn ghost danger" data-a="planoApagar" data-id="${esc(p.id)}">Apagar</button>` : ''}<span class="sp"></span>
+      <button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" data-a="planoGuardar" data-id="${esc(p ? p.id : '')}">Guardar</button></div>`);
+  setTimeout(() => $('#pl-t') && $('#pl-t').focus(), 50);
 }
 
 /* ---------- inventários ---------- */
@@ -1881,6 +1930,12 @@ const A = {
   },
   qcApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar esta quebra de caixa?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('quebrasCaixa/' + id).delete(), 'Apagada'); } },
   abrirEnc: el => abrirEnc(el.dataset.id),
+  planoAbrir: el => abrirPlano(el.dataset.id || null),
+  planoVoz: () => { const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) { toast('Este telemóvel não suporta ditado na app.'); return; } const r = new SR(); r.lang = 'pt-PT'; r.interimResults = false; r.maxAlternatives = 1; r.onresult = e => { const t = e.results[0][0].transcript; const i = $('#plano-rapido'); if (i) { i.value = t; A.planoRapido(); } }; r.onerror = () => toast('Não percebi. Tenta outra vez.'); r.start(); toast('🎤 A ouvir… diz o que tens de resolver'); },
+  planoRapido: async () => { const i = $('#plano-rapido'); const t = (i.value || '').trim(); if (!t) { i.focus(); return; } i.value = ''; await escrever(() => S.db.collection('planoPessoal').add({ titulo: t, estado: 'aberto', criadoEm: new Date().toISOString() }), 'Adicionado ao plano'); },
+  planoGuardar: async el => { const t = $('#pl-t').value.trim(); if (!t) { toast('Escreve o que tens de resolver.'); return; } const d = { titulo: t, lojaId: $('#pl-l').value || '', prazo: $('#pl-d').value || '', prio: $('#pl-p').checked ? 'alta' : 'normal', notas: $('#pl-n').value.trim(), atualizadoEm: new Date().toISOString() }; const id = el.dataset.id; const ok = await escrever(() => id ? S.db.doc('planoPessoal/' + id).update(d) : S.db.collection('planoPessoal').add({ ...d, estado: 'aberto', criadoEm: d.atualizadoEm }), 'Guardado'); if (ok) fecharModal(); },
+  planoToggle: async el => { const p = S.plano.find(x => x.id === el.dataset.id); if (!p) return; const feito = p.estado !== 'feito'; await escrever(() => S.db.doc('planoPessoal/' + p.id).update({ estado: feito ? 'feito' : 'aberto', resolvidoEm: feito ? new Date().toISOString() : '' }), feito ? 'Resolvido ✓' : 'Reaberto'); },
+  planoApagar: async el => { if (!(await confirmar('Apagar este ponto do plano?', 'Apagar'))) return; const ok = await escrever(() => S.db.doc('planoPessoal/' + el.dataset.id).delete(), 'Apagado'); if (ok) fecharModal(); },
   invConhecimento: async el => { const h = hoje(); const ids = (el.dataset.ids || '').split(',').filter(Boolean); el.disabled = true; const ok = await escrever(() => { const b = S.db.batch(); ids.forEach(id => b.update(S.db.doc('inventarios/' + id), { conhecimento: { dia: h, em: new Date().toISOString(), por: S.me || null, nome: (window.PWA_INFO && window.PWA_INFO.nome) || '' } })); return b.commit(); }, 'Obrigado! Bom inventário.'); if (ok) fecharModal(); else el.disabled = false; },
   encExtraAdd: () => { $('#en-extra').insertAdjacentHTML('beforeend', encExtraRow()); const ns = document.querySelectorAll('.enx-n'); ns[ns.length - 1].focus(); },
   encExtraRm: el => { const r = el.closest('.enx'); if (document.querySelectorAll('.enx').length > 1) r.remove(); else { r.querySelector('.enx-n').value = ''; r.querySelector('.enx-q').value = ''; } },
@@ -2135,6 +2190,7 @@ document.addEventListener('change', e => { const el = e.target.closest('[data-c]
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !$('#modal').hidden) fecharModal();
   if (e.key === 'Enter' && e.target.id === 'novaLoja') A.addLoja();
+  if (e.key === 'Enter' && e.target.id === 'plano-rapido') A.planoRapido();
   if (e.key === 'Enter' && e.target.id === 'tf-n') document.querySelector('[data-a="addNota"]')?.click();
 });
 
@@ -2143,7 +2199,7 @@ function render() {
   renderNav();
   const app = $('#app');
   if (!S.db && S.ready) { app.innerHTML = '<div class="card empty">Para ver e guardar dados, abre esta app com a sessão iniciada no Claude.</div>'; return; }
-  if (S.view === 'lojas' && !S.isAdmin) S.view = 'inicio';
+  if ((S.view === 'lojas' || S.view === 'plano') && !S.isAdmin) S.view = 'inicio';
   if (false) {
     app.dataset.v = 'escolher';
     app.innerHTML = `<div class="card" style="max-width:460px;margin:30px auto;padding:20px">
@@ -2154,7 +2210,7 @@ function render() {
     return;
   }
   if (S.view === 'visitas' || S.view.startsWith('visita')) S.view = 'inicio';
-  const views = { inicio: vInicio, tarefas: vTarefas, visitas: vVisitas, visitaForm: vVisitaForm, visitaVer: vVisitaVer, lojas: vLojas, fotos: vFotos, inventarios: vInventarios, encomendas: vEncomendas, caixa: vCaixa, avarias: vAvarias };
+  const views = { plano: vPlano, inicio: vInicio, tarefas: vTarefas, visitas: vVisitas, visitaForm: vVisitaForm, visitaVer: vVisitaVer, lojas: vLojas, fotos: vFotos, inventarios: vInventarios, encomendas: vEncomendas, caixa: vCaixa, avarias: vAvarias };
   // não redesenhar o formulário de visita/checklist por baixo do utilizador quando chegam dados
   if (render.lock && (S.view === 'visitaForm') && app.dataset.v === 'visitaForm') return;
   app.dataset.v = S.view;
@@ -2230,6 +2286,8 @@ async function init() {
     carregarPerfis(S.visitas.map(v => v.autorId));
     renderDados();
   }, erro);
+  if (S.isAdmin) db.collection('planoPessoal').onSnapshot(snap => { S.plano = docs(snap); S.loaded.plano = true; renderDados(); }, () => { S.loaded.plano = true; });
+  { const qp = new URLSearchParams(location.search); const novo = (qp.get('novo') || qp.get('nova') || '').trim(); if (novo || qp.has('plano')) { history.replaceState(null, '', location.pathname); if (S.isAdmin) { S.view = 'plano'; if (novo) db.collection('planoPessoal').add({ titulo: novo, estado: 'aberto', criadoEm: new Date().toISOString(), origem: 'voz' }).then(() => toast('✓ Adicionado ao teu plano: ' + novo)).catch(() => toast('Não foi possível guardar.')); render(); } } }
   if (S.isOwner) db.collection('gastos').orderBy('data', 'desc').limit(1000).onSnapshot(snap => { S.gastos = docs(snap); S.loaded.gastos = true; renderDados(); }, () => { S.loaded.gastos = true; });
   db.collection('avarias').orderBy('criadoEm', 'desc').limit(500).onSnapshot(snap => {
     S.avarias = docs(snap); S.loaded.avarias = true; confirma(snap);
