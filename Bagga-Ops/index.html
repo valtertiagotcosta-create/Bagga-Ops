@@ -175,6 +175,9 @@ tr.click{cursor:pointer} tr.click:hover td{background:#FFFBF2}
 .banner .big{font-size:22px}
 .banner .bic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--custard-soft);color:var(--brand);flex:none}
 .banner .bic svg{width:22px;height:22px}
+.cxsec{font-weight:700;font-size:13px;padding:10px 2px 6px;cursor:default}.cxsec.bad{color:var(--bad)}.cxsec.ok{color:var(--ok)}
+.cxpend{border-left:4px solid var(--bad);padding-left:6px;border-radius:4px}
+.cxfeit summary{cursor:pointer;list-style:none}.cxfeit summary::before{content:'▸ ';}.cxfeit[open] summary::before{content:'▾ ';}.cxfeit{opacity:.85}
 .invpop .c-inventarios svg{width:36px;height:36px}
 .c-fotos{background:#DBEAFE!important;color:#2563EB!important}.c-tarefas{background:#DCFCE7!important;color:#16A34A!important}.c-inventarios{background:#FEF3C7!important;color:#D97706!important}.c-caixa{background:#CCFBF1!important;color:#0D9488!important}.c-avarias{background:#FEE2E2!important;color:#DC2626!important}.c-encomendas{background:#EDE9FE!important;color:#7C3AED!important}.c-lojas{background:#E2E8F0!important;color:#475569!important}
 .gtab td,.gtab th{font-size:12.5px;padding:8px 6px}
@@ -1161,19 +1164,27 @@ function vCaixaMapa(lojasSel) {
   if (!S.loaded.caixaDias) return nav + '<div class="card empty">A carregar…</div>';
   if (!ds.length) return nav + `<div class="card empty">Sem valores de caixa neste mês.${S.isAdmin ? ' Importa o ficheiro qbr do mês.' : ''}</div>`;
   const porLoja = lojasSel.map(l => ({ l, ds: ds.filter(d => d.lojaId === l.id).sort((a, b) => a.data.localeCompare(b.data)) })).filter(x => x.ds.length);
+  const est = S.fq.est || 'pend';
+  const alAll = ds.filter(cxAlerta), nPend = alAll.filter(d => !cxResolvido(d)).length, nFeit = alAll.length - nPend;
+  const segEst = `<div class="row" style="margin:0 0 12px;gap:10px"><div class="seg">${[['pend', `⚠️ Por justificar (${nPend})`], ['feitas', `✓ Justificadas (${nFeit})`], ['todas', 'Todas']].map(([k, l]) => `<button class="${est === k ? 'on' : ''}" data-a="fqEst" data-v="${k}">${l}</button>`).join('')}</div>${nPend ? `<span class="pill bad" style="font-size:13px">${nPend} por justificar</span>` : `<span class="pill ok" style="font-size:13px">Tudo justificado 👏</span>`}</div>`;
   const resumo = porLoja.map(x => { const al = x.ds.filter(cxAlerta); return { ...x, tot: x.ds.reduce((s, d) => s + (+d.valor || 0), 0), nal: al.length, nok: al.filter(cxResolvido).length }; });
   const multi = resumo.length > 1;
-  return nav + `
+  const lista = resumo.map(x => { const al = x.ds.filter(cxAlerta); return { ...x, pend: al.filter(d => !cxResolvido(d)), feit: al.filter(cxResolvido) }; })
+    .filter(x => est === 'todas' || (est === 'pend' ? x.pend.length : x.feit.length))
+    .sort((a, b) => (b.pend.length > 0) - (a.pend.length > 0));
+  return nav + segEst + `
   ${multi ? `<div class="card" style="padding:4px 6px;overflow-x:auto;margin-bottom:12px"><table class="restab"><thead><tr><th>Loja</th><th>Saldo do mês</th><th>Dias ±${eur(CX_LIMITE)}</th><th>Justificados</th></tr></thead><tbody>
     ${resumo.slice().sort((a, b) => a.tot - b.tot).map(x => `<tr class="click" data-a="cxIrLoja" data-v="${esc(x.l.id)}"><td><b>${esc(x.l.nome)}</b></td><td><b style="color:${x.tot < 0 ? 'var(--bad)' : 'var(--ok)'}">${eur(x.tot)}</b></td><td>${x.nal ? `<span class="pill bad">${x.nal}</span>` : '0'}</td><td>${x.nal ? (x.nok === x.nal ? `<span class="pill ok">${x.nok}/${x.nal}</span>` : `<span class="pill warn">${x.nok}/${x.nal}</span>`) : '—'}</td></tr>`).join('')}
     <tr class="tot"><td><b>Total</b></td><td><b>${eur(resumo.reduce((s, x) => s + x.tot, 0))}</b></td><td>${resumo.reduce((s, x) => s + x.nal, 0)}</td><td>${resumo.reduce((s, x) => s + x.nok, 0)}/${resumo.reduce((s, x) => s + x.nal, 0)}</td></tr></tbody></table></div>` : ''}
-  ${resumo.map(x => {
-    const rows = x.ds.filter(cxAlerta);
+  ${!lista.length ? `<div class="card empty">${est === 'pend' ? 'Não há nada por justificar neste mês. 👏' : 'Ainda não há quebras justificadas neste mês.'}</div>` : ''}
+  ${lista.map(x => {
+    const secP = x.pend.length ? `<div class="cxsec bad">⚠️ Por justificar (${x.pend.length})</div><div class="cxpend">${x.pend.map(d => cxRowHTML(d, pw)).join('')}</div>` : (est !== 'feitas' ? '<div class="cxsec ok">✓ Tudo justificado nesta loja</div>' : '');
+    const secF = x.feit.length ? `<details class="cxfeit" ${est === 'feitas' ? 'open' : ''}><summary class="cxsec ok">✓ Justificadas (${x.feit.length})</summary>${x.feit.map(d => cxRowHTML(d, pw)).join('')}</details>` : '';
     return `<div class="card cxloja" id="cx-${esc(x.l.id)}">
       <div class="row" style="padding:2px 2px 8px"><b class="sp" style="font-size:16px">${esc(x.l.nome)}</b>
         <span class="pill ${x.tot < 0 ? 'bad' : 'ok'}">Saldo ${eur(x.tot)}</span>${x.nal ? `<span class="pill ${x.nok === x.nal ? 'ok' : 'warn'}">${x.nok}/${x.nal} justificadas</span>` : ''}</div>
       <div class="cxhead"><div>Dia</div><div>Valor</div><div>Registo aberto</div><div>Nº registo</div><div>Justificação</div></div>
-      ${rows.length ? rows.map(d => cxRowHTML(d, pw)).join('') : `<div class="muted" style="padding:8px">Nenhum dia com diferença de ±${eur(CX_LIMITE)} ou mais. 👏</div>`}
+      ${!(x.pend.length + x.feit.length) ? `<div class="muted" style="padding:8px">Nenhum dia com diferença de ±${eur(CX_LIMITE)} ou mais. 👏</div>` : est === 'pend' ? secP : est === 'feitas' ? secF : secP + secF}
     </div>`;
   }).join('')}
   <div class="legend"><span><i style="border-color:var(--bad);background:var(--bad-soft)"></i>Diferença de ±${eur(CX_LIMITE)} ou mais</span><span>⚠️ por justificar</span><span>✓ justificada (registo indicado + justificação)</span></div>`;
@@ -1830,6 +1841,7 @@ const A = {
   avApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar este registo de avaria?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('avarias/' + id).delete(), 'Apagado'); } },
   cxIrLoja: el => { document.getElementById('cx-' + el.dataset.v)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); },
   fqLoja: el => { S.fq.loja = el.dataset.v; S.fq.modo = 'abertas'; render(); },
+  fqEst: el => { S.fq.est = el.dataset.v; render(); },
   fqMes: el => { S.fq.mesUser = true; const [y, m] = S.fq.mes.split('-').map(Number); const d = new Date(y, m - 1 + +el.dataset.v, 1); S.fq.mes = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; render(); },
   qcGuardar: async el => {
     const lojaId = $('#qc-l').value, data = $('#qc-d').value, valor = parseNum($('#qc-v').value);
