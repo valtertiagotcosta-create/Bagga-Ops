@@ -181,7 +181,7 @@ tr.click{cursor:pointer} tr.click:hover td{background:#FFFBF2}
 .cxsec{font-weight:700;font-size:13px;padding:10px 2px 6px;cursor:default}.cxsec.bad{color:var(--bad)}.cxsec.ok{color:var(--ok)}
 .cxpend{border-left:4px solid var(--bad);padding-left:6px;border-radius:4px}
 .cxfeit summary{cursor:pointer;list-style:none}.cxfeit summary::before{content:'▸ ';}.cxfeit[open] summary::before{content:'▾ ';}.cxfeit{opacity:.85}
-.invpop .c-inventarios svg{width:36px;height:36px}
+.invpop .c-inventarios svg,.invpop .c-tarefas svg{width:36px;height:36px}
 .c-fotos{background:#DBEAFE!important;color:#2563EB!important}.c-tarefas{background:#DCFCE7!important;color:#16A34A!important}.c-inventarios{background:#FEF3C7!important;color:#D97706!important}.c-caixa{background:#CCFBF1!important;color:#0D9488!important}.c-avarias{background:#FEE2E2!important;color:#DC2626!important}.c-encomendas{background:#EDE9FE!important;color:#7C3AED!important}.c-lojas{background:#E2E8F0!important;color:#475569!important}
 .gtab td,.gtab th{font-size:12.5px;padding:8px 6px}
 .gtab tr.selrow td{background:#FFF3DA}
@@ -810,10 +810,25 @@ function abrirPlano(id) {
 /* ---------- inventários ---------- */
 const fimSemana = () => { const d = new Date(); d.setDate(d.getDate() + ((7 - d.getDay()) % 7)); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const invFim = i => i.dataFim || i.data;
+let tarAvisoMostrado = false, tarAvisoTent = 0;
+function avisoTarefas() {
+  if (tarAvisoMostrado || S.isAdmin || !minhaLoja() || !S.loaded.tarefas) return;
+  if (!$('#modal').hidden) { if (tarAvisoTent++ < 60) setTimeout(avisoTarefas, 2000); return; }
+  const ts = S.tarefas.filter(t => t.lojaId === minhaLoja() && t.estado !== 'feita').sort(ordenarTarefas);
+  if (!ts.length) return;
+  tarAvisoMostrado = true;
+  const atr = ts.filter(atrasada).length;
+  abrirModal(`<div class="invpop" style="text-align:center;padding:6px 4px">
+    <div class="c-tarefas" style="width:68px;height:68px;border-radius:20px;margin:0 auto 12px;display:grid;place-items:center">${icone('tarefas')}</div>
+    <h2 style="margin:0 0 6px">Tens ${ts.length} tarefa${ts.length > 1 ? 's' : ''} por realizar</h2>
+    ${atr ? `<p style="margin:0 0 10px"><span class="pill bad" style="font-size:13px">${atr} atrasada${atr > 1 ? 's' : ''}</span></p>` : '<p class="muted" style="margin:0 0 10px">A ' + esc(nomeLoja(minhaLoja())) + ' tem estas tarefas em aberto:</p>'}
+    <div style="text-align:left;max-height:46vh;overflow:auto">${ts.slice(0, 6).map(t => `<div class="card" style="padding:10px 12px;margin-bottom:6px${atrasada(t) ? ';border-left:4px solid var(--bad)' : ''}"><b>${esc(t.titulo)}</b>${t.prazo ? `<div class="muted" style="font-size:12.5px${atrasada(t) ? ';color:var(--bad)' : ''}">${atrasada(t) ? 'Atrasada · ' : ''}Prazo ${esc(fmtData(t.prazo))}</div>` : ''}</div>`).join('')}${ts.length > 6 ? `<div class="muted" style="font-size:13px;text-align:center">e mais ${ts.length - 6}…</div>` : ''}</div>
+    <div class="row mt" style="gap:8px"><button class="btn" style="flex:1;padding:12px" data-a="fechar">Mais tarde</button><button class="btn pri" style="flex:1;padding:12px" data-a="tarAvisoVer">Ver tarefas</button></div></div>`);
+}
 let invAvisoMostrado = false;
 function avisoInventario() {
   if (invAvisoMostrado || S.isAdmin || !minhaLoja() || !podeEscrever() || !S.loaded.inventarios) return;
-  if (!$('#modal').hidden) return;
+  if (!$('#modal').hidden) { if ((avisoInventario.t = (avisoInventario.t || 0) + 1) < 60) setTimeout(avisoInventario, 2000); return; }
   const h = hoje();
   const lst = S.inventarios.filter(i => i.lojaId === minhaLoja() && i.estado !== 'feito' && i.data <= h && invFim(i) >= h && !(i.conhecimento && i.conhecimento.dia === h));
   if (!lst.length) return;
@@ -1931,6 +1946,7 @@ const A = {
   qcApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar esta quebra de caixa?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('quebrasCaixa/' + id).delete(), 'Apagada'); } },
   abrirEnc: el => abrirEnc(el.dataset.id),
   planoAbrir: el => abrirPlano(el.dataset.id || null),
+  tarAvisoVer: () => { fecharModal(); S.view = 'tarefas'; S.f.estado = 'abertas'; render(); window.scrollTo(0, 0); },
   planoVoz: () => { const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) { toast('Este telemóvel não suporta ditado na app.'); return; } const r = new SR(); r.lang = 'pt-PT'; r.interimResults = false; r.maxAlternatives = 1; r.onresult = e => { const t = e.results[0][0].transcript; const i = $('#plano-rapido'); if (i) { i.value = t; A.planoRapido(); } }; r.onerror = () => toast('Não percebi. Tenta outra vez.'); r.start(); toast('🎤 A ouvir… diz o que tens de resolver'); },
   planoRapido: async () => { const i = $('#plano-rapido'); const t = (i.value || '').trim(); if (!t) { i.focus(); return; } i.value = ''; await escrever(() => S.db.collection('planoPessoal').add({ titulo: t, estado: 'aberto', criadoEm: new Date().toISOString() }), 'Adicionado ao plano'); },
   planoGuardar: async el => { const t = $('#pl-t').value.trim(); if (!t) { toast('Escreve o que tens de resolver.'); return; } const d = { titulo: t, lojaId: $('#pl-l').value || '', prazo: $('#pl-d').value || '', prio: $('#pl-p').checked ? 'alta' : 'normal', notas: $('#pl-n').value.trim(), atualizadoEm: new Date().toISOString() }; const id = el.dataset.id; const ok = await escrever(() => id ? S.db.doc('planoPessoal/' + id).update(d) : S.db.collection('planoPessoal').add({ ...d, estado: 'aberto', criadoEm: d.atualizadoEm }), 'Guardado'); if (ok) fecharModal(); },
@@ -2278,6 +2294,7 @@ async function init() {
   }, erro);
   db.collection('tarefas').limit(1000).onSnapshot(snap => {
     S.tarefas = docs(snap); S.loaded.tarefas = true; confirma(snap);
+    setTimeout(avisoTarefas, 1500);
     carregarPerfis(S.tarefas.flatMap(t => [t.responsavelId, t.criadoPor, t.concluidaPor, ...(t.notas || []).map(n => n.autorId)]));
     renderDados();
   }, erro);
