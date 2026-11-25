@@ -164,6 +164,7 @@ tr.click{cursor:pointer} tr.click:hover td{background:#FFFBF2}
 .thumbs img{width:100%;height:100%;object-fit:cover;display:block}
 .upbtn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--brand-2);color:var(--brand);background:#FFF8EA;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;text-align:center}
 .upbtn input{display:none}
+.updup{display:grid;grid-template-columns:1fr 1fr;gap:8px}.updup .upbtn{padding:12px 6px;font-size:14px}
 .upbtn.busy{opacity:.6;pointer-events:none}
 .bigph{display:flex;flex-direction:column;gap:10px}
 .bigph figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
@@ -735,8 +736,7 @@ function tileFoto(l, d, p) {
   return `<div class="card tile"><div class="tile-h"><b>${esc(p.nome)}</b>${stPill(e, p)}</div>
     ${its.length ? `<div class="thumbs">${its.map(it => `<button data-a="abrirFotos" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}">${imgTag(it)}</button>`).join('')}</div>` : ''}
     ${e.doc && e.doc.estado === 'nok' && e.doc.obs ? `<div class="note" style="margin-bottom:8px"><small>Comentário do responsável</small>${esc(e.doc.obs)}</div>` : ''}
-    ${podeEscrever() && (S.isAdmin || l.id === minhaLoja()) ? `<label class="upbtn ${busy ? 'busy' : ''}">${busy ? 'A enviar…' : (its.length ? '📷 Juntar outra foto' : '📷 Tirar / enviar foto')}
-      <input type="file" accept="image/*" capture="environment" multiple data-c="foto" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}"></label>` : ''}
+    ${podeEscrever() && (S.isAdmin || l.id === minhaLoja()) ? (busy ? `<label class="upbtn busy">A enviar…</label>` : `<div class="updup"><label class="upbtn">📷 Tirar foto<input type="file" accept="image/*" capture="environment" data-c="foto" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}"></label><label class="upbtn">🖼️ Galeria<input type="file" accept="image/*" multiple data-c="foto" data-l="${esc(l.id)}" data-d="${d}" data-p="${esc(p.id)}"></label></div>`) : ''}
   </div>`;
 }
 function abrirFotos(lojaId, d, pid) {
@@ -758,7 +758,7 @@ function abrirFotos(lojaId, d, pid) {
       <div class="row mt"><span class="sp"></span>
         <button class="btn danger" data-a="marcarFoto" data-k="${esc(key)}" data-v="nok">✗ Não conforme</button>
         <button class="btn pri" data-a="marcarFoto" data-k="${esc(key)}" data-v="ok">✓ Verificar</button></div>` : ''}
-    ${podeEscrever() && (!S.isAdmin || its.length === 0) && (S.isAdmin || lojaId === minhaLoja()) ? `<label class="upbtn mt">📷 ${its.length ? 'Juntar outra foto' : 'Enviar foto'}<input type="file" accept="image/*" capture="environment" multiple data-c="foto" data-l="${esc(lojaId)}" data-d="${d}" data-p="${esc(pid)}"></label>` : ''}
+    ${podeEscrever() && (!S.isAdmin || its.length === 0) && (S.isAdmin || lojaId === minhaLoja()) ? `<div class="updup mt"><label class="upbtn">📷 Tirar foto<input type="file" accept="image/*" capture="environment" data-c="foto" data-l="${esc(lojaId)}" data-d="${d}" data-p="${esc(pid)}"></label><label class="upbtn">🖼️ Galeria<input type="file" accept="image/*" multiple data-c="foto" data-l="${esc(lojaId)}" data-d="${d}" data-p="${esc(pid)}"></label></div>` : ''}
     <div class="row mt"><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button></div>`);
   $('#sheet').dataset.foto = key;
 }
@@ -1441,10 +1441,13 @@ function abrirNovaAv() {
     <label class="f">Motivo da avaria</label><textarea id="av-m" placeholder="O que se passa? Ex.: não aquece, perde água, faz barulho, não liga…"></textarea>
     <label class="cbx mt"><input type="checkbox" id="av-p"> O equipamento está parado / não se pode usar</label>
     <label class="f">Foto (opcional)</label>
-    <label class="upbtn"><span id="av-fl">📷 Juntar foto</span><input type="file" accept="image/*" capture="environment" multiple id="av-f"></label>
+    <div class="updup"><label class="upbtn">📷 Tirar foto<input type="file" accept="image/*" capture="environment" id="av-f"></label><label class="upbtn">🖼️ Galeria<input type="file" accept="image/*" multiple id="av-g"></label></div>
+    <div class="muted" id="av-fl" style="font-size:13px;margin-top:4px"></div>
     <div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" data-a="avGuardar">Enviar</button></div>`);
   $('#av-e').onchange = e => { $('#av-eo').hidden = e.target.value !== '__outro'; if (!$('#av-eo').hidden) $('#av-eo').focus(); };
-  $('#av-f').onchange = () => { const n = $('#av-f').files.length; $('#av-fl').textContent = n ? `📷 ${n} foto${n > 1 ? 's' : ''} para enviar` : '📷 Juntar foto'; };
+  window.__avFiles = [];
+  const avJunta = inp => { window.__avFiles.push(...(inp.files || [])); inp.value = ''; const n = window.__avFiles.length; $('#av-fl').textContent = n ? `📎 ${n} foto${n > 1 ? 's' : ''} para enviar` : ''; };
+  $('#av-f').onchange = () => avJunta($('#av-f')); $('#av-g').onchange = () => avJunta($('#av-g'));
 }
 function abrirAv(id) {
   const a = S.avarias.find(x => x.id === id); if (!a) return;
@@ -1892,7 +1895,7 @@ const A = {
     if (!lojaId) { toast('Escolhe a loja.'); return; }
     if (!eq) { toast('Escolhe o equipamento.'); return; }
     if (motivo.length < 3) { toast('Escreve o motivo da avaria.'); return; }
-    const files = [...($('#av-f').files || [])]; const parado = $('#av-p').checked;
+    const files = [...(window.__avFiles || [])]; const parado = $('#av-p').checked;
     el.disabled = true; el.textContent = 'A enviar…';
     const fotos = [];
     for (const f of files) { if (!f.type.startsWith('image/')) continue; const it = await guardarImagem(f, { lojaId, avaria: true }); if (it) fotos.push(it); }
