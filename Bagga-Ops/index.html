@@ -175,6 +175,7 @@ tr.click{cursor:pointer} tr.click:hover td{background:#FFFBF2}
 .banner .big{font-size:22px}
 .banner .bic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--custard-soft);color:var(--brand);flex:none}
 .banner .bic svg{width:22px;height:22px}
+.invpop .c-inventarios svg{width:36px;height:36px}
 .c-fotos{background:#DBEAFE!important;color:#2563EB!important}.c-tarefas{background:#DCFCE7!important;color:#16A34A!important}.c-inventarios{background:#FEF3C7!important;color:#D97706!important}.c-caixa{background:#CCFBF1!important;color:#0D9488!important}.c-avarias{background:#FEE2E2!important;color:#DC2626!important}.c-encomendas{background:#EDE9FE!important;color:#7C3AED!important}.c-lojas{background:#E2E8F0!important;color:#475569!important}
 .gtab td,.gtab th{font-size:12.5px;padding:8px 6px}
 .gtab tr.selrow td{background:#FFF3DA}
@@ -750,11 +751,29 @@ function abrirFotos(lojaId, d, pid) {
 /* ---------- inventários ---------- */
 const fimSemana = () => { const d = new Date(); d.setDate(d.getDate() + ((7 - d.getDay()) % 7)); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const invFim = i => i.dataFim || i.data;
+let invAvisoMostrado = false;
+function avisoInventario() {
+  if (invAvisoMostrado || S.isAdmin || !minhaLoja() || !podeEscrever() || !S.loaded.inventarios) return;
+  if (!$('#modal').hidden) return;
+  const h = hoje();
+  const lst = S.inventarios.filter(i => i.lojaId === minhaLoja() && i.estado !== 'feito' && i.data <= h && invFim(i) >= h && !(i.conhecimento && i.conhecimento.dia === h));
+  if (!lst.length) return;
+  invAvisoMostrado = true;
+  abrirModal(`<div class="invpop" style="text-align:center;padding:6px 4px">
+    <div class="c-inventarios" style="width:68px;height:68px;border-radius:20px;margin:0 auto 12px;display:grid;place-items:center">${icone('inventarios')}</div>
+    <h2 style="margin:0 0 6px">Hoje é dia de inventário</h2>
+    <p class="muted" style="margin:0 0 12px">A ${esc(nomeLoja(minhaLoja()))} tem de realizar:</p>
+    ${lst.map(i => `<div class="card" style="padding:10px 12px;margin-bottom:6px;text-align:left"><b>${i.tipo === 'global' ? 'Inventário global' : esc(invTipoTxt(i))}</b>${i.hora ? ` <span class="muted">às ${esc(i.hora)}</span>` : ''}${i.dataFim && i.dataFim !== i.data ? `<div class="muted" style="font-size:12.5px">Prazo até ${esc(fmtData(i.dataFim))}</div>` : ''}</div>`).join('')}
+    <p class="muted" style="font-size:12.5px;margin:10px 0 14px">Depois de o fazer, regista o resultado no separador Inventários.</p>
+    <button class="btn pri" style="width:100%;padding:13px;font-size:15px" data-a="invConhecimento" data-ids="${esc(lst.map(i => i.id).join(','))}">✓ Tomei conhecimento</button></div>`);
+}
 const invAtraso = i => i.estado !== 'feito' && invFim(i) < hoje();
 const invDatas = i => i.dataFim && i.dataFim !== i.data ? `${fmtData(i.data).slice(0, 5)} a ${fmtData(i.dataFim)}` : fmtData(i.data);
-function invTipoTxt(i) { return i.tipo === 'global' ? 'Global' : 'Parcial · ' + (i.categorias || []).map(c => INV_CAT_NOME[c] || c).join(', '); }
+function invTipoTxt(i) { return i.tipo === 'global' ? 'Global' : 'Parcial · ' + invCats(i).map(c => INV_CAT_NOME[c] || c).join(', '); }
 const eur = v => (v == null || isNaN(v)) ? '—' : new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v);
-const invCats = i => i.tipo === 'global' ? ['global'] : (i.categorias || []);
+const lojaSemJSC = id => { const l = S.lojas.find(x => x.id === id); return !!(l && l.semJSC); };
+const invCats = i => i.tipo === 'global' ? ['global'] : (i.categorias || []).filter(c => !(c === 'jsc' && lojaSemJSC(i.lojaId)));
+const filtraInv = arr => arr.filter(i => i.tipo === 'global' || invCats(i).length);
 const catNome = c => c === 'global' ? 'Global' : (INV_CAT_NOME[c] || c);
 const catCurto = c => c === 'jsc' ? 'JSC' : catNome(c);
 const invTotal = i => i.resultado ? (i.resultado.linhas || []).reduce((s, l) => s + (+l.valor || 0), 0) : null;
@@ -765,10 +784,11 @@ function invHTML(i, mostrarLoja = true) {
   const st = feito ? (i.resultado ? `<span class="pill ${tot < 0 ? 'bad' : 'ok'}">Resultado ${eur(tot)}</span>` : `<span class="pill ok">✓ Feito</span>`)
     : invFim(i) < h ? '<span class="pill bad">Sem resultado</span>' : (i.data <= h && h <= invFim(i)) ? `<span class="pill warn">${i.dataFim ? 'Esta semana · ' + invDatas(i) : 'Hoje'}</span>` : `<span class="pill">${invDatas(i)}</span>`;
   const podeReg = !feito && podeEscrever() && i.data <= fimSemana();
+  const ckp = !feito && i.conhecimento && i.conhecimento.em ? `<span class="pill ok" title="${esc(i.conhecimento.nome || '')}">👁 Tomou conhecimento ${esc(fmtData(i.conhecimento.em.slice(0, 10)).slice(0, 5))} ${esc(new Date(i.conhecimento.em).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }))}</span>` : '';
   return `<div class="card task ${i.tipo === 'global' ? 'pri-alta' : 'pri-media'}" data-a="abrirInv" data-id="${esc(i.id)}">
     <div style="flex:1;min-width:0">
       <div class="tt">${i.tipo === 'global' ? '📦 Inventário global' : '🧾 ' + esc(invTipoTxt(i))}</div>
-      <div class="meta">${mostrarLoja ? `<span class="pill br">${esc(nomeLoja(i.lojaId))}</span>` : ''}${st}
+      <div class="meta">${mostrarLoja ? `<span class="pill br">${esc(nomeLoja(i.lojaId))}</span>` : ''}${st}${ckp}
         ${i.hora ? `<span>às ${esc(i.hora)}</span>` : ''}${i.notas ? '<span>· 📝</span>' : ''}${i.resultado && (i.resultado.fotos || []).length ? '<span>· 📷</span>' : ''}</div>
     </div>
     ${podeReg ? `<button class="btn sm pri" data-a="abrirInv" data-id="${esc(i.id)}">Registar resultado</button>` : ''}
@@ -779,7 +799,7 @@ function invBase() {
   let is = S.inventarios.filter(i => S.isAdmin || minhas.has(i.lojaId));
   if (S.fi.loja) is = is.filter(i => i.lojaId === S.fi.loja);
   if (S.fi.tipo === 'global') is = is.filter(i => i.tipo === 'global');
-  else if (S.fi.tipo) is = is.filter(i => i.tipo === 'parcial' && (i.categorias || []).includes(S.fi.tipo));
+  else if (S.fi.tipo) is = is.filter(i => i.tipo === 'parcial' && invCats(i).includes(S.fi.tipo));
   return is;
 }
 const mesTxt = m => { const s = new Date(m + '-15T12:00').toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }); return s.charAt(0).toUpperCase() + s.slice(1); };
@@ -1644,6 +1664,7 @@ function vLojas() {
     <div class="row"><b class="sp" style="font-size:16px">${esc(l.nome)}</b>
       <button class="btn sm ghost" data-a="renLoja" data-id="${esc(l.id)}">Renomear</button>
       <button class="btn sm ghost danger" data-a="delLoja" data-id="${esc(l.id)}">Remover</button></div>
+    <label class="cbx" style="margin-top:6px;font-size:13.5px"><input type="checkbox" data-c="lojaJSC" data-id="${esc(l.id)}" ${l.semJSC ? '' : 'checked'}> Tem Jogos Santa Casa (inventários JSC)</label>
     ${IS_PWA ? '' : `<div class="row mt">${gerentesDe(l).map(g => `<span class="chip">${esc(nomeM(g))}<button data-a="rmGerente" data-id="${esc(l.id)}" data-g="${esc(g)}" aria-label="Remover">✕</button></span>`).join('')}
       <button class="btn sm" data-a="addGerente" data-id="${esc(l.id)}">+ Gerente</button></div>`}
   </div>`).join('') : '<div class="card empty">Ainda sem lojas.</div>'}</div>
@@ -1841,6 +1862,7 @@ const A = {
   },
   qcApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar esta quebra de caixa?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('quebrasCaixa/' + id).delete(), 'Apagada'); } },
   abrirEnc: el => abrirEnc(el.dataset.id),
+  invConhecimento: async el => { const h = hoje(); const ids = (el.dataset.ids || '').split(',').filter(Boolean); el.disabled = true; const ok = await escrever(() => { const b = S.db.batch(); ids.forEach(id => b.update(S.db.doc('inventarios/' + id), { conhecimento: { dia: h, em: new Date().toISOString(), por: S.me || null, nome: (window.PWA_INFO && window.PWA_INFO.nome) || '' } })); return b.commit(); }, 'Obrigado! Bom inventário.'); if (ok) fecharModal(); else el.disabled = false; },
   encExtraAdd: () => { $('#en-extra').insertAdjacentHTML('beforeend', encExtraRow()); const ns = document.querySelectorAll('.enx-n'); ns[ns.length - 1].focus(); },
   encExtraRm: el => { const r = el.closest('.enx'); if (document.querySelectorAll('.enx').length > 1) r.remove(); else { r.querySelector('.enx-n').value = ''; r.querySelector('.enx-q').value = ''; } },
   feModo: el => { S.fe.modo = el.dataset.v; render(); },
@@ -2051,6 +2073,7 @@ const C = {
   fqLoja: el => { S.fq.loja = el.value; render(); },
   faLoja: el => { S.fa.loja = el.value; render(); },
   cxSo: el => { S.fq.so20 = el.checked; render(); },
+  lojaJSC: el => escrever(() => S.db.doc('lojas/' + el.dataset.id).update({ semJSC: !el.checked }), el.checked ? 'A loja passa a ter inventários JSC' : 'Inventários JSC escondidos para esta loja'),
   cxReg: el => { cxGuardar(el.dataset.id, 'registo', el.value); const n = el.closest('.cxrow').querySelector('[data-c="cxNum"]'); n.disabled = el.value !== 'sim'; if (el.value === 'sim') n.focus(); else n.value = ''; },
   cxNum: el => { const k = el.dataset.id + '|nRegisto'; clearTimeout((cxPend.get(k) || {}).t); cxPend.delete(k); cxGuardar(el.dataset.id, 'nRegisto', el.value.trim()); },
   cxJust: el => { const k = el.dataset.id + '|justificacao'; clearTimeout((cxPend.get(k) || {}).t); cxPend.delete(k); cxGuardar(el.dataset.id, 'justificacao', el.value.trim()); },
@@ -2173,6 +2196,7 @@ async function init() {
   db.collection('membros').limit(500).onSnapshot(snap => { S.membros = docs(snap); S.loaded.membros = true; carregarPerfis(S.membros.map(m => m.id)); renderDados(); }, () => { S.loaded.membros = true; renderDados(); });
   db.collection('lojas').onSnapshot(snap => {
     S.lojas = docs(snap).sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt'));
+    if (S.invRaw) S.inventarios = filtraInv(S.invRaw);
     S.loaded.lojas = true; confirma(snap);
     carregarPerfis(S.lojas.flatMap(l => l.gerentes || []));
     renderDados();
@@ -2210,7 +2234,8 @@ async function init() {
   }, erro);
   db.doc('config/palamenta').onSnapshot(snap => { if (snap.exists && snap.data().lista) S.palamenta = snap.data().lista; }, () => {});
   db.collection('inventarios').where('data', '>=', addDias(-120)).limit(1000).onSnapshot(snap => {
-    S.inventarios = docs(snap); S.loaded.inventarios = true; confirma(snap);
+    S.invRaw = docs(snap); S.inventarios = filtraInv(S.invRaw); S.loaded.inventarios = true; confirma(snap);
+    setTimeout(avisoInventario, 600);
     carregarPerfis(S.inventarios.flatMap(i => [i.feitoPor, i.resultado && i.resultado.por]));
     renderDados();
   }, erro);
