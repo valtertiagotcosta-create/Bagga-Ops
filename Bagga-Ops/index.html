@@ -620,6 +620,7 @@ function vInicio() {
 }
 
 function vTarefas() {
+  if (S.isAdmin && !S.f.estadoIni) { S.f.estado = 'todas'; S.f.estadoIni = true; }
   let ts = S.tarefas.slice();
   if (!S.isAdmin) { const ids = new Set(minhasLojas().map(l => l.id)); ts = ts.filter(t => ids.has(t.lojaId)); }
   if (S.f.loja) ts = ts.filter(t => t.lojaId === S.f.loja);
@@ -628,7 +629,7 @@ function vTarefas() {
   else if (S.f.estado === 'atrasadas') ts = ts.filter(atrasada);
   else if (S.f.estado === 'feitas') ts = ts.filter(t => t.estado === 'feita');
   ts.sort(ordenarTarefas);
-  const seg = [['abertas','Por fazer'],['atrasadas','Atrasadas'],['feitas','Concluídas'],['todas','Todas']];
+  const seg = [['todas','Separadas'],['abertas','Por fazer'],['atrasadas','Atrasadas'],['feitas','Concluídas']];
   return `
   <div class="row"><h2 class="sp">Tarefas e pendentes</h2>${podeEscrever() ? '<button class="btn pri" data-a="novaTarefa">+ Nova tarefa</button>' : ''}</div>
   <div class="filters">
@@ -636,7 +637,13 @@ function vTarefas() {
     <label class="cbx card" style="padding:8px 12px;box-shadow:none"><input type="checkbox" data-c="fMinhas" ${S.f.minhas ? 'checked' : ''}> Só as minhas</label>
     <div class="seg">${seg.map(([k, l]) => `<button class="${S.f.estado === k ? 'on' : ''}" data-a="fEstado" data-v="${k}">${l}</button>`).join('')}</div>
   </div>
-  <div class="list">${ts.length ? ts.map(t => tarefaHTML(t, !S.f.loja)).join('') : `<div class="card empty">${S.loaded.tarefas ? 'Sem tarefas com estes filtros.' : 'A carregar…'}</div>`}</div>`;
+  ${S.f.estado === 'todas' && ts.length ? (() => {
+    const pf = ts.filter(t => t.estado !== 'feita'), fe = ts.filter(t => t.estado === 'feita').sort((a, b) => String(b.concluidaEm || '').localeCompare(String(a.concluidaEm || '')));
+    return `<div class="cxsec bad" style="font-size:14px">⚠️ Por fazer (${pf.length})</div>
+    <div class="list">${pf.length ? pf.map(t => tarefaHTML(t, !S.f.loja)).join('') : '<div class="card empty">Não há tarefas por fazer. 👏</div>'}</div>
+    <details class="cxfeit" style="margin-top:14px" ${pf.length ? '' : 'open'}><summary class="cxsec ok" style="font-size:14px">✓ Feitas pelas lojas (${fe.length})</summary>
+    <div class="list">${fe.length ? fe.map(t => tarefaHTML(t, !S.f.loja)).join('') : '<div class="card empty">Ainda nenhuma tarefa concluída.</div>'}</div></details>`;
+  })() : `<div class="list">${ts.length ? ts.map(t => tarefaHTML(t, !S.f.loja)).join('') : `<div class="card empty">${S.loaded.tarefas ? 'Sem tarefas com estes filtros.' : 'A carregar…'}</div>`}</div>`}`;
 }
 
 function vVisitas() {
