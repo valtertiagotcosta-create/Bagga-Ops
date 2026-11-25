@@ -1339,7 +1339,7 @@ function abrirNovaAv() {
     <label class="f">Motivo da avaria</label><textarea id="av-m" placeholder="O que se passa? Ex.: não aquece, perde água, faz barulho, não liga…"></textarea>
     <label class="cbx mt"><input type="checkbox" id="av-p"> O equipamento está parado / não se pode usar</label>
     <label class="f">Foto (opcional)</label>
-    <label class="upbtn"><span id="av-fl">📷 Juntar foto</span><input type="file" accept="image/*" multiple id="av-f"></label>
+    <label class="upbtn"><span id="av-fl">📷 Juntar foto</span><input type="file" accept="image/*" capture="environment" multiple id="av-f"></label>
     <div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn" data-a="fechar">Cancelar</button><button class="btn pri" data-a="avGuardar">Enviar</button></div>`);
   $('#av-e').onchange = e => { $('#av-eo').hidden = e.target.value !== '__outro'; if (!$('#av-eo').hidden) $('#av-eo').focus(); };
   $('#av-f').onchange = () => { const n = $('#av-f').files.length; $('#av-fl').textContent = n ? `📷 ${n} foto${n > 1 ? 's' : ''} para enviar` : '📷 Juntar foto'; };
