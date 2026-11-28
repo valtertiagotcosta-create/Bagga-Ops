@@ -1460,7 +1460,7 @@ function mailAssistencia(lst) {
     <label class="f">Para</label><input type="text" inputmode="email" id="ml-to" placeholder="email da assistência técnica (opcional)">
     <label class="f">Assunto</label><input type="text" id="ml-s" value="${esc(assunto)}">
     <label class="f">Mensagem</label><textarea id="ml-b" style="min-height:300px;font-size:13.5px;line-height:1.45">${esc(corpo)}</textarea>
-    <div class="row mt" style="gap:8px;flex-wrap:wrap"><button class="btn" data-a="mlCopiar" data-v="s">Copiar assunto</button><button class="btn" data-a="mlCopiar" data-v="b">Copiar mensagem</button><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button><button class="btn pri" data-a="mlAbrir">Abrir no email</button></div>`);
+    <div class="row mt" style="gap:8px;flex-wrap:wrap"><button class="btn" data-a="mlCopiar" data-v="s">Copiar assunto</button><button class="btn" data-a="mlCopiar" data-v="b">Copiar mensagem</button><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button><button class="btn" data-a="mlAbrir">Outra app de email</button><button class="btn pri" data-a="mlOutlook">Abrir no Outlook (vtcosta@mc.pt)</button></div>`);
 }
 function abrirAv(id) {
   const a = S.avarias.find(x => x.id === id); if (!a) return;
@@ -1965,6 +1965,7 @@ const A = {
   planoAbrir: el => abrirPlano(el.dataset.id || null),
   avMail: el => { const lst = el.dataset.id ? S.avarias.filter(a => a.id === el.dataset.id) : S.avarias.filter(a => a.lojaId === el.dataset.l && a.estado !== 'resolvida').sort((a, b) => (b.parado ? 1 : 0) - (a.parado ? 1 : 0) || (a.criadoEm || '').localeCompare(b.criadoEm || '')); if (lst.length) mailAssistencia(lst); },
   mlCopiar: async el => { const t = el.dataset.v === 's' ? $('#ml-s').value : $('#ml-b').value; try { await navigator.clipboard.writeText(t); toast(el.dataset.v === 's' ? 'Assunto copiado' : 'Mensagem copiada'); } catch (e) { const x = el.dataset.v === 's' ? $('#ml-s') : $('#ml-b'); x.select(); document.execCommand('copy'); toast('Copiado'); } },
+  mlOutlook: () => { const q = new URLSearchParams({ to: $('#ml-to').value.trim(), subject: $('#ml-s').value, body: $('#ml-b').value, login_hint: 'vtcosta@mc.pt' }); window.open('https://outlook.office.com/mail/deeplink/compose?' + q.toString().replace(/\+/g, '%20'), '_blank'); },
   mlAbrir: () => { location.href = `mailto:${encodeURIComponent($('#ml-to').value.trim())}?subject=${encodeURIComponent($('#ml-s').value)}&body=${encodeURIComponent($('#ml-b').value)}`; },
   tarAvisoVer: () => { fecharModal(); S.view = 'tarefas'; S.f.estado = 'abertas'; render(); window.scrollTo(0, 0); },
   planoVoz: () => { const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) { toast('Este telemóvel não suporta ditado na app.'); return; } const r = new SR(); r.lang = 'pt-PT'; r.interimResults = false; r.maxAlternatives = 1; r.onresult = e => { const t = e.results[0][0].transcript; const i = $('#plano-rapido'); if (i) { i.value = t; A.planoRapido(); } }; r.onerror = () => toast('Não percebi. Tenta outra vez.'); r.start(); toast('🎤 A ouvir… diz o que tens de resolver'); },
