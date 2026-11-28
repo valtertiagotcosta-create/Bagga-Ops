@@ -1460,7 +1460,7 @@ function mailAssistencia(lst) {
     <label class="f">Para</label><input type="text" inputmode="email" id="ml-to" placeholder="email da assistência técnica (opcional)">
     <label class="f">Assunto</label><input type="text" id="ml-s" value="${esc(assunto)}">
     <label class="f">Mensagem</label><textarea id="ml-b" style="min-height:300px;font-size:13.5px;line-height:1.45">${esc(corpo)}</textarea>
-    <div class="row mt" style="gap:8px;flex-wrap:wrap"><button class="btn" data-a="mlCopiar" data-v="s">Copiar assunto</button><button class="btn" data-a="mlCopiar" data-v="b">Copiar mensagem</button><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button><button class="btn" data-a="mlAbrir">Outra app de email</button><button class="btn pri" data-a="mlOutlook">Abrir no Outlook (vtcosta@mc.pt)</button></div>`);
+    <div class="row mt" style="gap:8px;flex-wrap:wrap"><button class="btn" data-a="mlCopiar" data-v="s">Copiar assunto</button><button class="btn" data-a="mlCopiar" data-v="b">Copiar mensagem</button><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button><button class="btn pri" data-a="mlOutlook">✉️ Enviar mail</button></div>`);
 }
 function abrirAv(id) {
   const a = S.avarias.find(x => x.id === id); if (!a) return;
