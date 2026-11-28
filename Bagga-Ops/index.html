@@ -1457,7 +1457,7 @@ function mailAssistencia(lst) {
   const corpo = `Bom dia,\n\nVenho por este meio solicitar assistência técnica para ${um ? 'o seguinte equipamento' : 'os seguintes equipamentos'} da loja ${loja}:\n\n${linhas}\n\nAgradeço o agendamento da intervenção com a maior brevidade possível${parados ? ', uma vez que há equipamento parado que está a afetar a operação da loja' : ''}. Peço que me indiquem a data e a hora previstas para a visita do técnico.\n\nFico ao dispor para qualquer esclarecimento.\n\nCom os melhores cumprimentos,\n${quem}\nGestor Operacional – Bagga`;
   abrirModal(`<h2 style="margin-top:0">✉️ Pedido de assistência</h2>
     <p class="muted" style="margin:-4px 0 10px;font-size:13px">${esc(loja)} · ${lst.length} equipamento${um ? '' : 's'}. Revê o texto, copia e cola no teu email.</p>
-    <label class="f">Para</label><input type="email" id="ml-to" placeholder="email da assistência técnica (opcional)">
+    <label class="f">Para</label><input type="text" inputmode="email" id="ml-to" placeholder="email da assistência técnica (opcional)">
     <label class="f">Assunto</label><input type="text" id="ml-s" value="${esc(assunto)}">
     <label class="f">Mensagem</label><textarea id="ml-b" style="min-height:300px;font-size:13.5px;line-height:1.45">${esc(corpo)}</textarea>
     <div class="row mt" style="gap:8px;flex-wrap:wrap"><button class="btn" data-a="mlCopiar" data-v="s">Copiar assunto</button><button class="btn" data-a="mlCopiar" data-v="b">Copiar mensagem</button><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button><button class="btn pri" data-a="mlAbrir">Abrir no email</button></div>`);
