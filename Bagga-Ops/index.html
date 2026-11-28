@@ -1449,18 +1449,39 @@ function abrirNovaAv() {
   const avJunta = inp => { window.__avFiles.push(...(inp.files || [])); inp.value = ''; const n = window.__avFiles.length; $('#av-fl').textContent = n ? `📎 ${n} foto${n > 1 ? 's' : ''} para enviar` : ''; };
   $('#av-f').onchange = () => avJunta($('#av-f')); $('#av-g').onchange = () => avJunta($('#av-g'));
 }
-function mailAssistencia(lst) {
-  const loja = nomeLoja(lst[0].lojaId), um = lst.length === 1, parados = lst.some(a => a.parado);
+function textoAssistencia(lst) {
+  const loja = nomeLoja(lst[0].lojaId), um = lst.length === 1;
   const assunto = `Pedido de assistência técnica – ${loja} – ${um ? lst[0].equipamento : lst.length + ' equipamentos'}`;
   const linhas = lst.map((a, i) => `${i + 1}. ${a.equipamento}${a.parado ? ' (EQUIPAMENTO PARADO)' : ''}\n   Avaria: ${(a.motivo || '').replace(/\s+/g, ' ').trim()}${a.nAssistencia ? `\n   Nº de assistência: ${a.nAssistencia}` : ''}`).join('\n\n');
   const quem = (window.PWA_INFO && window.PWA_INFO.nome) || 'Valter Costa';
   const corpo = `Bom dia,\n\nVenho por este meio solicitar assistência técnica para ${um ? 'o seguinte equipamento' : 'os seguintes equipamentos'} da loja ${loja}:\n\n${linhas}\n\nPeço que me indiquem a data e a hora previstas para a visita do técnico.\n\nFico ao dispor para qualquer esclarecimento.\n\nCom os melhores cumprimentos,\n${quem}\nGestor Operacional – Bagga`;
+  return { assunto, corpo };
+}
+function mlRegen() {
+  const all = window.__mlLst || []; const sel = all.filter((a, i) => { const c = document.getElementById('mlc-' + i); return !c || c.checked; });
+  const t = $('#ml-tudo'); if (t) t.checked = sel.length === all.length;
+  const n = $('#ml-n'); if (n) n.textContent = `${sel.length} de ${all.length} selecionado${sel.length === 1 ? '' : 's'}`;
+  $('#ml-env').disabled = !sel.length;
+  if (!sel.length) { $('#ml-s').value = ''; $('#ml-b').value = ''; return; }
+  const x = textoAssistencia(sel); $('#ml-s').value = x.assunto; $('#ml-b').value = x.corpo;
+}
+function mlTodos(v) { (window.__mlLst || []).forEach((a, i) => { const c = document.getElementById('mlc-' + i); if (c) c.checked = v; }); mlRegen(); }
+function mailAssistencia(lst) {
+  window.__mlLst = lst;
+  const loja = nomeLoja(lst[0].lojaId), um = lst.length === 1;
+  const escolha = um ? '' : `<label class="f">Equipamentos a incluir</label>
+    <div class="card" style="padding:8px 12px;margin-bottom:6px">
+      <label class="cbx" style="font-weight:700;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px"><input type="checkbox" id="ml-tudo" checked onchange="mlTodos(this.checked)"> Todos <span class="muted" id="ml-n" style="font-weight:400;margin-left:auto;font-size:12.5px">${lst.length} de ${lst.length} selecionados</span></label>
+      ${lst.map((a, i) => `<label class="cbx" style="padding:5px 0"><input type="checkbox" id="mlc-${i}" checked onchange="mlRegen()"> ${esc(a.equipamento)}${a.parado ? ' <span class="pill bad">Parado</span>' : ''}</label>`).join('')}
+    </div>`;
   abrirModal(`<h2 style="margin-top:0">✉️ Pedido de assistência</h2>
-    <p class="muted" style="margin:-4px 0 10px;font-size:13px">${esc(loja)} · ${lst.length} equipamento${um ? '' : 's'}. Revê o texto, copia e cola no teu email.</p>
+    <p class="muted" style="margin:-4px 0 10px;font-size:13px">${esc(loja)}${um ? '' : ' · escolhe os equipamentos'}. Revê o texto antes de enviar.</p>
+    ${escolha}
     <label class="f">Para</label><input type="text" inputmode="email" id="ml-to" placeholder="email da assistência técnica (opcional)">
-    <label class="f">Assunto</label><input type="text" id="ml-s" value="${esc(assunto)}">
-    <label class="f">Mensagem</label><textarea id="ml-b" style="min-height:300px;font-size:13.5px;line-height:1.45">${esc(corpo)}</textarea>
-    <div class="row mt" style="gap:8px;flex-wrap:wrap"><button class="btn" data-a="mlCopiar" data-v="s">Copiar assunto</button><button class="btn" data-a="mlCopiar" data-v="b">Copiar mensagem</button><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button><button class="btn pri" data-a="mlOutlook">✉️ Enviar mail</button></div>`);
+    <label class="f">Assunto</label><input type="text" id="ml-s">
+    <label class="f">Mensagem</label><textarea id="ml-b" style="min-height:280px;font-size:13.5px;line-height:1.45"></textarea>
+    <div class="row mt" style="gap:8px;flex-wrap:wrap"><button class="btn" data-a="mlCopiar" data-v="s">Copiar assunto</button><button class="btn" data-a="mlCopiar" data-v="b">Copiar mensagem</button><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button><button class="btn pri" id="ml-env" data-a="mlOutlook">✉️ Enviar mail</button></div>`);
+  mlRegen();
 }
 function abrirAv(id) {
   const a = S.avarias.find(x => x.id === id); if (!a) return;
