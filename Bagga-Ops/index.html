@@ -1452,9 +1452,9 @@ function abrirNovaAv() {
 function mailAssistencia(lst) {
   const loja = nomeLoja(lst[0].lojaId), um = lst.length === 1, parados = lst.some(a => a.parado);
   const assunto = `Pedido de assistência técnica – ${loja} – ${um ? lst[0].equipamento : lst.length + ' equipamentos'}`;
-  const linhas = lst.map((a, i) => `${i + 1}. ${a.equipamento}${a.parado ? ' (EQUIPAMENTO PARADO)' : ''}\n   Avaria: ${(a.motivo || '').replace(/\s+/g, ' ').trim()}\n   Avariado desde: ${fmtData(a.criadoEm)}${a.nAssistencia ? `\n   Nº de assistência: ${a.nAssistencia}` : ''}`).join('\n\n');
+  const linhas = lst.map((a, i) => `${i + 1}. ${a.equipamento}${a.parado ? ' (EQUIPAMENTO PARADO)' : ''}\n   Avaria: ${(a.motivo || '').replace(/\s+/g, ' ').trim()}${a.nAssistencia ? `\n   Nº de assistência: ${a.nAssistencia}` : ''}`).join('\n\n');
   const quem = (window.PWA_INFO && window.PWA_INFO.nome) || 'Valter Costa';
-  const corpo = `Bom dia,\n\nVenho por este meio solicitar assistência técnica para ${um ? 'o seguinte equipamento' : 'os seguintes equipamentos'} da loja ${loja}:\n\n${linhas}\n\nAgradeço o agendamento da intervenção com a maior brevidade possível${parados ? ', uma vez que há equipamento parado que está a afetar a operação da loja' : ''}. Peço que me indiquem a data e a hora previstas para a visita do técnico.\n\nFico ao dispor para qualquer esclarecimento.\n\nCom os melhores cumprimentos,\n${quem}\nGestor Operacional – Bagga`;
+  const corpo = `Bom dia,\n\nVenho por este meio solicitar assistência técnica para ${um ? 'o seguinte equipamento' : 'os seguintes equipamentos'} da loja ${loja}:\n\n${linhas}\n\nPeço que me indiquem a data e a hora previstas para a visita do técnico.\n\nFico ao dispor para qualquer esclarecimento.\n\nCom os melhores cumprimentos,\n${quem}\nGestor Operacional – Bagga`;
   abrirModal(`<h2 style="margin-top:0">✉️ Pedido de assistência</h2>
     <p class="muted" style="margin:-4px 0 10px;font-size:13px">${esc(loja)} · ${lst.length} equipamento${um ? '' : 's'}. Revê o texto, copia e cola no teu email.</p>
     <label class="f">Para</label><input type="text" inputmode="email" id="ml-to" placeholder="email da assistência técnica (opcional)">
