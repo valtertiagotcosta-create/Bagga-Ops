@@ -1428,8 +1428,8 @@ function vAvarias() {
   </div>
   ${!lojasSel.length ? '<div class="card empty">Ainda não estás associado a nenhuma loja.</div>'
     : !as.length ? `<div class="card empty">${S.loaded.avarias ? (S.fa.estado === 'abertas' ? 'Nenhum equipamento avariado. 👍' : 'Sem registos.') : 'A carregar…'}</div>`
-    : grupos.length ? grupos.map(x => `<h3>${esc(x.l.nome)}</h3><div class="list">${x.g.map(a => avHTML(a, false)).join('')}</div>`).join('')
-    : `<div class="list">${as.map(a => avHTML(a, false)).join('')}</div>`}`;
+    : grupos.length ? grupos.map(x => { const ab = x.l.id ? x.g.filter(a => a.estado !== 'resolvida') : []; return `<div class="row" style="margin-top:14px"><h3 class="sp" style="margin:0">${esc(x.l.nome)}</h3>${S.isAdmin && ab.length ? `<button class="btn sm" data-a="avMail" data-l="${esc(x.l.id)}">✉️ Pedir assistência${ab.length > 1 ? ` (todos: ${ab.length})` : ''}</button>` : ''}</div><div class="list" style="margin-top:8px">${x.g.map(a => avHTML(a, false)).join('')}</div>`; }).join('')
+    : `${S.isAdmin && S.fa.loja && as.some(a => a.estado !== 'resolvida') ? `<div class="row" style="margin-bottom:8px"><span class="sp"></span><button class="btn sm" data-a="avMail" data-l="${esc(S.fa.loja)}">✉️ Pedir assistência (todos os avariados desta loja)</button></div>` : ''}<div class="list">${as.map(a => avHTML(a, false)).join('')}</div>`}`;
 }
 function abrirNovaAv() {
   const ml = S.isAdmin ? S.lojas : minhasLojas();
@@ -1449,11 +1449,25 @@ function abrirNovaAv() {
   const avJunta = inp => { window.__avFiles.push(...(inp.files || [])); inp.value = ''; const n = window.__avFiles.length; $('#av-fl').textContent = n ? `📎 ${n} foto${n > 1 ? 's' : ''} para enviar` : ''; };
   $('#av-f').onchange = () => avJunta($('#av-f')); $('#av-g').onchange = () => avJunta($('#av-g'));
 }
+function mailAssistencia(lst) {
+  const loja = nomeLoja(lst[0].lojaId), um = lst.length === 1, parados = lst.some(a => a.parado);
+  const assunto = `Pedido de assistência técnica – ${loja} – ${um ? lst[0].equipamento : lst.length + ' equipamentos'}`;
+  const linhas = lst.map((a, i) => `${i + 1}. ${a.equipamento}${a.parado ? ' (EQUIPAMENTO PARADO)' : ''}\n   Avaria: ${(a.motivo || '').replace(/\s+/g, ' ').trim()}\n   Avariado desde: ${fmtData(a.criadoEm)}${a.nAssistencia ? `\n   Nº de assistência: ${a.nAssistencia}` : ''}`).join('\n\n');
+  const quem = (window.PWA_INFO && window.PWA_INFO.nome) || 'Valter Costa';
+  const corpo = `Bom dia,\n\nVenho por este meio solicitar assistência técnica para ${um ? 'o seguinte equipamento' : 'os seguintes equipamentos'} da loja ${loja}:\n\n${linhas}\n\nAgradeço o agendamento da intervenção com a maior brevidade possível${parados ? ', uma vez que há equipamento parado que está a afetar a operação da loja' : ''}. Peço que me indiquem a data e a hora previstas para a visita do técnico.\n\nFico ao dispor para qualquer esclarecimento.\n\nCom os melhores cumprimentos,\n${quem}\nGestor Operacional – Bagga`;
+  abrirModal(`<h2 style="margin-top:0">✉️ Pedido de assistência</h2>
+    <p class="muted" style="margin:-4px 0 10px;font-size:13px">${esc(loja)} · ${lst.length} equipamento${um ? '' : 's'}. Revê o texto, copia e cola no teu email.</p>
+    <label class="f">Para</label><input type="email" id="ml-to" placeholder="email da assistência técnica (opcional)">
+    <label class="f">Assunto</label><input type="text" id="ml-s" value="${esc(assunto)}">
+    <label class="f">Mensagem</label><textarea id="ml-b" style="min-height:300px;font-size:13.5px;line-height:1.45">${esc(corpo)}</textarea>
+    <div class="row mt" style="gap:8px;flex-wrap:wrap"><button class="btn" data-a="mlCopiar" data-v="s">Copiar assunto</button><button class="btn" data-a="mlCopiar" data-v="b">Copiar mensagem</button><span class="sp"></span><button class="btn" data-a="fechar">Fechar</button><button class="btn pri" data-a="mlAbrir">Abrir no email</button></div>`);
+}
 function abrirAv(id) {
   const a = S.avarias.find(x => x.id === id); if (!a) return;
   const pw = podeEscrever();
   abrirModal(`
     <div class="row"><h2 class="sp" style="margin:0">🔧 ${esc(a.equipamento)}</h2>${avPill(a.estado)}</div>
+    ${S.isAdmin && a.estado !== 'resolvida' ? `<button class="btn sm mt" data-a="avMail" data-id="${esc(a.id)}">✉️ Pedir assistência deste equipamento</button>` : ''}
     <div class="muted" style="margin:4px 0 10px">${esc(nomeLoja(a.lojaId))} · reportado por ${esc(nome(a.criadoPor))} em ${fmtDataHora(a.criadoEm)}${a.parado ? ' · <b style="color:var(--bad)">equipamento parado</b>' : ''}</div>
     <div class="note"><small>Motivo da avaria</small><div style="white-space:pre-wrap">${esc(a.motivo)}</div></div>
     ${(a.fotos || []).length ? `<div class="bigph mt">${a.fotos.map(f => `<figure>${imgTag(f)}</figure>`).join('')}</div>` : ''}
@@ -1949,6 +1963,9 @@ const A = {
   qcApagar: async el => { const id = el.dataset.id; if (await confirmar('Apagar esta quebra de caixa?', 'Apagar')) { fecharModal(); await escrever(() => S.db.doc('quebrasCaixa/' + id).delete(), 'Apagada'); } },
   abrirEnc: el => abrirEnc(el.dataset.id),
   planoAbrir: el => abrirPlano(el.dataset.id || null),
+  avMail: el => { const lst = el.dataset.id ? S.avarias.filter(a => a.id === el.dataset.id) : S.avarias.filter(a => a.lojaId === el.dataset.l && a.estado !== 'resolvida').sort((a, b) => (b.parado ? 1 : 0) - (a.parado ? 1 : 0) || (a.criadoEm || '').localeCompare(b.criadoEm || '')); if (lst.length) mailAssistencia(lst); },
+  mlCopiar: async el => { const t = el.dataset.v === 's' ? $('#ml-s').value : $('#ml-b').value; try { await navigator.clipboard.writeText(t); toast(el.dataset.v === 's' ? 'Assunto copiado' : 'Mensagem copiada'); } catch (e) { const x = el.dataset.v === 's' ? $('#ml-s') : $('#ml-b'); x.select(); document.execCommand('copy'); toast('Copiado'); } },
+  mlAbrir: () => { location.href = `mailto:${encodeURIComponent($('#ml-to').value.trim())}?subject=${encodeURIComponent($('#ml-s').value)}&body=${encodeURIComponent($('#ml-b').value)}`; },
   tarAvisoVer: () => { fecharModal(); S.view = 'tarefas'; S.f.estado = 'abertas'; render(); window.scrollTo(0, 0); },
   planoVoz: () => { const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) { toast('Este telemóvel não suporta ditado na app.'); return; } const r = new SR(); r.lang = 'pt-PT'; r.interimResults = false; r.maxAlternatives = 1; r.onresult = e => { const t = e.results[0][0].transcript; const i = $('#plano-rapido'); if (i) { i.value = t; A.planoRapido(); } }; r.onerror = () => toast('Não percebi. Tenta outra vez.'); r.start(); toast('🎤 A ouvir… diz o que tens de resolver'); },
   planoRapido: async () => { const i = $('#plano-rapido'); const t = (i.value || '').trim(); if (!t) { i.focus(); return; } i.value = ''; await escrever(() => S.db.collection('planoPessoal').add({ titulo: t, estado: 'aberto', criadoEm: new Date().toISOString() }), 'Adicionado ao plano'); },
